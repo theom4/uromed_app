@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, FileText, Image, Activity, Settings } from 'lucide-react';
+import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -17,6 +17,8 @@ export default function Home() {
   const [medicalFiles, setMedicalFiles] = useState<File[]>([]);
   const [previousMedicalFiles, setPreviousMedicalFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedDocument, setGeneratedDocument] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -64,7 +66,8 @@ export default function Home() {
       });
       
       if (response.ok) {
-        alert('Document medical generat cu succes!');
+        const responseText = await response.text();
+        setGeneratedDocument(responseText);
       } else {
         alert('Eroare la generarea documentului. Încercați din nou.');
       }
@@ -73,6 +76,16 @@ export default function Home() {
       alert('Eroare la generarea documentului. Încercați din nou.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCopyDocument = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedDocument);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy text:', error);
     }
   };
 
@@ -287,15 +300,47 @@ export default function Home() {
         {/* Document General Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <FileText className="w-5 h-5 text-slate-600" />
-              <span>Document General</span>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2 text-slate-800">
+                <FileText className="w-5 h-5 text-slate-600" />
+                <span>Document General</span>
+              </CardTitle>
+              {generatedDocument && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyDocument}
+                  className="flex items-center space-x-2"
+                >
+                  {isCopied ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-green-600">Copiat!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>Copiază</span>
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="p-6">
-            <p className="text-slate-600 text-sm">
-              Documentul generat va fi disponibil după procesare. Vă rugăm să completați toate câmpurile necesare și să selectați tipul documentului dorit.
-            </p>
+            {generatedDocument ? (
+              <div className="space-y-4">
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
+                    {generatedDocument}
+                  </pre>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-600 text-sm">
+                Documentul generat va fi disponibil după procesare. Vă rugăm să completați toate câmpurile necesare și să selectați tipul documentului dorit.
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
