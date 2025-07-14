@@ -68,11 +68,13 @@ export default function Home() {
         const responseText = await response.text();
         setGeneratedDocument(responseText);
       } else {
-        alert('Eroare la generarea documentului. Încercați din nou.');
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        alert(`Eroare la generarea documentului (${response.status}): ${errorText || 'Încercați din nou.'}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Eroare la generarea documentului. Încercați din nou.');
+      alert(`Eroare la generarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea. Încercați din nou.'}`);
     } finally {
       setIsLoading(false);
     }
