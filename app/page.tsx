@@ -60,7 +60,6 @@ export default function Home() {
         formData.append(`previousMedicalFile_${index}`, file);
       });
       
-      const response = await fetch('https://n8n-g44t.onrender.com/webhook-test/test-wh', {
       const response = await fetch('http://n8n.voisero.info/webhook-test/uromed-app', {
         method: 'POST',
         body: formData,
