@@ -61,7 +61,7 @@ export default function Home() {
       });
       
       const response = await fetch('https://n8n-g44t.onrender.com/webhook-test/test-wh', {
-      const response = await fetch('http://n8n.voisero.info/webhook-test/c6b3f5ce-912d-47ba-9d39-5ae99f9dad84', {
+      const response = await fetch('http://n8n.voisero.info/webhook-test/uromed-app', {
         method: 'POST',
         body: formData,
       });
