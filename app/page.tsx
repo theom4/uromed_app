@@ -75,7 +75,7 @@ export default function Home() {
             
             // Extract content from iframe if present
             if (content.includes('<iframe srcdoc="')) {
-              const match = content.match(/srcdoc="([^"]*)">/);
+              const match = content.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
               if (match) {
                 content = match[1];
                 // Decode HTML entities
@@ -96,7 +96,7 @@ export default function Home() {
             
             // Extract content from iframe if present
             if (responseText.includes('<iframe srcdoc="')) {
-              const match = responseText.match(/srcdoc="([^"]*)">/);
+              const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
               if (match) {
                 responseText = match[1];
                 // Decode HTML entities
@@ -118,7 +118,7 @@ export default function Home() {
           
           // Extract content from iframe if present
           if (responseText.includes('<iframe srcdoc="')) {
-            const match = responseText.match(/srcdoc="([^"]*)">/);
+            const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
             if (match) {
               responseText = match[1];
               // Decode HTML entities
