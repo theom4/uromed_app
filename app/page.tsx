@@ -66,9 +66,16 @@ export default function Home() {
       });
       
       if (response.ok) {
-        const responseData = await response.json();
-        // Display the output field from the webhook response
-        setGeneratedDocument(responseData.output || 'Document generat cu succes!');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const responseData = await response.json();
+          // Display the output field from the webhook response
+          setGeneratedDocument(responseData.output || 'Document generat cu succes!');
+        } else {
+          // If not JSON, display the response as plain text
+          const responseText = await response.text();
+          setGeneratedDocument(responseText || 'Document generat cu succes!');
+        }
       } else {
         const errorText = await response.text();
         setGeneratedDocument(`Eroare la generarea documentului (${response.status}): ${errorText}`);
