@@ -69,26 +69,49 @@ export default function Home() {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           const responseData = await response.json();
-          // Display the output field from the webhook response
-          let content = responseData.output || 'Document generat cu succes!';
-          
-          // Extract content from iframe if present
-          if (content.includes('<iframe srcdoc="')) {
-            const match = content.match(/srcdoc="([^"]*)">/);
-            if (match) {
-              content = match[1];
-              // Decode HTML entities
-              content = content.replace(/&quot;/g, '"')
-                              .replace(/&amp;/g, '&')
-                              .replace(/&lt;/g, '<')
-                              .replace(/&gt;/g, '>');
+          try {
+            const responseData = await response.json();
+            let content = responseData.output || 'Document generat cu succes!';
+            
+            // Extract content from iframe if present
+            if (content.includes('<iframe srcdoc="')) {
+              const match = content.match(/srcdoc="([^"]*)">/);
+              if (match) {
+                content = match[1];
+                // Decode HTML entities
+                content = content.replace(/&quot;/g, '"')
+                                .replace(/&amp;/g, '&')
+                                .replace(/&lt;/g, '<')
+                                .replace(/&gt;/g, '>');
+              }
             }
+            
+            // Convert \n to actual newlines
+            content = content.replace(/\\n/g, '\n');
+            
+            setGeneratedDocument(content);
+          } catch (jsonError) {
+            // If JSON parsing fails, fallback to text parsing
+            let responseText = await response.text();
+            
+            // Extract content from iframe if present
+            if (responseText.includes('<iframe srcdoc="')) {
+              const match = responseText.match(/srcdoc="([^"]*)">/);
+              if (match) {
+                responseText = match[1];
+                // Decode HTML entities
+                responseText = responseText.replace(/&quot;/g, '"')
+                                         .replace(/&amp;/g, '&')
+                                         .replace(/&lt;/g, '<')
+                                         .replace(/&gt;/g, '>');
+              }
+            }
+            
+            // Convert \n to actual newlines
+            responseText = responseText.replace(/\\n/g, '\n');
+            
+            setGeneratedDocument(responseText || 'Document generat cu succes!');
           }
-          
-          // Convert \n to actual newlines
-          content = content.replace(/\\n/g, '\n');
-          
-          setGeneratedDocument(content);
         } else {
           // If not JSON, display the response as plain text
           let responseText = await response.text();
