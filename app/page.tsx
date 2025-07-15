@@ -59,37 +59,23 @@ export default function Home() {
       previousMedicalFiles.forEach((file, index) => {
         formData.append(`previousMedicalFile_${index}`, file);
       });
+      
       const response = await fetch('https://n8n.voisero.info/webhook-test/uromed-app', {
         method: 'POST',
-        mode: 'no-cors',
         body: formData,
       });
       
-      // With no-cors mode, we can't read the response
-      // We'll assume success if no error was thrown
-      setGeneratedDocument('Document generat cu succes! Verificați webhook-ul pentru rezultat.');
+      if (response.ok) {
+        const responseData = await response.json();
+        // Display the output field from the webhook response
+        setGeneratedDocument(responseData.output || 'Document generat cu succes!');
+      } else {
+        const errorText = await response.text();
+        setGeneratedDocument(`Eroare la generarea documentului (${response.status}): ${errorText}`);
+      }
     } catch (error) {
       console.error('Error:', error);
-      
-      // Try alternative approach with different headers
-      try {
-        const response = await fetch('http://n8n.voisero.info/webhook-test/uromed-app', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (response.ok) {
-          const responseText = await response.text();
-          setGeneratedDocument(responseText);
-        } else {
-          const errorText = await response.text();
-          const responseData = await response.text();
-          setGeneratedDocument(responseData);
-        }
-      } catch (secondError) {
-        console.error('Second attempt failed:', secondError);
-        setGeneratedDocument(`Eroare la generarea documentului (${response.status}): ${errorText || 'Încercați din nou.'}`);
-      }
+      setGeneratedDocument(`Eroare la generarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea. Verificați conexiunea și încercați din nou.'}`);
     } finally {
       setIsLoading(false);
     }
