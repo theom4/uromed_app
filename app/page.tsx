@@ -83,12 +83,12 @@ export default function Home() {
           setGeneratedDocument(responseText);
         } else {
           const errorText = await response.text();
-          console.error('API Error:', response.status, errorText);
-          alert(`Eroare la generarea documentului (${response.status}): ${errorText || 'Încercați din nou.'}`);
+        const responseData = await response.text();
+        setGeneratedDocument(responseData);
         }
       } catch (secondError) {
         console.error('Second attempt failed:', secondError);
-        alert(`Eroare la generarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea. Verificați conexiunea și încercați din nou.'}`);
+        setGeneratedDocument(`Eroare la generarea documentului (${response.status}): ${errorText || 'Încercați din nou.'}`);
       }
     } finally {
       setIsLoading(false);
@@ -102,7 +102,7 @@ export default function Home() {
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy text:', error);
-    }
+      setGeneratedDocument(`Eroare la generarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea. Verificați conexiunea și încercați din nou.'}`);
   };
 
   return (
