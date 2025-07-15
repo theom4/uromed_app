@@ -45,10 +45,13 @@ export default function Home() {
     try {
       const formData = new FormData();
       
-      // Add text data
-      formData.append('medicalInfo', medicalInfo);
-      formData.append('previousMedicalInfo', previousMedicalInfo);
-      formData.append('documentType', documentType);
+      // Add JSON body data
+      const bodyData = {
+        medicalInfo: medicalInfo,
+        previousMedicalInfo: previousMedicalInfo,
+        documentType: documentType
+      };
+      formData.append('body', JSON.stringify(bodyData));
       
       // Add medical files
       medicalFiles.forEach((file, index) => {
@@ -62,9 +65,6 @@ export default function Home() {
       const response = await fetch('https://n8n.voisero.info/webhook-test/uromed-app', {
         method: 'POST',
         mode: 'no-cors',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         body: formData,
       });
       
