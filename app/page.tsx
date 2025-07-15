@@ -45,13 +45,10 @@ export default function Home() {
     try {
       const formData = new FormData();
       
-      // Add JSON body data
-      const bodyData = {
-        medicalInfo: medicalInfo,
-        previousMedicalInfo: previousMedicalInfo,
-        documentType: documentType
-      };
-      formData.append('body', JSON.stringify(bodyData));
+      // Add data directly as JSON properties
+      formData.append('medicalInfo', medicalInfo);
+      formData.append('previousMedicalInfo', previousMedicalInfo);
+      formData.append('documentType', documentType);
       
       // Add medical files
       medicalFiles.forEach((file, index) => {
