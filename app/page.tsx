@@ -83,8 +83,8 @@ export default function Home() {
           setGeneratedDocument(responseText);
         } else {
           const errorText = await response.text();
-        const responseData = await response.text();
-        setGeneratedDocument(responseData);
+          const responseData = await response.text();
+          setGeneratedDocument(responseData);
         }
       } catch (secondError) {
         console.error('Second attempt failed:', secondError);
@@ -103,6 +103,7 @@ export default function Home() {
     } catch (error) {
       console.error('Failed to copy text:', error);
       setGeneratedDocument(`Eroare la generarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea. Verificați conexiunea și încercați din nou.'}`);
+    }
   };
 
   return (
