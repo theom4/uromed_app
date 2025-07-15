@@ -25,17 +25,17 @@ export default function Home() {
     
     const fileArray = Array.from(files);
     if (type === 'medical') {
-      setMedicalFiles(prev => [...prev, ...fileArray]);
+      setMedicalFiles((prev: File[]) => [...prev, ...fileArray]);
     } else {
-      setPreviousMedicalFiles(prev => [...prev, ...fileArray]);
+      setPreviousMedicalFiles((prev: File[]) => [...prev, ...fileArray]);
     }
   };
 
   const removeFile = (index: number, type: 'medical' | 'previous') => {
     if (type === 'medical') {
-      setMedicalFiles(prev => prev.filter((_, i) => i !== index));
+      setMedicalFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
     } else {
-      setPreviousMedicalFiles(prev => prev.filter((_, i) => i !== index));
+      setPreviousMedicalFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
     }
   };
 
@@ -68,7 +68,6 @@ export default function Home() {
       if (response.ok) {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
-          const responseData = await response.json();
           try {
             const responseData = await response.json();
             let content = responseData.output || 'Document generat cu succes!';
@@ -91,7 +90,12 @@ export default function Home() {
             
             setGeneratedDocument(content);
           } catch (jsonError) {
-            // If JSON parsing fails, fallback to text parsing
+            console.error('JSON parsing error:', jsonError);
+            setGeneratedDocument(`Eroare la parsarea răspunsului JSON: ${jsonError instanceof Error ? jsonError.message : 'Format JSON invalid'}`);
+          }
+        } else {
+          // If not JSON, display the response as plain text
+          try {
             let responseText = await response.text();
             
             // Extract content from iframe if present
@@ -111,32 +115,18 @@ export default function Home() {
             responseText = responseText.replace(/\\n/g, '\n');
             
             setGeneratedDocument(responseText || 'Document generat cu succes!');
+          } catch (textError) {
+            console.error('Text parsing error:', textError);
+            setGeneratedDocument(`Eroare la citirea răspunsului: ${textError instanceof Error ? textError.message : 'Eroare de citire'}`);
           }
-        } else {
-          // If not JSON, display the response as plain text
-          let responseText = await response.text();
-          
-          // Extract content from iframe if present
-          if (responseText.includes('<iframe srcdoc="')) {
-            const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
-            if (match) {
-              responseText = match[1];
-              // Decode HTML entities
-              responseText = responseText.replace(/&quot;/g, '"')
-                                       .replace(/&amp;/g, '&')
-                                       .replace(/&lt;/g, '<')
-                                       .replace(/&gt;/g, '>');
-            }
-          }
-          
-          // Convert \n to actual newlines
-          responseText = responseText.replace(/\\n/g, '\n');
-          
-          setGeneratedDocument(responseText || 'Document generat cu succes!');
         }
       } else {
-        const errorText = await response.text();
-        setGeneratedDocument(`Eroare la generarea documentului (${response.status}): ${errorText}`);
+        try {
+          const errorText = await response.text();
+          setGeneratedDocument(`Eroare la generarea documentului (${response.status}): ${errorText}`);
+        } catch (errorReadError) {
+          setGeneratedDocument(`Eroare la generarea documentului (${response.status}): Nu s-a putut citi răspunsul de eroare`);
+        }
       }
     } catch (error) {
       console.error('Error:', error);
