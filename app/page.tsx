@@ -21,6 +21,7 @@ export default function Home() {
   const [generatedDocument, setGeneratedDocument] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [activeTranscribe, setActiveTranscribe] = useState<'medical' | 'previous' | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
