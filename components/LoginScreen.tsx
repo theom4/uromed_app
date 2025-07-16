@@ -95,7 +95,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200"
+              className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -108,12 +108,6 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-xs text-slate-500">
-              Demo credentials: admin / admin1234
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
