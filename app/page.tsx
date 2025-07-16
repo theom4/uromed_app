@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle } from 'lucide-react';
+import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle, Mic, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -19,6 +19,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedDocument, setGeneratedDocument] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [activeTranscribe, setActiveTranscribe] = useState<'medical' | 'previous' | null>(null);
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -37,6 +38,17 @@ export default function Home() {
     } else {
       setPreviousMedicalFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
     }
+  };
+
+  const toggleTranscribe = (type: 'medical' | 'previous') => {
+    if (activeTranscribe === type) {
+      // Turn off current transcribe
+      setActiveTranscribe(null);
+    } else if (activeTranscribe === null) {
+      // Turn on transcribe if none is active
+      setActiveTranscribe(type);
+    }
+    // If another transcribe is active, do nothing
   };
 
   const handleSubmit = async () => {
@@ -170,9 +182,29 @@ export default function Home() {
         {/* Medical Information Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <FileText className="w-5 h-5 text-blue-600" />
-              <span>Informații Medicale</span>
+            <CardTitle className="flex items-center justify-between text-slate-800">
+              <div className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <span>Informații Medicale</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleTranscribe('medical')}
+                className={cn(
+                  "flex items-center space-x-1",
+                  activeTranscribe === 'medical' ? "bg-red-50 border-red-200 text-red-600" : "hover:bg-blue-50"
+                )}
+              >
+                {activeTranscribe === 'medical' ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+                <span className="text-xs">
+                  {activeTranscribe === 'medical' ? 'Stop' : 'Transcrie'}
+                </span>
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -236,9 +268,29 @@ export default function Home() {
         {/* Previous Medical Information Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <FileText className="w-5 h-5 text-purple-600" />
-              <span>Informații Medicale Anterioare</span>
+            <CardTitle className="flex items-center justify-between text-slate-800">
+              <div className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-purple-600" />
+                <span>Informații Medicale Anterioare</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleTranscribe('previous')}
+                className={cn(
+                  "flex items-center space-x-1",
+                  activeTranscribe === 'previous' ? "bg-red-50 border-red-200 text-red-600" : "hover:bg-purple-50"
+                )}
+              >
+                {activeTranscribe === 'previous' ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+                <span className="text-xs">
+                  {activeTranscribe === 'previous' ? 'Stop' : 'Transcrie'}
+                </span>
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
