@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle, Mic, X } from 'lucide-react';
-import { Menu, User, Bot } from 'lucide-react';
+import { Menu, User, Bot, Gamepad2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -195,6 +195,11 @@ export default function Home() {
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
                 <Bot className="w-5 h-5" />
                 <span>Documente AI</span>
+              </button>
+              
+              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <Gamepad2 className="w-5 h-5" />
+                <span>Automatizari</span>
               </button>
             </div>
           </div>
