@@ -94,12 +94,6 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
             )}
 
             <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-11 text-white font-medium bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Signing in...</span>
                 </div>
