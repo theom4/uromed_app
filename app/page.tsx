@@ -60,7 +60,7 @@ export default function Home() {
         formData.append(`previousMedicalFile_${index}`, file);
       });
       
-      const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
+      const response = await fetch('https://n8n.voisero.info/webhook-test/uromed-app', {
         method: 'POST',
         body: formData,
       });
