@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle, Mic, X } from 'lucide-react';
-import { Menu } from 'lucide-react';
+import { Menu, User, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -179,7 +179,24 @@ export default function Home() {
           />
           {/* Sidebar */}
           <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300">
-            {/* Empty sidebar content */}
+            <div className="p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-slate-800 mb-6">Menu</h2>
+              
+              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <User className="w-5 h-5" />
+                <span>Pacienti</span>
+              </button>
+              
+              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <Settings className="w-5 h-5" />
+                <span>Setari</span>
+              </button>
+              
+              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <Bot className="w-5 h-5" />
+                <span>Documente AI</span>
+              </button>
+            </div>
           </div>
         </>
       )}
