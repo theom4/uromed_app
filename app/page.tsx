@@ -66,7 +66,13 @@ export default function Home() {
         recorder.start(250);
         
         // Create WebSocket connection
-        const apiKey = "c598622e32116554235bd6c35846c06b5f27abba";
+        const apiKey = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY;
+        
+        if (!apiKey) {
+          console.error('Deepgram API key not found. Please set NEXT_PUBLIC_DEEPGRAM_API_KEY in your .env.local file');
+          return;
+        }
+        
         const ws = new WebSocket(`wss://api.deepgram.com/v1/listen?token=${apiKey}&language=ro&model=nova-2`);
         setWebsocket(ws);
         
@@ -107,7 +113,9 @@ export default function Home() {
         };
         
         ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.error('WebSocket connection failed. Please check your Deepgram API key and internet connection.');
+          console.error('Error details:', error);
+          setActiveTranscribe(null);
         };
         
       } catch (error) {
