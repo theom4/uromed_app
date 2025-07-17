@@ -26,11 +26,6 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
-  const [transcriptionBuffer, setTranscriptionBuffer] = useState<{medical: string, previous: string}>({
-    medical: '',
-    previous: ''
-  });
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -65,52 +60,6 @@ export default function Home() {
         // Start recording with 250ms duration
         recorder.start(250);
         
-        // Create WebSocket connection
-        const ws = new WebSocket("wss://api.deepgram.com/v1/listen?language=ro&model=nova-2&token=7324b1322bc3b7a144ad76c872bd58281ab5c755");
-        setWebsocket(ws);
-        
-        // WebSocket event declarations
-        ws.onopen = () => {
-          recorder.addEventListener('dataavailable', (event) => {
-            if (ws.readyState === WebSocket.OPEN) {
-              ws.send(event.data);
-            }
-          });
-          recorder.start(250);
-        };
-        
-        ws.onmessage = (event) => {
-          const received = JSON.parse(event.data);
-          const result = received.channel.alternatives[0]?.transcript;
-          if (result) {
-            console.log(result);
-            // Update the transcription buffer for the active transcription type
-            if (activeTranscribe) {
-              setTranscriptionBuffer(prev => ({
-                ...prev,
-                [activeTranscribe]: prev[activeTranscribe] + result + ' '
-              }));
-              
-              // Update the corresponding text area
-              if (activeTranscribe === 'medical') {
-                setMedicalInfo(prev => prev + result + ' ');
-              } else if (activeTranscribe === 'previous') {
-                setPreviousMedicalInfo(prev => prev + result + ' ');
-              }
-            }
-          }
-        };
-        
-        ws.onclose = () => {
-          console.log('WebSocket connection closed');
-        };
-        
-        ws.onerror = (error) => {
-          console.error('WebSocket connection failed. Please check your Deepgram API key and internet connection.');
-          console.error('Error details:', error);
-          setActiveTranscribe(null);
-        };
-        
       } catch (error) {
         console.error('Microphone permission denied:', error);
         return; // Exit if permission is denied
@@ -121,19 +70,10 @@ export default function Home() {
       // Turn off current transcribe
       setActiveTranscribe(null);
       
-      // Stop recording and close WebSocket
+      // Stop recording
       if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();
       }
-      if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.close();
-      }
-      
-      // Clear transcription buffer for this type
-      setTranscriptionBuffer(prev => ({
-        ...prev,
-        [type]: ''
-      }));
       
     } else if (activeTranscribe === null) {
       // Turn on transcribe if none is active
@@ -144,15 +84,6 @@ export default function Home() {
       if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();
       }
-      if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.close();
-      }
-      
-      // Clear previous transcription buffer
-      setTranscriptionBuffer(prev => ({
-        ...prev,
-        [activeTranscribe]: ''
-      }));
       
       // Set new active transcription
       setActiveTranscribe(type);
