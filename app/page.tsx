@@ -24,6 +24,7 @@ export default function Home() {
   const [activeTranscribe, setActiveTranscribe] = useState<'medical' | 'previous' | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [hasMicPermission, setHasMicPermission] = useState(false);
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -44,7 +45,20 @@ export default function Home() {
     }
   };
 
-  const toggleTranscribe = (type: 'medical' | 'previous') => {
+  const toggleTranscribe = async (type: 'medical' | 'previous') => {
+    // Request microphone permission if not already granted
+    if (!hasMicPermission) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setHasMicPermission(true);
+        // Stop the stream immediately as we only need permission
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
+        console.error('Microphone permission denied:', error);
+        return; // Exit if permission is denied
+      }
+    }
+
     if (activeTranscribe === type) {
       // Turn off current transcribe
       setActiveTranscribe(null);
