@@ -25,6 +25,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -51,8 +53,21 @@ export default function Home() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         setHasMicPermission(true);
-        // Stop the stream immediately as we only need permission
-        stream.getTracks().forEach(track => track.stop());
+        
+        // Create MediaRecorder with the stream
+        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        setMediaRecorder(recorder);
+        
+        // Start recording with 250ms duration
+        recorder.start(250);
+        
+        // Create WebSocket connection
+        const apiKey = "c598622e32116554235bd6c35846c06b5f27abba";
+        const ws = new WebSocket("wss://api.deepgram.com/v1/listen", {
+          headers: { Authorization: `Token ${apiKey}` }
+        });
+        setWebsocket(ws);
+        
       } catch (error) {
         console.error('Microphone permission denied:', error);
         return; // Exit if permission is denied
