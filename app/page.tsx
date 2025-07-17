@@ -63,8 +63,25 @@ export default function Home() {
         
         // Create WebSocket connection
         const apiKey = "c598622e32116554235bd6c35846c06b5f27abba";
-        const ws = new WebSocket(`wss://api.deepgram.com/v1/listen?token=${apiKey}`);
+        const ws = new WebSocket(`wss://api.deepgram.com/v1/listen?token=${apiKey}&language=ro&model=nova-2`);
         setWebsocket(ws);
+        
+        // WebSocket event declarations
+        ws.onopen = () => {
+          // WebSocket opened
+        };
+        
+        ws.onmessage = (event) => {
+          // Message received
+        };
+        
+        ws.onclose = () => {
+          // WebSocket closed
+        };
+        
+        ws.onerror = (error) => {
+          // WebSocket error
+        };
         
       } catch (error) {
         console.error('Microphone permission denied:', error);
