@@ -66,9 +66,7 @@ export default function Home() {
         recorder.start(250);
         
         // Create WebSocket connection
-        const ws = new WebSocket("wss://api.deepgram.com/v1/listen?language=ro&model=nova-2", {
-          headers: { Authorization: `Token c598622e32116554235bd6c35846c06b5f27abba` }
-        });
+        const ws = new WebSocket("wss://api.deepgram.com/v1/listen?language=ro&model=nova-2&token=c598622e32116554235bd6c35846c06b5f27abba");
         setWebsocket(ws);
         
         // WebSocket event declarations
