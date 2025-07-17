@@ -63,9 +63,7 @@ export default function Home() {
         
         // Create WebSocket connection
         const apiKey = "c598622e32116554235bd6c35846c06b5f27abba";
-        const ws = new WebSocket("wss://api.deepgram.com/v1/listen", {
-          headers: { Authorization: `Token ${apiKey}` }
-        });
+        const ws = new WebSocket(`wss://api.deepgram.com/v1/listen?token=${apiKey}`);
         setWebsocket(ws);
         
       } catch (error) {
