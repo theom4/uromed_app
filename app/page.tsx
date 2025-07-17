@@ -66,14 +66,9 @@ export default function Home() {
         recorder.start(250);
         
         // Create WebSocket connection
-        const apiKey = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY;
-        
-        if (!apiKey) {
-          console.error('Deepgram API key not found. Please set NEXT_PUBLIC_DEEPGRAM_API_KEY in your .env.local file');
-          return;
-        }
-        
-        const ws = new WebSocket(`wss://api.deepgram.com/v1/listen?token=${apiKey}&language=ro&model=nova-2`);
+        const ws = new WebSocket("wss://api.deepgram.com/v1/listen?language=ro&model=nova-2", {
+          headers: { Authorization: `Token c598622e32116554235bd6c35846c06b5f27abba` }
+        });
         setWebsocket(ws);
         
         // WebSocket event declarations
