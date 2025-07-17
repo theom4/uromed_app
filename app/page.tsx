@@ -27,6 +27,10 @@ export default function Home() {
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [websocket, setWebsocket] = useState<WebSocket | null>(null);
+  const [transcriptionBuffer, setTranscriptionBuffer] = useState<{medical: string, previous: string}>({
+    medical: '',
+    previous: ''
+  });
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -68,19 +72,42 @@ export default function Home() {
         
         // WebSocket event declarations
         ws.onopen = () => {
-          // WebSocket opened
+          recorder.addEventListener('dataavailable', (event) => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(event.data);
+            }
+          });
+          recorder.start(250);
         };
         
         ws.onmessage = (event) => {
-          // Message received
+          const received = JSON.parse(event.data);
+          const result = received.channel.alternatives[0]?.transcript;
+          if (result) {
+            console.log(result);
+            // Update the transcription buffer for the active transcription type
+            if (activeTranscribe) {
+              setTranscriptionBuffer(prev => ({
+                ...prev,
+                [activeTranscribe]: prev[activeTranscribe] + result + ' '
+              }));
+              
+              // Update the corresponding text area
+              if (activeTranscribe === 'medical') {
+                setMedicalInfo(prev => prev + result + ' ');
+              } else if (activeTranscribe === 'previous') {
+                setPreviousMedicalInfo(prev => prev + result + ' ');
+              }
+            }
+          }
         };
         
         ws.onclose = () => {
-          // WebSocket closed
+          console.log('WebSocket connection closed');
         };
         
         ws.onerror = (error) => {
-          // WebSocket error
+          console.error('WebSocket error:', error);
         };
         
       } catch (error) {
@@ -92,11 +119,48 @@ export default function Home() {
     if (activeTranscribe === type) {
       // Turn off current transcribe
       setActiveTranscribe(null);
+      
+      // Stop recording and close WebSocket
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.close();
+      }
+      
+      // Clear transcription buffer for this type
+      setTranscriptionBuffer(prev => ({
+        ...prev,
+        [type]: ''
+      }));
+      
     } else if (activeTranscribe === null) {
       // Turn on transcribe if none is active
       setActiveTranscribe(type);
+    } else {
+      // Switch from one transcription to another
+      // Stop current recording
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.close();
+      }
+      
+      // Clear previous transcription buffer
+      setTranscriptionBuffer(prev => ({
+        ...prev,
+        [activeTranscribe]: ''
+      }));
+      
+      // Set new active transcription
+      setActiveTranscribe(type);
+      
+      // Start new recording (will be handled by useEffect or similar logic)
+      setTimeout(() => {
+        toggleTranscribe(type);
+      }, 100);
     }
-    // If another transcribe is active, do nothing
   };
 
   const handleSubmit = async () => {
