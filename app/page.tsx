@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import LoginScreen from '@/components/LoginScreen';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +14,7 @@ import { Menu, User, Bot, Gamepad2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
+  const router = useRouter();
   const [medicalInfo, setMedicalInfo] = useState('');
   const [previousMedicalInfo, setPreviousMedicalInfo] = useState('');
   const [documentType, setDocumentType] = useState('');
@@ -26,6 +28,10 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+  const handlePatientsClick = () => {
+    router.push('/patients');
+  };
 
   const handleFileUpload = (files: FileList | null, type: 'medical' | 'previous') => {
     if (!files) return;
@@ -223,8 +229,13 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-slate-800 mb-6">Menu</h2>
               
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5" onClick={handlePatientsClick} />
                 <span>Pacienti</span>
+              </button>
+              
+              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <User className="w-5 h-5" />
+                <span>Programari</span>
               </button>
               
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
