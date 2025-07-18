@@ -229,8 +229,8 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-slate-800 mb-6">Menu</h2>
               
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <User className="w-5 h-5" onClick={handlePatientsClick} />
-                <span>Pacienti</span>
+                <User className="w-5 h-5" />
+                <span onClick={() => router.push('/pacienti')}>Pacienti</span>
               </button>
               
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
