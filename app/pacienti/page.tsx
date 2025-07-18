@@ -7,11 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, ArrowLeft, User } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
+interface Patient {
+  id: number;
+  name: string;
+  email?: string;
+  phone?: string;
+  created_at: string;
+}
 export default function PacientiPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -21,6 +31,33 @@ export default function PacientiPage() {
     }
   }, []);
 
+  // Fetch patients from Supabase
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchPatients();
+    }
+  }, [isLoggedIn]);
+
+  const fetchPatients = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .limit(5)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching patients:', error);
+      } else {
+        setPatients(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
@@ -61,6 +98,7 @@ export default function PacientiPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
             <CardTitle className="flex items-center space-x-2 text-slate-800">
@@ -79,6 +117,59 @@ export default function PacientiPage() {
                 className="pl-10 h-12 text-lg"
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Patients List */}
+        <Card className="shadow-lg border-slate-200">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
+            <CardTitle className="flex items-center space-x-2 text-slate-800">
+              <User className="w-5 h-5 text-purple-600" />
+              <span>Pacienți Recenți</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-3 text-slate-600">Se încarcă pacienții...</span>
+              </div>
+            ) : patients.length > 0 ? (
+              <div className="space-y-3">
+                {patients.map((patient) => (
+                  <div
+                    key={patient.id}
+                    className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-slate-800">{patient.name}</h3>
+                        {patient.email && (
+                          <p className="text-sm text-slate-600">{patient.email}</p>
+                        )}
+                        {patient.phone && (
+                          <p className="text-sm text-slate-600">{patient.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-sm text-slate-500">
+                      {new Date(patient.created_at).toLocaleDateString('ro-RO')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                <p className="text-slate-600">Nu au fost găsiți pacienți</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Pacienții vor apărea aici când vor fi adăugați în baza de date
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
