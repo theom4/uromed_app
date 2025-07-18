@@ -6,7 +6,7 @@ import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, ArrowLeft, User } from 'lucide-react';
+import { Search, ArrowLeft, User, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface Patient {
@@ -101,9 +101,19 @@ export default function PacientiPage() {
         {/* Search Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <Search className="w-5 h-5 text-blue-600" />
-              <span>Căutare Pacienți</span>
+            <CardTitle className="flex items-center justify-between text-slate-800">
+              <div className="flex items-center space-x-2">
+                <Search className="w-5 h-5 text-blue-600" />
+                <span>Căutare Pacienți</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Patients</span>
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
