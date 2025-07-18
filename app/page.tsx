@@ -238,6 +238,14 @@ export default function Home() {
                 <span>Programari</span>
               </button>
               
+              <button 
+                className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                onClick={() => router.push('/saloane')}
+              >
+                <Settings className="w-5 h-5" />
+                <span>Saloane</span>
+              </button>
+              
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
                 <Settings className="w-5 h-5" />
                 <span>Setari</span>
