@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle, Mic, X } from 'lucide-react';
-import { Menu, User, Bot, Gamepad2 } from 'lucide-react';
+import { Menu, User, Bot, Gamepad2, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
