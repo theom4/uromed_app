@@ -1,16 +1,36 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Building2, Calendar, Settings as SettingsIcon, Plus } from 'lucide-react';
 
 export default function SaloanePage() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check for existing login state on component mount
+  useEffect(() => {
+    const loginState = localStorage.getItem('isLoggedIn');
+    if (loginState === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    localStorage.setItem('isLoggedIn', 'true');
+  };
 
   const handleBack = () => {
     router.push('/');
   };
+
+  if (!isLoggedIn) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
 
   const salons = Array.from({ length: 10 }, (_, i) => i + 1);
 

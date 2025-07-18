@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LoginScreen from '@/components/LoginScreen';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,19 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+  // Check for existing login state on component mount
+  useEffect(() => {
+    const loginState = localStorage.getItem('isLoggedIn');
+    if (loginState === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    localStorage.setItem('isLoggedIn', 'true');
+  };
 
   const handlePatientsClick = () => {
     router.push('/patients');
@@ -210,7 +223,7 @@ export default function Home() {
   };
 
   if (!isLoggedIn) {
-    return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   return (
