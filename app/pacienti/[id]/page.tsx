@@ -1,14 +1,11 @@
-'use client';
-
-import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import LoginScreen from '@/components/LoginScreen';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, Calendar, MapPin, Phone, Mail, FileText, Heart } from 'lucide-react';
+import { ArrowLeft, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface Patient {
@@ -30,119 +27,63 @@ interface Patient {
   created_at: string;
 }
 
-export default function PatientDetailPage() {
-  const router = useRouter();
-  const params = useParams();
-  const patientId = params.id as string;
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [loading, setLoading] = useState(true);
+export async function generateStaticParams() {
+  try {
+    const { data: patients, error } = await supabase
+      .from('patients')
+      .select('id');
 
-  // Check for existing login state on component mount
-  useEffect(() => {
-    const loginState = localStorage.getItem('isLoggedIn');
-    if (loginState === 'true') {
-      setIsLoggedIn(true);
+    if (error) {
+      console.error('Error fetching patient IDs:', error);
+      return [];
     }
-  }, []);
 
-  // Fetch patient data from Supabase
-  useEffect(() => {
-    if (isLoggedIn && patientId) {
-      fetchPatient();
-    }
-  }, [isLoggedIn, patientId]);
-
-  const fetchPatient = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .eq('id', patientId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching patient:', error);
-        setPatient(null);
-      } else {
-        setPatient(data);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setPatient(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
-  };
-
-  const handleBack = () => {
-    router.push('/pacienti');
-  };
-
-  const calculateAge = (birthDate: string) => {
-    if (!birthDate) return '';
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return patients.map((patient) => ({
+      id: patient.id.toString(),
+    }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    return [];
   }
+}
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-slate-600">Se încarcă datele pacientului...</span>
-        </div>
-      </div>
-    );
+async function getPatient(id: string): Promise<Patient | null> {
+  try {
+    const { data, error } = await supabase
+      .from('patients')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching patient:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+    return null;
   }
+}
+
+function calculateAge(birthDate: string) {
+  if (!birthDate) return '';
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+export default async function PatientDetailPage({ params }: { params: { id: string } }) {
+  const patient = await getPatient(params.id);
 
   if (!patient) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <header className="bg-white border-b border-slate-200 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBack}
-                  className="p-2"
-                >
-                  <ArrowLeft className="w-5 h-5 text-slate-600" />
-                </Button>
-                <h1 className="text-xl font-semibold text-slate-900">Pacient Negăsit</h1>
-              </div>
-            </div>
-          </div>
-        </header>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="shadow-lg border-slate-200">
-            <CardContent className="p-8 text-center">
-              <User className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-slate-800 mb-2">Pacientul nu a fost găsit</h2>
-              <p className="text-slate-600">Pacientul cu ID-ul {patientId} nu există în baza de date.</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
   return (
@@ -152,14 +93,15 @@ export default function PatientDetailPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBack}
-                className="p-2"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
-              </Button>
+              <Link href="/pacienti">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                >
+                  <ArrowLeft className="w-5 h-5 text-slate-600" />
+                </Button>
+              </Link>
               <h1 className="text-xl font-semibold text-slate-900">Date Pașaportale Pacient</h1>
             </div>
             <div className="flex items-center space-x-3">
