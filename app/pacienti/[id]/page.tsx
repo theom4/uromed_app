@@ -253,10 +253,6 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
               {/* Right Column */}
               <div className="space-y-4">
-                <div className="bg-red-100 border border-red-200 rounded-lg p-3 text-center">
-                  <span className="text-red-800 font-medium">CAUTĂ PACIENT</span>
-                </div>
-
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Telefon:</Label>
                   <Input 

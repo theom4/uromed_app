@@ -241,11 +241,6 @@ export default function Home() {
             <div className="p-6 space-y-4">
               <h2 className="text-lg font-semibold text-slate-800 mb-6">Menu</h2>
               
-              <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <User className="w-5 h-5" />
-                <span>Pacienti</span>
-              </button>
-              
               <button 
                 className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                 onClick={() => router.push('/pacienti')}
