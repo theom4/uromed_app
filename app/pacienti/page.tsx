@@ -191,7 +191,8 @@ export default function PacientiPage() {
                 {patients.map((patient) => (
                   <div
                     key={patient.id}
-                    className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                    className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/pacienti/${patient.id}`)}
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -208,7 +209,10 @@ export default function PacientiPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteClick(patient)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(patient);
+                        }}
                         className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2"
                       >
                         <Trash2 className="w-4 h-4" />
