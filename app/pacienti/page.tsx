@@ -199,9 +199,6 @@ export default function PacientiPage() {
                       </div>
                       <div>
                         <h3 className="font-medium text-slate-800">{patient.nume} {patient.prenume}</h3>
-                        {patient.phone && (
-                          <p className="text-sm text-slate-600">{patient.phone}</p>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
