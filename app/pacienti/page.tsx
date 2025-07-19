@@ -403,6 +403,17 @@ export default function PacientiPage() {
 
               <div>
                 <Label htmlFor="cnp" className="text-sm font-medium text-slate-700">
+                  CNP
+                </Label>
+                <Input
+                  id="cnp"
+                  value={newPatient.cnp}
+                  onChange={(e) => setNewPatient({...newPatient, cnp: e.target.value})}
+                  placeholder="Introduceți CNP-ul"
+                  className="mt-1"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="data_nasterii" className="text-sm font-medium text-slate-700">
@@ -431,7 +442,7 @@ export default function PacientiPage() {
                   </Select>
                 </div>
               </div>
-                  CNP
+
               <div>
                 <Label htmlFor="judet_domiciliu" className="text-sm font-medium text-slate-700">
                   Județ domiciliu
@@ -450,7 +461,7 @@ export default function PacientiPage() {
                   </SelectContent>
                 </Select>
               </div>
-                </Label>
+
               <div>
                 <Label htmlFor="adresa" className="text-sm font-medium text-slate-700">
                   Adresa
@@ -463,7 +474,7 @@ export default function PacientiPage() {
                   className="mt-1"
                 />
               </div>
-                <Input
+
               <div>
                 <Label htmlFor="greutate" className="text-sm font-medium text-slate-700">
                   Greutate (kg)
@@ -478,7 +489,7 @@ export default function PacientiPage() {
                 />
               </div>
             </div>
-                  id="cnp"
+
             {/* Right Column */}
             <div className="space-y-4">
               <div>
@@ -493,7 +504,7 @@ export default function PacientiPage() {
                   className="mt-1"
                 />
               </div>
-                  value={newPatient.cnp}
+
               <div>
                 <Label htmlFor="localitate_domiciliu" className="text-sm font-medium text-slate-700">
                   Localitatea domiciliu
@@ -506,7 +517,7 @@ export default function PacientiPage() {
                   className="mt-1"
                 />
               </div>
-                  onChange={(e) => setNewPatient({...newPatient, cnp: e.target.value})}
+
               <div>
                 <Label htmlFor="email" className="text-sm font-medium text-slate-700">
                   Email
@@ -520,7 +531,7 @@ export default function PacientiPage() {
                   className="mt-1"
                 />
               </div>
-                  placeholder="Introduceți CNP-ul"
+
               <div>
                 <Label htmlFor="medic_familie" className="text-sm font-medium text-slate-700">
                   Medic familie
@@ -533,7 +544,7 @@ export default function PacientiPage() {
                   className="mt-1"
                 />
               </div>
-                  className="mt-1"
+
               <div>
                 <Label htmlFor="inaltime" className="text-sm font-medium text-slate-700">
                   Înălțime (cm)
@@ -547,7 +558,7 @@ export default function PacientiPage() {
                   className="mt-1"
                 />
               </div>
-                />
+
               <div>
                 <Label htmlFor="nr_card" className="text-sm font-medium text-slate-700">
                   Număr card
@@ -562,7 +573,7 @@ export default function PacientiPage() {
               </div>
             </div>
           </div>
-              </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={handleAddPatientCancel}>
               Anulează
