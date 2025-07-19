@@ -7,21 +7,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, ArrowLeft, User, Plus } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Patient {
   id: number;
-  name: string;
+  nume: string;
+  prenume: string;
   email?: string;
   phone?: string;
   created_at: string;
 }
+
 export default function PacientiPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -43,7 +49,7 @@ export default function PacientiPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from('patients')
-        .select('*')
+        .select('id, nume, prenume, email, phone, created_at')
         .limit(5)
         .order('created_at', { ascending: false });
 
@@ -60,6 +66,40 @@ export default function PacientiPage() {
       setLoading(false);
     }
   };
+
+  const handleDeleteClick = (patient: Patient) => {
+    setPatientToDelete(patient);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!patientToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .delete()
+        .eq('id', patientToDelete.id);
+
+      if (error) {
+        console.error('Error deleting patient:', error);
+      } else {
+        // Refresh the patients list
+        fetchPatients();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setDeleteDialogOpen(false);
+      setPatientToDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setPatientToDelete(null);
+  };
+
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
@@ -158,17 +198,24 @@ export default function PacientiPage() {
                         <User className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-slate-800">{patient.name}</h3>
-                        {patient.email && (
-                          <p className="text-sm text-slate-600">{patient.email}</p>
-                        )}
+                        <h3 className="font-medium text-slate-800">{patient.nume} {patient.prenume}</h3>
                         {patient.phone && (
                           <p className="text-sm text-slate-600">{patient.phone}</p>
                         )}
                       </div>
                     </div>
-                    <div className="text-sm text-slate-500">
-                      {new Date(patient.created_at).toLocaleDateString('ro-RO')}
+                    <div className="flex items-center space-x-3">
+                      <div className="text-sm text-slate-500">
+                        {new Date(patient.created_at).toLocaleDateString('ro-RO')}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(patient)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -185,6 +232,27 @@ export default function PacientiPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmare Ștergere</DialogTitle>
+            <DialogDescription>
+              Ești sigur că vrei să ștergi pacientul {patientToDelete?.nume} {patientToDelete?.prenume}?
+              Această acțiune nu poate fi anulată.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleDeleteCancel}>
+              Anulează
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Șterge
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
