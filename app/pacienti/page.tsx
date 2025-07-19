@@ -10,6 +10,8 @@ import { Search, ArrowLeft, User, Plus } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Patient {
   id: number;
@@ -28,6 +30,24 @@ export default function PacientiPage() {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+  const [addPatientDialogOpen, setAddPatientDialogOpen] = useState(false);
+  const [newPatient, setNewPatient] = useState({
+    nume: '',
+    prenume: '',
+    email: '',
+    telefon: '',
+    cnp: '',
+    data_nasterii: '',
+    sex: '',
+    judet_domiciliu: '',
+    localitate_domiciliu: '',
+    adresa: '',
+    medic_familie: '',
+    greutate: '',
+    inaltime: '',
+    nr_card: ''
+  });
+  const [isAddingPatient, setIsAddingPatient] = useState(false);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -100,6 +120,91 @@ export default function PacientiPage() {
     setPatientToDelete(null);
   };
 
+  const handleAddPatient = () => {
+    setAddPatientDialogOpen(true);
+  };
+
+  const handleAddPatientSubmit = async () => {
+    if (!newPatient.nume || !newPatient.prenume) {
+      alert('Numele și prenumele sunt obligatorii');
+      return;
+    }
+
+    setIsAddingPatient(true);
+
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .insert([{
+          nume: newPatient.nume,
+          prenume: newPatient.prenume,
+          email: newPatient.email || null,
+          telefon: newPatient.telefon || null,
+          cnp: newPatient.cnp || null,
+          data_nasterii: newPatient.data_nasterii || null,
+          sex: newPatient.sex || null,
+          judet_domiciliu: newPatient.judet_domiciliu || null,
+          localitate_domiciliu: newPatient.localitate_domiciliu || null,
+          adresa: newPatient.adresa || null,
+          medic_familie: newPatient.medic_familie || null,
+          greutate: newPatient.greutate ? parseFloat(newPatient.greutate) : null,
+          inaltime: newPatient.inaltime ? parseFloat(newPatient.inaltime) : null,
+          nr_card: newPatient.nr_card || null
+        }]);
+
+      if (error) {
+        console.error('Error adding patient:', error);
+        alert('Eroare la adăugarea pacientului');
+      } else {
+        // Reset form and close dialog
+        setNewPatient({
+          nume: '',
+          prenume: '',
+          email: '',
+          telefon: '',
+          cnp: '',
+          data_nasterii: '',
+          sex: '',
+          judet_domiciliu: '',
+          localitate_domiciliu: '',
+          adresa: '',
+          medic_familie: '',
+          greutate: '',
+          inaltime: '',
+          nr_card: ''
+        });
+        setAddPatientDialogOpen(false);
+        // Refresh the patients list
+        fetchPatients();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Eroare la adăugarea pacientului');
+    } finally {
+      setIsAddingPatient(false);
+    }
+  };
+
+  const handleAddPatientCancel = () => {
+    setAddPatientDialogOpen(false);
+    setNewPatient({
+      nume: '',
+      prenume: '',
+      email: '',
+      telefon: '',
+      cnp: '',
+      data_nasterii: '',
+      sex: '',
+      judet_domiciliu: '',
+      localitate_domiciliu: '',
+      adresa: '',
+      medic_familie: '',
+      greutate: '',
+      inaltime: '',
+      nr_card: ''
+    });
+  };
+
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
@@ -151,6 +256,7 @@ export default function PacientiPage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={handleAddPatient}
                 className="flex items-center space-x-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
               >
                 <Plus className="w-4 h-4" />
@@ -250,6 +356,230 @@ export default function PacientiPage() {
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm}>
               Șterge
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Patient Dialog */}
+      <Dialog open={addPatientDialogOpen} onOpenChange={setAddPatientDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Adaugă Pacient Nou</DialogTitle>
+            <DialogDescription>
+              Completați informațiile pacientului. Câmpurile marcate cu * sunt obligatorii.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+            {/* Left Column */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="nume" className="text-sm font-medium text-slate-700">
+                    Nume *
+                  </Label>
+                  <Input
+                    id="nume"
+                    value={newPatient.nume}
+                    onChange={(e) => setNewPatient({...newPatient, nume: e.target.value})}
+                    placeholder="Introduceți numele"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="prenume" className="text-sm font-medium text-slate-700">
+                    Prenume *
+                  </Label>
+                  <Input
+                    id="prenume"
+                    value={newPatient.prenume}
+                    onChange={(e) => setNewPatient({...newPatient, prenume: e.target.value})}
+                    placeholder="Introduceți prenumele"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="cnp" className="text-sm font-medium text-slate-700">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="data_nasterii" className="text-sm font-medium text-slate-700">
+                    Data nașterii
+                  </Label>
+                  <Input
+                    id="data_nasterii"
+                    type="date"
+                    value={newPatient.data_nasterii}
+                    onChange={(e) => setNewPatient({...newPatient, data_nasterii: e.target.value})}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="sex" className="text-sm font-medium text-slate-700">
+                    Sex
+                  </Label>
+                  <Select value={newPatient.sex} onValueChange={(value) => setNewPatient({...newPatient, sex: value})}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Selectați sexul" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="masculin">Masculin</SelectItem>
+                      <SelectItem value="feminin">Feminin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+                  CNP
+              <div>
+                <Label htmlFor="judet_domiciliu" className="text-sm font-medium text-slate-700">
+                  Județ domiciliu
+                </Label>
+                <Select value={newPatient.judet_domiciliu} onValueChange={(value) => setNewPatient({...newPatient, judet_domiciliu: value})}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selectați județul" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PRAHOVA">PRAHOVA</SelectItem>
+                    <SelectItem value="BUCURESTI">BUCUREȘTI</SelectItem>
+                    <SelectItem value="CLUJ">CLUJ</SelectItem>
+                    <SelectItem value="TIMIS">TIMIȘ</SelectItem>
+                    <SelectItem value="IASI">IAȘI</SelectItem>
+                    <SelectItem value="CONSTANTA">CONSTANȚA</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+                </Label>
+              <div>
+                <Label htmlFor="adresa" className="text-sm font-medium text-slate-700">
+                  Adresa
+                </Label>
+                <Input
+                  id="adresa"
+                  value={newPatient.adresa}
+                  onChange={(e) => setNewPatient({...newPatient, adresa: e.target.value})}
+                  placeholder="Introduceți adresa"
+                  className="mt-1"
+                />
+              </div>
+                <Input
+              <div>
+                <Label htmlFor="greutate" className="text-sm font-medium text-slate-700">
+                  Greutate (kg)
+                </Label>
+                <Input
+                  id="greutate"
+                  type="number"
+                  value={newPatient.greutate}
+                  onChange={(e) => setNewPatient({...newPatient, greutate: e.target.value})}
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+                  id="cnp"
+            {/* Right Column */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="telefon" className="text-sm font-medium text-slate-700">
+                  Telefon
+                </Label>
+                <Input
+                  id="telefon"
+                  value={newPatient.telefon}
+                  onChange={(e) => setNewPatient({...newPatient, telefon: e.target.value})}
+                  placeholder="Introduceți numărul de telefon"
+                  className="mt-1"
+                />
+              </div>
+                  value={newPatient.cnp}
+              <div>
+                <Label htmlFor="localitate_domiciliu" className="text-sm font-medium text-slate-700">
+                  Localitatea domiciliu
+                </Label>
+                <Input
+                  id="localitate_domiciliu"
+                  value={newPatient.localitate_domiciliu}
+                  onChange={(e) => setNewPatient({...newPatient, localitate_domiciliu: e.target.value})}
+                  placeholder="Introduceți localitatea"
+                  className="mt-1"
+                />
+              </div>
+                  onChange={(e) => setNewPatient({...newPatient, cnp: e.target.value})}
+              <div>
+                <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newPatient.email}
+                  onChange={(e) => setNewPatient({...newPatient, email: e.target.value})}
+                  placeholder="email@example.com"
+                  className="mt-1"
+                />
+              </div>
+                  placeholder="Introduceți CNP-ul"
+              <div>
+                <Label htmlFor="medic_familie" className="text-sm font-medium text-slate-700">
+                  Medic familie
+                </Label>
+                <Input
+                  id="medic_familie"
+                  value={newPatient.medic_familie}
+                  onChange={(e) => setNewPatient({...newPatient, medic_familie: e.target.value})}
+                  placeholder="Numele medicului de familie"
+                  className="mt-1"
+                />
+              </div>
+                  className="mt-1"
+              <div>
+                <Label htmlFor="inaltime" className="text-sm font-medium text-slate-700">
+                  Înălțime (cm)
+                </Label>
+                <Input
+                  id="inaltime"
+                  type="number"
+                  value={newPatient.inaltime}
+                  onChange={(e) => setNewPatient({...newPatient, inaltime: e.target.value})}
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </div>
+                />
+              <div>
+                <Label htmlFor="nr_card" className="text-sm font-medium text-slate-700">
+                  Număr card
+                </Label>
+                <Input
+                  id="nr_card"
+                  value={newPatient.nr_card}
+                  onChange={(e) => setNewPatient({...newPatient, nr_card: e.target.value})}
+                  placeholder="Introduceți numărul cardului"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+              </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleAddPatientCancel}>
+              Anulează
+            </Button>
+            <Button 
+              onClick={handleAddPatientSubmit}
+              disabled={isAddingPatient}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              {isAddingPatient ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Se adaugă...</span>
+                </div>
+              ) : (
+                'Adaugă Pacient'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
