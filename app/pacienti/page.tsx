@@ -49,11 +49,13 @@ export default function PacientiPage() {
 
       if (error) {
         console.error('Error fetching patients:', error);
+        setPatients([]);
       } else {
         setPatients(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
+      setPatients([]);
     } finally {
       setLoading(false);
     }
