@@ -16,7 +16,7 @@ interface Patient {
   nume: string;
   prenume: string;
   email?: string;
-  phone?: string;
+  telefon?: string;
   created_at: string;
 }
 
@@ -49,7 +49,7 @@ export default function PacientiPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from('patients')
-        .select('id, nume, prenume, email, phone, created_at')
+        .select('id, nume, prenume, email, telefon, created_at')
         .limit(5)
         .order('created_at', { ascending: false });
 
