@@ -243,7 +243,7 @@ export default function Home() {
               
               <button 
                 className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-                onClick={() => router.push('/pacienti')}
+                onClick={() => router.push('/programari')}
               >
                 <User className="w-5 h-5" />
                 <span>Pacienti</span>
@@ -251,7 +251,7 @@ export default function Home() {
               
               <button className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
                 <Calendar className="w-5 h-5" />
-                <span>Programari</span>
+                <span>Programări</span>
               </button>
               
               <button 
