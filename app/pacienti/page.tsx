@@ -133,6 +133,27 @@ export default function PacientiPage() {
     setIsAddingPatient(true);
 
     try {
+      // Send webhook with patient data
+      const webhookData = {
+        ...newPatient,
+        documentType: 'addPatient',
+        greutate: newPatient.greutate ? parseFloat(newPatient.greutate) : null,
+        inaltime: newPatient.inaltime ? parseFloat(newPatient.inaltime) : null
+      };
+
+      try {
+        await fetch('http://n8n.voisero.info/webhook-test/patients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookData),
+        });
+      } catch (webhookError) {
+        console.error('Webhook error:', webhookError);
+        // Continue with database insertion even if webhook fails
+      }
+
       const { error } = await supabase
         .from('patients')
         .insert([{
