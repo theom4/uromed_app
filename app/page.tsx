@@ -31,6 +31,9 @@ export default function Home() {
   const [transcriptionSocket, setTranscriptionSocket] = useState<WebSocket | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
+  // Audio context for processing audio data
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+
   // Check for existing login state on component mount
   useEffect(() => {
     const loginState = localStorage.getItem('isLoggedIn');
@@ -90,17 +93,18 @@ export default function Home() {
 
       socket.addEventListener("message", function(event) {
         const message = JSON.parse(event.data.toString());
-        console.log("Transcription message:", message);
+        console.log("Gladia message:", message);
         
-        // Handle transcription results
-        if (message.type === 'transcript' && message.transcript) {
-          const transcriptText = message.transcript;
+        // Handle transcription results according to Gladia protocol
+        if (message.type === 'transcript' && message.data && message.data.is_final) {
+          const transcriptText = message.data.utterance.text;
+          console.log(`${message.data.id}: ${transcriptText}`);
           
           // Update the appropriate text field based on active transcription
           if (activeTranscribe === 'medical') {
-            setMedicalInfo(prev => prev + ' ' + transcriptText);
+            setMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
           } else if (activeTranscribe === 'previous') {
-            setPreviousMedicalInfo(prev => prev + ' ' + transcriptText);
+            setPreviousMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
           }
         }
       });
@@ -122,9 +126,20 @@ export default function Home() {
     setIsTranscribing(false);
   };
 
-  const sendAudioToGladia = (audioData: ArrayBuffer) => {
+  const sendAudioToGladia = (buffer: ArrayBuffer) => {
     if (transcriptionSocket && transcriptionSocket.readyState === WebSocket.OPEN) {
-      transcriptionSocket.send(audioData);
+      // Send as binary (preferred method)
+      transcriptionSocket.send(buffer);
+      
+      // Alternative: send as JSON (uncomment if binary doesn't work)
+      // const uint8Array = new Uint8Array(buffer);
+      // const base64String = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+      // transcriptionSocket.send(JSON.stringify({
+      //   type: 'audio_chunk',
+      //   data: {
+      //     chunk: base64String,
+      //   },
+      // }));
     }
   };
 
@@ -185,22 +200,36 @@ export default function Home() {
         });
         setHasMicPermission(true);
         
-        // Create MediaRecorder with appropriate settings for Gladia
-        const recorder = new MediaRecorder(stream, { 
-          mimeType: 'audio/webm;codecs=pcm'
+        // Create audio context for processing
+        const context = new (window.AudioContext || (window as any).webkitAudioContext)({
+          sampleRate: 16000
         });
+        setAudioContext(context);
         
-        recorder.ondataavailable = (event) => {
-          if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
-            // Convert webm to PCM and send to Gladia
-            event.data.arrayBuffer().then(buffer => {
-              sendAudioToGladia(buffer);
-            });
+        const source = context.createMediaStreamSource(stream);
+        const processor = context.createScriptProcessor(4096, 1, 1);
+        
+        processor.onaudioprocess = (event) => {
+          if (socket.readyState === WebSocket.OPEN) {
+            const inputBuffer = event.inputBuffer;
+            const inputData = inputBuffer.getChannelData(0);
+            
+            // Convert float32 to int16 PCM
+            const pcmData = new Int16Array(inputData.length);
+            for (let i = 0; i < inputData.length; i++) {
+              pcmData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
+            }
+            
+            // Send PCM data as binary
+            sendAudioToGladia(pcmData.buffer);
           }
         };
         
-        recorder.start(250); // Send audio chunks every 250ms
-        setMediaRecorder(recorder);
+        source.connect(processor);
+        processor.connect(context.destination);
+        
+        // Store processor for cleanup
+        setMediaRecorder(processor as any);
         
       } catch (error) {
         console.error('Microphone permission denied:', error);
@@ -212,8 +241,17 @@ export default function Home() {
     } else {
       // Switch from one transcription to another
       // Stop current recording and transcription
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
+      if (mediaRecorder) {
+        // Disconnect audio processing
+        try {
+          (mediaRecorder as any).disconnect();
+        } catch (e) {
+          console.log('Error disconnecting processor:', e);
+        }
+      }
+      if (audioContext) {
+        audioContext.close();
+        setAudioContext(null);
       }
       stopGladiaTranscription();
       
