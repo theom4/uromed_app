@@ -61,10 +61,7 @@ export default function Home() {
           sample_rate: 16000,
           bit_depth: 16,
           channels: 1,
-          language: 'romanian',
-          transcription_hint: 'medical',
-          enable_code_switching: false,
-          endpointing: 300
+          endpointing: 10
         }),
       });
 
