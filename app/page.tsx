@@ -61,7 +61,8 @@ export default function Home() {
           sample_rate: 16000,
           bit_depth: 16,
           channels: 1,
-          endpointing: 10
+          endpointing: 10,
+          maximum_duration_without_endpointing: 10
         }),
       });
 
