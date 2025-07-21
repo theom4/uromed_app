@@ -108,18 +108,26 @@ export default function Home() {
               if (isFinal && transcriptText.trim()) {
                 if (activeTranscribe === 'medical') {
                   setMedicalInfo(prev => {
-                    const newText = prev + (prev ? ' ' : '') + transcriptText;
+                    const newText = prev + (prev ? ' ' : '') + transcriptText.trim();
                     console.log('Updating medical info:', newText);
                     return newText;
                   });
                 } else if (activeTranscribe === 'previous') {
                   setPreviousMedicalInfo(prev => {
-                    const newText = prev + (prev ? ' ' : '') + transcriptText;
+                    const newText = prev + (prev ? ' ' : '') + transcriptText.trim();
                     console.log('Updating previous medical info:', newText);
                     return newText;
                   });
                 }
               }
+            } else {
+              console.log('Received transcript but conditions not met:', {
+                hasData: !!message.data,
+                transcriptText,
+                isFinal,
+                activeTranscribe,
+                trimmedLength: transcriptText.trim().length
+              });
             }
           }
         } catch (error) {
