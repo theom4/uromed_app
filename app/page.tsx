@@ -63,7 +63,9 @@ export default function Home() {
           channels: 1,
           endpointing: 10,
           maximum_duration_without_endpointing: 10,
-          language: 'ro'
+          language_config: {
+            languages: ["ro"]
+          }
         }),
       });
 
