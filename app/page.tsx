@@ -234,6 +234,14 @@ export default function Home() {
         const source = context.createMediaStreamSource(stream);
         const processor = context.createScriptProcessor(4096, 1, 1);
         
+        source.connect(processor);
+        processor.connect(context.destination);
+        
+        // Store processor for cleanup
+        // Store both processor and socket reference for cleanup
+        setMediaRecorder(processor as any);
+        
+        // Create a closure that captures the socket
         processor.onaudioprocess = (event) => {
           console.log("Audio processing event fired");
           if (socket.readyState === WebSocket.OPEN) {
@@ -248,18 +256,14 @@ export default function Home() {
             }
             
             console.log("Sending PCM data to Gladia, size:", pcmData.buffer.byteLength);
-            // Send PCM data as binary
-            sendAudioToGladia(pcmData.buffer);
+            // Send PCM data directly using the socket from closure
+            console.log("sendAudioToGladia called with buffer size:", pcmData.buffer.byteLength);
+            console.log("Sending binary audio data to Gladia WebSocket");
+            socket.send(pcmData.buffer);
           } else {
             console.log("WebSocket not open, state:", socket.readyState);
           }
         };
-        
-        source.connect(processor);
-        processor.connect(context.destination);
-        
-        // Store processor for cleanup
-        setMediaRecorder(processor as any);
         
       } catch (error) {
         console.error('Microphone permission denied:', error);
