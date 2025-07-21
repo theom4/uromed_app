@@ -219,8 +219,12 @@ export default function Home() {
   };
 
   const toggleTranscribe = async (type: 'medical' | 'previous') => {
+    console.log('🎯 toggleTranscribe called with type:', type);
+    console.log('🎯 Current activeTranscribe:', activeTranscribe);
+    
     if (activeTranscribe === type) {
       // Turn off current transcribe
+      console.log('🛑 Turning OFF transcription for:', type);
       setActiveTranscribe(null);
       
       // Stop recording and transcription
@@ -231,14 +235,18 @@ export default function Home() {
       
     } else if (activeTranscribe === null) {
       // Turn on transcribe if none is active
+      console.log('🟢 Turning ON transcription for:', type);
       setActiveTranscribe(type);
+      console.log('🟢 Set activeTranscribe to:', type);
       
       // Start Gladia transcription
       const socket = await startGladiaTranscription();
       if (!socket) {
+        console.log('❌ Failed to start Gladia transcription');
         setActiveTranscribe(null);
         return;
       }
+      console.log('✅ Gladia transcription started successfully');
 
       // Request microphone permission and start recording
       try {
@@ -251,6 +259,7 @@ export default function Home() {
           } 
         });
         setHasMicPermission(true);
+        console.log('🎤 Microphone permission granted');
         
         // Create audio context for processing
         const context = new (window.AudioContext || (window as any).webkitAudioContext)({
@@ -286,6 +295,7 @@ export default function Home() {
         
       } catch (error) {
         console.error('Microphone permission denied:', error);
+        console.log('❌ Microphone error, resetting activeTranscribe');
         setActiveTranscribe(null);
         stopGladiaTranscription();
         return;
@@ -293,6 +303,7 @@ export default function Home() {
       
     } else {
       // Switch from one transcription to another
+      console.log('🔄 Switching transcription from', activeTranscribe, 'to', type);
       // Stop current recording and transcription
       if (mediaRecorder) {
         // Disconnect audio processing
