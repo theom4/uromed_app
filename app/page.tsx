@@ -92,20 +92,35 @@ export default function Home() {
       });
 
       socket.addEventListener("message", function(event) {
-        const message = JSON.parse(event.data.toString());
-        console.log("Gladia message:", message);
-        
-        // Handle transcription results according to Gladia protocol
-        if (message.type === 'transcript' && message.data && message.data.is_final) {
-          const transcriptText = message.data.utterance.text;
-          console.log(`${message.data.id}: ${transcriptText}`);
+        try {
+          console.log("Raw Gladia message received:", event.data);
+          const message = JSON.parse(event.data.toString());
+          console.log("Parsed Gladia message:", message);
           
-          // Update the appropriate text field based on active transcription
-          if (activeTranscribe === 'medical') {
-            setMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
-          } else if (activeTranscribe === 'previous') {
-            setPreviousMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
+          // Handle transcription results according to Gladia protocol
+          if (message.type === 'transcript') {
+            console.log("Transcript message received:", message);
+            if (message.data && message.data.is_final) {
+              const transcriptText = message.data.utterance.text;
+              console.log(`Final transcript - ${message.data.id}: ${transcriptText}`);
+              
+              // Update the appropriate text field based on active transcription
+              if (activeTranscribe === 'medical') {
+                console.log("Adding transcript to medical info field");
+                setMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
+              } else if (activeTranscribe === 'previous') {
+                console.log("Adding transcript to previous medical info field");
+                setPreviousMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
+              }
+            } else {
+              console.log("Transcript message but not final:", message.data);
+            }
+          } else {
+            console.log("Non-transcript message type:", message.type);
           }
+        } catch (error) {
+          console.error("Error parsing Gladia message:", error);
+          console.log("Raw message data:", event.data);
         }
       });
 
@@ -127,19 +142,29 @@ export default function Home() {
   };
 
   const sendAudioToGladia = (buffer: ArrayBuffer) => {
+    console.log("sendAudioToGladia called with buffer size:", buffer.byteLength);
     if (transcriptionSocket && transcriptionSocket.readyState === WebSocket.OPEN) {
+      console.log("Sending binary audio data to Gladia WebSocket");
       // Send as binary (preferred method)
       transcriptionSocket.send(buffer);
       
       // Alternative: send as JSON (uncomment if binary doesn't work)
       // const uint8Array = new Uint8Array(buffer);
       // const base64String = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+      // console.log("Sending JSON audio data to Gladia WebSocket");
       // transcriptionSocket.send(JSON.stringify({
       //   type: 'audio_chunk',
       //   data: {
       //     chunk: base64String,
       //   },
       // }));
+    } else {
+      console.log("Cannot send audio - WebSocket not available or not open");
+      if (transcriptionSocket) {
+        console.log("WebSocket state:", transcriptionSocket.readyState);
+      } else {
+        console.log("WebSocket is null");
+      }
     }
   };
 
@@ -210,7 +235,9 @@ export default function Home() {
         const processor = context.createScriptProcessor(4096, 1, 1);
         
         processor.onaudioprocess = (event) => {
+          console.log("Audio processing event fired");
           if (socket.readyState === WebSocket.OPEN) {
+            console.log("WebSocket is open, processing audio");
             const inputBuffer = event.inputBuffer;
             const inputData = inputBuffer.getChannelData(0);
             
@@ -220,8 +247,11 @@ export default function Home() {
               pcmData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
             }
             
+            console.log("Sending PCM data to Gladia, size:", pcmData.buffer.byteLength);
             // Send PCM data as binary
             sendAudioToGladia(pcmData.buffer);
+          } else {
+            console.log("WebSocket not open, state:", socket.readyState);
           }
         };
         
