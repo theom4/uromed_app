@@ -61,6 +61,10 @@ export default function Home() {
           sample_rate: 16000,
           bit_depth: 16,
           channels: 1,
+          language: 'romanian',
+          transcription_hint: 'medical',
+          enable_code_switching: false,
+          endpointing: 300
         }),
       });
 
@@ -100,10 +104,14 @@ export default function Home() {
           // Handle transcription results according to Gladia protocol
           if (message.type === 'transcript') {
             console.log("Transcript message received:", message);
-            if (message.data && message.data.is_final) {
-              const transcriptText = message.data.utterance.text;
-              console.log(`Final transcript - ${message.data.id}: ${transcriptText}`);
+            if (message.data) {
+              const transcriptText = message.data.utterance?.text || message.data.text || '';
+              const isFinal = message.data.is_final || false;
               
+              console.log(`Transcript (${isFinal ? 'final' : 'partial'}) - ${message.data.id || 'no-id'}: ${transcriptText}`);
+              
+              // Only add final transcripts to avoid duplicates, but log all for debugging
+              if (isFinal && transcriptText.trim()) {
               // Update the appropriate text field based on active transcription
               if (activeTranscribe === 'medical') {
                 console.log("Adding transcript to medical info field");
@@ -112,9 +120,10 @@ export default function Home() {
                 console.log("Adding transcript to previous medical info field");
                 setPreviousMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
               }
-            } else {
-              console.log("Transcript message but not final:", message.data);
+              }
             }
+          } else if (message.type === 'speech_end') {
+            console.log("Speech ended - waiting for final transcript");
           } else {
             console.log("Non-transcript message type:", message.type);
           }
