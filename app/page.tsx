@@ -107,18 +107,34 @@ export default function Home() {
               
               if (isFinal && transcriptText.trim()) {
                 if (activeTranscribe === 'medical') {
+                  console.log('🔄 About to update medical info state');
+                  console.log('Current activeTranscribe:', activeTranscribe);
+                  console.log('Current medicalInfo:', medicalInfo);
+                  console.log('Transcript to add:', transcriptText.trim());
                   setMedicalInfo(prev => {
                     const newText = prev + (prev ? ' ' : '') + transcriptText.trim();
-                    console.log('Updating medical info:', newText);
+                    console.log('✅ Updated medical info to:', newText);
                     return newText;
                   });
                 } else if (activeTranscribe === 'previous') {
+                  console.log('🔄 About to update previous medical info state');
+                  console.log('Current activeTranscribe:', activeTranscribe);
+                  console.log('Current previousMedicalInfo:', previousMedicalInfo);
+                  console.log('Transcript to add:', transcriptText.trim());
                   setPreviousMedicalInfo(prev => {
                     const newText = prev + (prev ? ' ' : '') + transcriptText.trim();
-                    console.log('Updating previous medical info:', newText);
+                    console.log('✅ Updated previous medical info to:', newText);
                     return newText;
                   });
+                } else {
+                  console.log('❌ No active transcribe target, activeTranscribe is:', activeTranscribe);
                 }
+              } else {
+                console.log('❌ Transcript conditions not met:', {
+                  isFinal,
+                  transcriptTextLength: transcriptText.trim().length,
+                  activeTranscribe
+                });
               }
             } else {
               console.log('Received transcript but conditions not met:', {
