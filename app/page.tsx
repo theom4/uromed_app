@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,15 @@ export default function Home() {
 
   // Audio context for processing audio data
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  
+  // Add a ref to track the current activeTranscribe value in the WebSocket handler
+  const activeTranscribeRef = useRef<'medical' | 'previous' | null>(null);
+
+  // Update the ref whenever activeTranscribe changes
+  useEffect(() => {
+    activeTranscribeRef.current = activeTranscribe;
+    console.log('🔄 activeTranscribe changed to:', activeTranscribe);
+  }, [activeTranscribe]);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -106,9 +115,12 @@ export default function Home() {
               console.log(`📝 ${isFinal ? 'FINAL' : 'partial'}: "${transcriptText}"`);
               
               if (isFinal && transcriptText.trim()) {
-                if (activeTranscribe === 'medical') {
+                const currentTarget = activeTranscribeRef.current;
+                console.log('🎯 Current transcribe target from ref:', currentTarget);
+                
+                if (currentTarget === 'medical') {
                   console.log('🔄 About to update medical info state');
-                  console.log('Current activeTranscribe:', activeTranscribe);
+                  console.log('Current activeTranscribe:', currentTarget);
                   console.log('Current medicalInfo:', medicalInfo);
                   console.log('Transcript to add:', transcriptText.trim());
                   setMedicalInfo(prev => {
@@ -116,9 +128,9 @@ export default function Home() {
                     console.log('✅ Updated medical info to:', newText);
                     return newText;
                   });
-                } else if (activeTranscribe === 'previous') {
+                } else if (currentTarget === 'previous') {
                   console.log('🔄 About to update previous medical info state');
-                  console.log('Current activeTranscribe:', activeTranscribe);
+                  console.log('Current activeTranscribe:', currentTarget);
                   console.log('Current previousMedicalInfo:', previousMedicalInfo);
                   console.log('Transcript to add:', transcriptText.trim());
                   setPreviousMedicalInfo(prev => {
@@ -127,13 +139,13 @@ export default function Home() {
                     return newText;
                   });
                 } else {
-                  console.log('❌ No active transcribe target, activeTranscribe is:', activeTranscribe);
+                  console.log('❌ No active transcribe target, activeTranscribe is:', currentTarget);
                 }
               } else {
                 console.log('❌ Transcript conditions not met:', {
                   isFinal,
                   transcriptTextLength: transcriptText.trim().length,
-                  activeTranscribe
+                  activeTranscribe: activeTranscribeRef.current
                 });
               }
             } else {
@@ -141,7 +153,7 @@ export default function Home() {
                 hasData: !!message.data,
                 transcriptText,
                 isFinal,
-                activeTranscribe,
+                activeTranscribe: activeTranscribeRef.current,
                 trimmedLength: transcriptText.trim().length
               });
             }
