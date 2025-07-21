@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import LoginScreen from '@/components/LoginScreen';
 import { useRouter } from 'next/navigation';
+import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +28,8 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [transcriptionSocket, setTranscriptionSocket] = useState<WebSocket | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -40,6 +42,90 @@ export default function Home() {
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
+  };
+
+  const startGladiaTranscription = async () => {
+    try {
+      // Step 1: Request transcription session from Gladia
+      const response = await fetch('https://api.gladia.io/v2/live', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Gladia-Key': '360ec75a-da90-4524-ba21-0ad7445902b5',
+        },
+        body: JSON.stringify({
+          encoding: 'wav/pcm',
+          sample_rate: 16000,
+          bit_depth: 16,
+          channels: 1,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error(`${response.status}: ${(await response.text()) || response.statusText}`);
+        return null;
+      }
+
+      const { id, url } = await response.json();
+      console.log('Gladia session created:', { id, url });
+
+      // Step 2: Connect to WebSocket
+      const socket = new WebSocket(url);
+      
+      socket.addEventListener("open", function() {
+        console.log("WebSocket connection opened");
+        setIsTranscribing(true);
+      });
+
+      socket.addEventListener("error", function(error) {
+        console.error("WebSocket error:", error);
+        setIsTranscribing(false);
+      });
+
+      socket.addEventListener("close", function({code, reason}) {
+        console.log("WebSocket closed:", { code, reason });
+        setIsTranscribing(false);
+        setTranscriptionSocket(null);
+      });
+
+      socket.addEventListener("message", function(event) {
+        const message = JSON.parse(event.data.toString());
+        console.log("Transcription message:", message);
+        
+        // Handle transcription results
+        if (message.type === 'transcript' && message.transcript) {
+          const transcriptText = message.transcript;
+          
+          // Update the appropriate text field based on active transcription
+          if (activeTranscribe === 'medical') {
+            setMedicalInfo(prev => prev + ' ' + transcriptText);
+          } else if (activeTranscribe === 'previous') {
+            setPreviousMedicalInfo(prev => prev + ' ' + transcriptText);
+          }
+        }
+      });
+
+      setTranscriptionSocket(socket);
+      return socket;
+
+    } catch (error) {
+      console.error('Error starting Gladia transcription:', error);
+      return null;
+    }
+  };
+
+  const stopGladiaTranscription = () => {
+    if (transcriptionSocket) {
+      transcriptionSocket.close(1000, 'User stopped transcription');
+      setTranscriptionSocket(null);
+    }
+    setIsTranscribing(false);
+  };
+
+  const sendAudioToGladia = (audioData: ArrayBuffer) => {
+    if (transcriptionSocket && transcriptionSocket.readyState === WebSocket.OPEN) {
+      transcriptionSocket.send(audioData);
+    }
   };
 
   const handlePatientsClick = () => {
@@ -66,48 +152,75 @@ export default function Home() {
   };
 
   const toggleTranscribe = async (type: 'medical' | 'previous') => {
-    // Request microphone permission if not already granted
-    if (!hasMicPermission) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        setHasMicPermission(true);
-        
-        // Create MediaRecorder with the stream
-        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        setMediaRecorder(recorder);
-        
-        // Start recording with 250ms duration
-        recorder.start(250);
-        
-      } catch (error) {
-        console.error('Microphone permission denied:', error);
-        return; // Exit if permission is denied
-      }
-    }
-
     if (activeTranscribe === type) {
       // Turn off current transcribe
       setActiveTranscribe(null);
       
-      // Stop recording
+      // Stop recording and transcription
       if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();
       }
+      stopGladiaTranscription();
       
     } else if (activeTranscribe === null) {
       // Turn on transcribe if none is active
       setActiveTranscribe(type);
+      
+      // Start Gladia transcription
+      const socket = await startGladiaTranscription();
+      if (!socket) {
+        setActiveTranscribe(null);
+        return;
+      }
+
+      // Request microphone permission and start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            sampleRate: 16000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true
+          } 
+        });
+        setHasMicPermission(true);
+        
+        // Create MediaRecorder with appropriate settings for Gladia
+        const recorder = new MediaRecorder(stream, { 
+          mimeType: 'audio/webm;codecs=pcm'
+        });
+        
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
+            // Convert webm to PCM and send to Gladia
+            event.data.arrayBuffer().then(buffer => {
+              sendAudioToGladia(buffer);
+            });
+          }
+        };
+        
+        recorder.start(250); // Send audio chunks every 250ms
+        setMediaRecorder(recorder);
+        
+      } catch (error) {
+        console.error('Microphone permission denied:', error);
+        setActiveTranscribe(null);
+        stopGladiaTranscription();
+        return;
+      }
+      
     } else {
       // Switch from one transcription to another
-      // Stop current recording
+      // Stop current recording and transcription
       if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();
       }
+      stopGladiaTranscription();
       
       // Set new active transcription
       setActiveTranscribe(type);
       
-      // Start new recording (will be handled by useEffect or similar logic)
+      // Start new transcription
       setTimeout(() => {
         toggleTranscribe(type);
       }, 100);
