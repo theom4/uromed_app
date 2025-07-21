@@ -107,9 +107,17 @@ export default function Home() {
               
               if (isFinal && transcriptText.trim()) {
                 if (activeTranscribe === 'medical') {
-                  setMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
+                  setMedicalInfo(prev => {
+                    const newText = prev + (prev ? ' ' : '') + transcriptText;
+                    console.log('Updating medical info:', newText);
+                    return newText;
+                  });
                 } else if (activeTranscribe === 'previous') {
-                  setPreviousMedicalInfo(prev => prev + (prev ? ' ' : '') + transcriptText);
+                  setPreviousMedicalInfo(prev => {
+                    const newText = prev + (prev ? ' ' : '') + transcriptText;
+                    console.log('Updating previous medical info:', newText);
+                    return newText;
+                  });
                 }
               }
             }
