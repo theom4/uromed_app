@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [promptText, setPromptText] = useState('');
   const [documentType, setDocumentType] = useState('');
+  const [exempluText, setExempluText] = useState('');
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -84,19 +85,19 @@ export default function SettingsPage() {
                     placeholder="Introduceți prompt-ul personalizat aici..."
                     value={promptText}
                     onChange={(e) => setPromptText(e.target.value)}
-                    className="mt-2 min-h-[300px] resize-none"
+                    className="mt-2 min-h-[200px] resize-none max-w-md"
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Right Side - Document Type Selector */}
+          {/* Right Side - Document Type Selector and Exemplu */}
           <Card className="shadow-lg border-slate-200">
             <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
               <CardTitle className="flex items-center space-x-2 text-slate-800">
                 <Settings className="w-5 h-5 text-green-600" />
-                <span>Tipul Documentului</span>
+                <span>Configurări</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -118,6 +119,19 @@ export default function SettingsPage() {
                       <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="exemplu-text" className="text-sm font-medium text-slate-700">
+                    Exemplu
+                  </Label>
+                  <Textarea
+                    id="exemplu-text"
+                    placeholder="Introduceți exemplul aici..."
+                    value={exempluText}
+                    onChange={(e) => setExempluText(e.target.value)}
+                    className="mt-2 min-h-[200px] resize-none"
+                  />
                 </div>
               </div>
             </CardContent>
