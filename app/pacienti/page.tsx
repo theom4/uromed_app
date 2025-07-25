@@ -34,18 +34,23 @@ export default function PacientiPage() {
   const [newPatient, setNewPatient] = useState({
     nume: '',
     prenume: '',
-    email: '',
-    telefon: '',
     cnp: '',
-    data_nasterii: '',
+    telefon: '',
+    data_nastere: '',
     sex: '',
-    judet_domiciliu: '',
-    localitate_domiciliu: '',
+    judet: '',
+    localitate: '',
     adresa: '',
+    email: '',
+    act_identitate: '',
     medic_familie: '',
     greutate: '',
     inaltime: '',
-    nr_card: ''
+    email_instructiuni: '',
+    statut_asigurat: '',
+    in_evidenta_la: '',
+    tip_pacient: '',
+    observatii: ''
   });
   const [isAddingPatient, setIsAddingPatient] = useState(false);
 
@@ -133,44 +138,43 @@ export default function PacientiPage() {
     setIsAddingPatient(true);
 
     try {
-      // Send webhook with patient data
-      const webhookData = {
-        ...newPatient,
-        documentType: 'addPatient',
-        greutate: newPatient.greutate ? parseFloat(newPatient.greutate) : null,
-        inaltime: newPatient.inaltime ? parseFloat(newPatient.inaltime) : null
+      // Calculate age from birth date
+      const calculateAge = (birthDate: string) => {
+        if (!birthDate) return null;
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+          age--;
+        }
+        return age;
       };
-
-      try {
-        await fetch('http://n8n.voisero.info/webhook-test/patients', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookData),
-        });
-      } catch (webhookError) {
-        console.error('Webhook error:', webhookError);
-        // Continue with database insertion even if webhook fails
-      }
 
       const { error } = await supabase
         .from('patients')
         .insert([{
           nume: newPatient.nume,
           prenume: newPatient.prenume,
-          email: newPatient.email || null,
-          telefon: newPatient.telefon || null,
           cnp: newPatient.cnp || null,
-          data_nasterii: newPatient.data_nasterii || null,
+          telefon: newPatient.telefon || null,
+          data_nastere: newPatient.data_nastere || null,
           sex: newPatient.sex || null,
-          judet_domiciliu: newPatient.judet_domiciliu || null,
-          localitate_domiciliu: newPatient.localitate_domiciliu || null,
+          judet: newPatient.judet || null,
+          localitate: newPatient.localitate || null,
           adresa: newPatient.adresa || null,
+          email: newPatient.email || null,
+          act_identitate: newPatient.act_identitate || null,
           medic_familie: newPatient.medic_familie || null,
           greutate: newPatient.greutate ? parseFloat(newPatient.greutate) : null,
           inaltime: newPatient.inaltime ? parseFloat(newPatient.inaltime) : null,
-          nr_card: newPatient.nr_card || null
+          email_instructiuni: newPatient.email_instructiuni || null,
+          statut_asigurat: newPatient.statut_asigurat || null,
+          in_evidenta_la: newPatient.in_evidenta_la || null,
+          tip_pacient: newPatient.tip_pacient || null,
+          observatii: newPatient.observatii || null,
+          varsta: newPatient.data_nastere ? calculateAge(newPatient.data_nastere) : null,
+          created_at: new Date().toISOString()
         }]);
 
       if (error) {
@@ -181,18 +185,23 @@ export default function PacientiPage() {
         setNewPatient({
           nume: '',
           prenume: '',
-          email: '',
-          telefon: '',
           cnp: '',
-          data_nasterii: '',
+          telefon: '',
+          data_nastere: '',
           sex: '',
-          judet_domiciliu: '',
-          localitate_domiciliu: '',
+          judet: '',
+          localitate: '',
           adresa: '',
+          email: '',
+          act_identitate: '',
           medic_familie: '',
           greutate: '',
           inaltime: '',
-          nr_card: ''
+          email_instructiuni: '',
+          statut_asigurat: '',
+          in_evidenta_la: '',
+          tip_pacient: '',
+          observatii: ''
         });
         setAddPatientDialogOpen(false);
         // Refresh the patients list
@@ -211,18 +220,23 @@ export default function PacientiPage() {
     setNewPatient({
       nume: '',
       prenume: '',
-      email: '',
-      telefon: '',
       cnp: '',
-      data_nasterii: '',
+      telefon: '',
+      data_nastere: '',
       sex: '',
-      judet_domiciliu: '',
-      localitate_domiciliu: '',
+      judet: '',
+      localitate: '',
       adresa: '',
+      email: '',
+      act_identitate: '',
       medic_familie: '',
       greutate: '',
       inaltime: '',
-      nr_card: ''
+      email_instructiuni: '',
+      statut_asigurat: '',
+      in_evidenta_la: '',
+      tip_pacient: '',
+      observatii: ''
     });
   };
 
@@ -437,14 +451,14 @@ export default function PacientiPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="data_nasterii" className="text-sm font-medium text-slate-700">
+                  <Label htmlFor="data_nastere" className="text-sm font-medium text-slate-700">
                     Data nașterii
                   </Label>
                   <Input
-                    id="data_nasterii"
+                    id="data_nastere"
                     type="date"
-                    value={newPatient.data_nasterii}
-                    onChange={(e) => setNewPatient({...newPatient, data_nasterii: e.target.value})}
+                    value={newPatient.data_nastere}
+                    onChange={(e) => setNewPatient({...newPatient, data_nastere: e.target.value})}
                     className="mt-1"
                   />
                 </div>
@@ -465,10 +479,10 @@ export default function PacientiPage() {
               </div>
 
               <div>
-                <Label htmlFor="judet_domiciliu" className="text-sm font-medium text-slate-700">
-                  Județ domiciliu
+                <Label htmlFor="judet" className="text-sm font-medium text-slate-700">
+                  Județ
                 </Label>
-                <Select value={newPatient.judet_domiciliu} onValueChange={(value) => setNewPatient({...newPatient, judet_domiciliu: value})}>
+                <Select value={newPatient.judet} onValueChange={(value) => setNewPatient({...newPatient, judet: value})}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Selectați județul" />
                   </SelectTrigger>
@@ -527,13 +541,13 @@ export default function PacientiPage() {
               </div>
 
               <div>
-                <Label htmlFor="localitate_domiciliu" className="text-sm font-medium text-slate-700">
-                  Localitatea domiciliu
+                <Label htmlFor="localitate" className="text-sm font-medium text-slate-700">
+                  Localitate
                 </Label>
                 <Input
-                  id="localitate_domiciliu"
-                  value={newPatient.localitate_domiciliu}
-                  onChange={(e) => setNewPatient({...newPatient, localitate_domiciliu: e.target.value})}
+                  id="localitate"
+                  value={newPatient.localitate}
+                  onChange={(e) => setNewPatient({...newPatient, localitate: e.target.value})}
                   placeholder="Introduceți localitatea"
                   className="mt-1"
                 />
@@ -581,14 +595,85 @@ export default function PacientiPage() {
               </div>
 
               <div>
-                <Label htmlFor="nr_card" className="text-sm font-medium text-slate-700">
-                  Număr card
+                <Label htmlFor="act_identitate" className="text-sm font-medium text-slate-700">
+                  Act identitate
                 </Label>
                 <Input
-                  id="nr_card"
-                  value={newPatient.nr_card}
-                  onChange={(e) => setNewPatient({...newPatient, nr_card: e.target.value})}
-                  placeholder="Introduceți numărul cardului"
+                  id="act_identitate"
+                  value={newPatient.act_identitate}
+                  onChange={(e) => setNewPatient({...newPatient, act_identitate: e.target.value})}
+                  placeholder="Introduceți actul de identitate"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="email_instructiuni" className="text-sm font-medium text-slate-700">
+                  Email instrucțiuni
+                </Label>
+                <Input
+                  id="email_instructiuni"
+                  type="email"
+                  value={newPatient.email_instructiuni}
+                  onChange={(e) => setNewPatient({...newPatient, email_instructiuni: e.target.value})}
+                  placeholder="email@example.com"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="statut_asigurat" className="text-sm font-medium text-slate-700">
+                  Statut asigurat
+                </Label>
+                <Select value={newPatient.statut_asigurat} onValueChange={(value) => setNewPatient({...newPatient, statut_asigurat: value})}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selectați statutul" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asigurat">Asigurat</SelectItem>
+                    <SelectItem value="neasigurat">Neasigurat</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="in_evidenta_la" className="text-sm font-medium text-slate-700">
+                  În evidența la
+                </Label>
+                <Input
+                  id="in_evidenta_la"
+                  value={newPatient.in_evidenta_la}
+                  onChange={(e) => setNewPatient({...newPatient, in_evidenta_la: e.target.value})}
+                  placeholder="Introduceți instituția"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="tip_pacient" className="text-sm font-medium text-slate-700">
+                  Tip pacient
+                </Label>
+                <Select value={newPatient.tip_pacient} onValueChange={(value) => setNewPatient({...newPatient, tip_pacient: value})}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selectați tipul" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ambulatoriu">Ambulatoriu</SelectItem>
+                    <SelectItem value="spitalizare">Spitalizare</SelectItem>
+                    <SelectItem value="urgenta">Urgență</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="observatii" className="text-sm font-medium text-slate-700">
+                  Observații
+                </Label>
+                <Input
+                  id="observatii"
+                  value={newPatient.observatii}
+                  onChange={(e) => setNewPatient({...newPatient, observatii: e.target.value})}
+                  placeholder="Observații suplimentare"
                   className="mt-1"
                 />
               </div>
