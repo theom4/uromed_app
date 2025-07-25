@@ -494,10 +494,10 @@ export default function Home() {
               
               <button 
                 className="w-full flex items-center space-x-3 px-4 py-3 text-left text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-                onClick={() => router.push('/setari')}
+                onClick={() => router.push('/settings')}
               >
                 <Settings className="w-5 h-5" />
-                <span>Setari</span>
+                <span>Setări</span>
               </button>
               
               <button 
