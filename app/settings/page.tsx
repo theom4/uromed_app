@@ -70,6 +70,8 @@ export default function SettingsPage() {
             content = content.replace(/\\n/g, '\n');
             
             setPromptText(content);
+        }
+        )
 
         if (response.ok) {
             let responseText = await response.text();
