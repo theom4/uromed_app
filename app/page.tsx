@@ -611,6 +611,17 @@ export default function Home() {
                   className="pl-10 h-12 text-lg"
                 />
               </div>
+              <Button
+                onClick={handleAddPatientClick}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Patient
+              </Button>
+            </div>
+            
+            {/* File Upload Section */}
+            <div className="mt-4 pt-4 border-t border-slate-200">
               <div className="relative">
                 <Input
                   type="file"
@@ -647,13 +658,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <Button
-                onClick={handleAddPatientClick}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Patient
-              </Button>
             </div>
           </CardContent>
         </Card>
