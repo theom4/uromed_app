@@ -617,13 +617,35 @@ export default function Home() {
                   multiple
                   accept="image/*,.pdf,.doc,.docx,.txt"
                   onChange={(e) => handleMainFileUpload(e.target.files)}
-                  className="hidden"
                   id="main-documents"
+                  className="hidden"
                 />
                 <Label htmlFor="main-documents" className="cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 h-12 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 transition-colors text-slate-600 hover:text-blue-600">
                   <Upload className="w-4 h-4" />
                   <span className="text-sm">Atașează documente</span>
                 </Label>
+                {attachedFiles.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {attachedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="w-3 h-3 text-slate-600" />
+                          <span className="text-slate-700">{file.name}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+                          }}
+                          className="text-red-500 hover:text-red-700 p-1 h-auto"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <Button
                 onClick={handleAddPatientClick}
