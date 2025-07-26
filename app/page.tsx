@@ -483,7 +483,35 @@ export default function Home() {
         if (response.ok) {
           console.log('Files uploaded successfully', response.status);
           const responseText = await response.text();
-          setSearchResult(responseText || 'Căutare completă cu succes!');
+          
+          // Try to parse as JSON first
+          let formattedResult = '';
+          try {
+            const jsonData = JSON.parse(responseText);
+            
+            if (jsonData.status === "Pacient nou creat") {
+              formattedResult = "✅ PACIENT NOU CREAT\n\nPacientul nu a fost găsit în baza de date și a fost creat un nou profil.";
+            } else if (jsonData.status === "Pacient gasit") {
+              formattedResult = `✅ PACIENT GĂSIT\n\n` +
+                `Nume: ${jsonData.nume || 'N/A'}\n` +
+                `Prenume: ${jsonData.prenume || 'N/A'}\n` +
+                `CNP: ${jsonData.cnp || 'N/A'}\n` +
+                `Telefon: ${jsonData.telefon || 'N/A'}\n` +
+                `Data nașterii: ${jsonData.data_nasterii || 'N/A'}`;
+            } else {
+              // Unknown status, show formatted JSON
+              formattedResult = `Status: ${jsonData.status || 'Necunoscut'}\n\n` +
+                Object.entries(jsonData)
+                  .filter(([key]) => key !== 'status')
+                  .map(([key, value]) => `${key}: ${value}`)
+                  .join('\n');
+            }
+          } catch (parseError) {
+            // If not valid JSON, show as plain text
+            formattedResult = responseText || 'Căutare completă cu succes!';
+          }
+          
+          setSearchResult(formattedResult);
           setShowSearchResult(true);
           // Clear attached files after successful upload
           setAttachedFiles([]);
@@ -495,12 +523,12 @@ export default function Home() {
         } else {
           const errorText = await response.text();
           console.error('Failed to upload files:', response.status, errorText);
-          setSearchResult(`Eroare: ${response.status} - ${errorText}`);
+          setSearchResult(`❌ EROARE\n\nCod eroare: ${response.status}\nDetalii: ${errorText}`);
           setShowSearchResult(true);
         }
       } catch (error) {
         console.error('Error uploading files:', error);
-        setSearchResult(`Eroare de conexiune: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+        setSearchResult(`❌ EROARE DE CONEXIUNE\n\n${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
         setShowSearchResult(true);
         // Check if it's a CORS error
         if (error instanceof TypeError && error.message === 'Failed to fetch') {
