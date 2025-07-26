@@ -19,6 +19,7 @@ export default function SettingsPage() {
   const [exempluText, setExempluText] = useState('');
   const [temperature, setTemperature] = useState(0.5);
   const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
+  const [isApplyingChanges, setIsApplyingChanges] = useState(false);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -84,6 +85,43 @@ export default function SettingsPage() {
       } finally {
         setIsLoadingPrompt(false);
       }
+    }
+  };
+
+  const handleApplyChanges = async () => {
+    if (!documentType) {
+      alert('Vă rugăm să selectați un tip de document');
+      return;
+    }
+
+    setIsApplyingChanges(true);
+    try {
+      const response = await fetch('https://n8n.voisero.info/webhook-test/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          operation: 'set-prompt',
+          documentType: documentType,
+          promptText: promptText,
+          exempluText: exempluText,
+          temperature: temperature
+        }),
+      });
+
+      if (response.ok) {
+        alert('Modificările au fost aplicate cu succes!');
+      } else {
+        const errorText = await response.text();
+        console.error('Webhook request failed:', response.status, errorText);
+        alert(`Eroare la aplicarea modificărilor (${response.status}): ${errorText || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error sending webhook:', error);
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsApplyingChanges(false);
     }
   };
 
