@@ -87,7 +87,7 @@ export default function SettingsPage() {
                     placeholder="Introduceți prompt-ul personalizat aici..."
                     value={promptText}
                     onChange={(e) => setPromptText(e.target.value)}
-                    className="mt-2 min-h-[300px] max-h-[400px] resize-y"
+                    className="mt-2 min-h-[600px] max-h-[700px] resize-y"
                   />
                 </div>
               </div>
