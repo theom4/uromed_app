@@ -51,11 +51,46 @@ export default function SettingsPage() {
           body: JSON.stringify({
             documentType: value
           }),
-        });
+            let content = responseData.output || 'Document generat cu succes!';
+            
+            // Extract content from iframe if present
+            if (content.includes('<iframe srcdoc="')) {
+              const match = content.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
+              if (match) {
+                content = match[1];
+                // Decode HTML entities
+                content = content.replace(/&quot;/g, '"')
+                                .replace(/&amp;/g, '&')
+                                .replace(/&lt;/g, '<')
+                                .replace(/&gt;/g, '>');
+              }
+            }
+            
+            // Convert \n to actual newlines
+            content = content.replace(/\\n/g, '\n');
+            
+            setPromptText(content);
 
         if (response.ok) {
-          const responseData = await response.text();
-          setPromptText(responseData);
+            let responseText = await response.text();
+            
+            // Extract content from iframe if present
+            if (responseText.includes('<iframe srcdoc="')) {
+              const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
+              if (match) {
+                responseText = match[1];
+                // Decode HTML entities
+                responseText = responseText.replace(/&quot;/g, '"')
+                                         .replace(/&amp;/g, '&')
+                                         .replace(/&lt;/g, '<')
+                                         .replace(/&gt;/g, '>');
+              }
+            }
+            
+            // Convert \n to actual newlines
+            responseText = responseText.replace(/\\n/g, '\n');
+            
+            setPromptText(responseText || 'Document generat cu succes!');
         } else {
           const errorText = await response.text();
           console.error('Webhook request failed:', response.status, errorText);
