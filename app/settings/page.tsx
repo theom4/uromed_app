@@ -102,8 +102,7 @@ export default function SettingsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          documentType: value,
-          operation: "get-prompt"
+          operation: "set-prompt",
           documentType: documentType,
           promptText: promptText,
           exempluText: exempluText,
