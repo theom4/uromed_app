@@ -528,12 +528,23 @@ export default function Home() {
         }
       } catch (error) {
         console.error('Error uploading files:', error);
-        setSearchResult(`❌ EROARE DE CONEXIUNE\n\n${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
-        setShowSearchResult(true);
-        // Check if it's a CORS error
+        
+        // Provide specific error messages based on error type
+        let errorMessage = '';
         if (error instanceof TypeError && error.message === 'Failed to fetch') {
-          console.error('This might be a CORS issue. The n8n webhook needs to allow requests from localhost:3000');
+          errorMessage = `❌ EROARE DE CONEXIUNE (CORS)\n\n` +
+            `Nu se poate conecta la serverul n8n.\n\n` +
+            `Cauze posibile:\n` +
+            `• Serverul n8n nu permite cereri de la localhost:3000\n` +
+            `• Verificați configurația CORS în n8n\n` +
+            `• Serverul poate fi offline\n\n` +
+            `Soluție: Configurați n8n să permită cereri de la localhost:3000`;
+        } else {
+          errorMessage = `❌ EROARE DE CONEXIUNE\n\n${error instanceof Error ? error.message : 'Eroare necunoscută'}`;
         }
+        
+        setSearchResult(errorMessage);
+        setShowSearchResult(true);
       }
     } else {
       // If no files attached, navigate to patients page as before
