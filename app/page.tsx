@@ -474,11 +474,15 @@ export default function Home() {
         });
         const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          mode: 'cors',
           body: formData,
         });
         
         if (response.ok) {
-          console.log('Files uploaded successfully');
+          console.log('Files uploaded successfully', response.status);
           // Clear attached files after successful upload
           setAttachedFiles([]);
           // Reset the file input
@@ -487,10 +491,15 @@ export default function Home() {
             fileInput.value = '';
           }
         } else {
-          console.error('Failed to upload files:', response.status);
+          const errorText = await response.text();
+          console.error('Failed to upload files:', response.status, errorText);
         }
       } catch (error) {
         console.error('Error uploading files:', error);
+        // Check if it's a CORS error
+        if (error instanceof TypeError && error.message === 'Failed to fetch') {
+          console.error('This might be a CORS issue. The n8n webhook needs to allow requests from localhost:3000');
+        }
       }
     } else {
       // If no files attached, navigate to patients page as before
