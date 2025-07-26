@@ -474,6 +474,7 @@ export default function Home() {
         });
         
         const response = await fetch('http://n8n.voisero.info/webhook-test/snippet', {
+        const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
           method: 'POST',
           body: formData,
         });
