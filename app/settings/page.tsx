@@ -67,7 +67,7 @@ export default function SettingsPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           {/* Left Side - Prompt */}
           <Card className="shadow-lg border-slate-200">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
@@ -94,90 +94,92 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Right Side - Document Type Selector and Exemplu */}
-          <Card className="shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
-                <Settings className="w-5 h-5 text-green-600" />
-                <span>Configurări</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium text-slate-700">
-                    Selectați tipul documentului medical implicit
-                  </Label>
-                  <Select value={documentType} onValueChange={setDocumentType}>
-                    <SelectTrigger className="w-full mt-2">
-                      <SelectValue placeholder="Selectați tipul documentului medical" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
-                      <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
-                      <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
-                      <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
-                      <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
-                      <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* Right Side - Document Type Selector, Exemplu, and Temperature */}
+          <div className="space-y-6">
+            {/* Configurări Card */}
+            <Card className="shadow-lg border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
+                <CardTitle className="flex items-center space-x-2 text-slate-800">
+                  <Settings className="w-5 h-5 text-green-600" />
+                  <span>Configurări</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700">
+                      Selectați tipul documentului medical implicit
+                    </Label>
+                    <Select value={documentType} onValueChange={setDocumentType}>
+                      <SelectTrigger className="w-full mt-2">
+                        <SelectValue placeholder="Selectați tipul documentului medical" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
+                        <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
+                        <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
+                        <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
+                        <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
+                        <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="exemplu-text" className="text-sm font-medium text-slate-700">
+                      Exemplu
+                    </Label>
+                    <Textarea
+                      id="exemplu-text"
+                      placeholder="Introduceți exemplul aici..."
+                      value={exempluText}
+                      onChange={(e) => setExempluText(e.target.value)}
+                      className="mt-2 min-h-[200px] resize-none"
+                    />
+                  </div>
                 </div>
-                
-                <div>
-                  <Label htmlFor="exemplu-text" className="text-sm font-medium text-slate-700">
-                    Exemplu
-                  </Label>
-                  <Textarea
-                    id="exemplu-text"
-                    placeholder="Introduceți exemplul aici..."
-                    value={exempluText}
-                    onChange={(e) => setExempluText(e.target.value)}
-                    className="mt-2 min-h-[200px] resize-none"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Temperature Slider */}
-          <Card className="shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
-                <Settings className="w-5 h-5 text-orange-600" />
-                <span>Temperatură</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm font-medium text-slate-700">0</span>
-                    <span className="text-sm font-medium text-slate-700">1</span>
+            {/* Temperature Slider Card */}
+            <Card className="shadow-lg border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
+                <CardTitle className="flex items-center space-x-2 text-slate-800">
+                  <Settings className="w-5 h-5 text-orange-600" />
+                  <span>Temperatură</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-sm font-medium text-slate-700">0</span>
+                      <span className="text-sm font-medium text-slate-700">1</span>
+                    </div>
+                    <Slider
+                      value={[temperature]}
+                      onValueChange={(value) => setTemperature(value[0])}
+                      max={1}
+                      min={0}
+                      step={0.01}
+                      className="w-full"
+                    />
+                    <div className="text-center mt-2">
+                      <span className="text-sm text-slate-600">Valoare curentă: {temperature.toFixed(2)}</span>
+                    </div>
                   </div>
-                  <Slider
-                    value={[temperature]}
-                    onValueChange={(value) => setTemperature(value[0])}
-                    max={1}
-                    min={0}
-                    step={0.1}
-                    className="w-full"
-                  />
-                  <div className="text-center mt-2">
-                    <span className="text-sm text-slate-600">Valoare curentă: {temperature}</span>
+                  
+                  <div className="flex justify-center pt-4">
+                    <Button className="bg-green-500 hover:bg-green-600 text-white px-8 py-2">
+                      Aplică modificări
+                    </Button>
                   </div>
                 </div>
-                
-                <div className="flex justify-center pt-4">
-                  <Button className="bg-green-500 hover:bg-green-600 text-white px-8 py-2">
-                    Aplică modificări
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        {/* Save Button */}
       </div>
     </div>
   );
