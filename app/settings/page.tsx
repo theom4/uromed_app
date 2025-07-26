@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Settings, FileText } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -16,6 +17,7 @@ export default function SettingsPage() {
   const [promptText, setPromptText] = useState('');
   const [documentType, setDocumentType] = useState('');
   const [exempluText, setExempluText] = useState('');
+  const [temperature, setTemperature] = useState(0.5);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -136,18 +138,46 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Temperature Slider */}
+          <Card className="shadow-lg border-slate-200">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
+              <CardTitle className="flex items-center space-x-2 text-slate-800">
+                <Settings className="w-5 h-5 text-orange-600" />
+                <span>Temperatură</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm font-medium text-slate-700">0</span>
+                    <span className="text-sm font-medium text-slate-700">1</span>
+                  </div>
+                  <Slider
+                    value={[temperature]}
+                    onValueChange={(value) => setTemperature(value[0])}
+                    max={1}
+                    min={0}
+                    step={0.1}
+                    className="w-full"
+                  />
+                  <div className="text-center mt-2">
+                    <span className="text-sm text-slate-600">Valoare curentă: {temperature}</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-center pt-4">
+                  <Button className="bg-green-500 hover:bg-green-600 text-white px-8 py-2">
+                    Aplică modificări
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Save Button */}
-        <Card className="shadow-lg border-slate-200 mt-6">
-          <CardContent className="p-6">
-            <div className="flex justify-center">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-2">
-                Salvează Setările
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
