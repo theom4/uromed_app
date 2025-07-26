@@ -85,7 +85,7 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
     if (value) {
       setIsLoadingPrompt(true);
       try {
-        const response = await fetch('https://n8n.voisero.info/webhook-test/patients', {
+        const response = await fetch('https://n8n.voisero.info/webhook/patients', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
