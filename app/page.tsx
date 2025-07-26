@@ -34,6 +34,8 @@ export default function Home() {
   // Audio context for processing audio data
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [searchResult, setSearchResult] = useState<string>('');
+  const [showSearchResult, setShowSearchResult] = useState(false);
   
   // Add a ref to track the current activeTranscribe value in the WebSocket handler
   const activeTranscribeRef = useRef<'medical' | 'previous' | null>(null);
@@ -480,6 +482,9 @@ export default function Home() {
         
         if (response.ok) {
           console.log('Files uploaded successfully', response.status);
+          const responseText = await response.text();
+          setSearchResult(responseText || 'Căutare completă cu succes!');
+          setShowSearchResult(true);
           // Clear attached files after successful upload
           setAttachedFiles([]);
           // Reset the file input
@@ -490,9 +495,13 @@ export default function Home() {
         } else {
           const errorText = await response.text();
           console.error('Failed to upload files:', response.status, errorText);
+          setSearchResult(`Eroare: ${response.status} - ${errorText}`);
+          setShowSearchResult(true);
         }
       } catch (error) {
         console.error('Error uploading files:', error);
+        setSearchResult(`Eroare de conexiune: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+        setShowSearchResult(true);
         // Check if it's a CORS error
         if (error instanceof TypeError && error.message === 'Failed to fetch') {
           console.error('This might be a CORS issue. The n8n webhook needs to allow requests from localhost:3000');
@@ -620,7 +629,7 @@ export default function Home() {
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Patient
+                Cauta Pacient
               </Button>
             </div>
             
@@ -665,6 +674,35 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Search Result Popup */}
+        {showSearchResult && (
+          <Card className="shadow-lg border-slate-200 bg-blue-50 border-blue-200">
+            <CardHeader className="bg-gradient-to-r from-blue-100 to-teal-100 border-b border-blue-200">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center space-x-2 text-slate-800">
+                  <Search className="w-5 h-5 text-blue-600" />
+                  <span>Rezultat Căutare</span>
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSearchResult(false)}
+                  className="text-slate-600 hover:text-slate-800"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-64 overflow-y-auto">
+                <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
+                  {searchResult}
+                </pre>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Medical Information Section */}
         <Card className="shadow-lg border-slate-200">
