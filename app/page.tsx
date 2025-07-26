@@ -474,9 +474,6 @@ export default function Home() {
         });
         const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
           mode: 'cors',
           body: formData,
         });
