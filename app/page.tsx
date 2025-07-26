@@ -468,10 +468,9 @@ export default function Home() {
         // Add operation property
         formData.append('operation', 'search-patient');
         
-        // Add files with their mime types
+        // Add files in binary format
         attachedFiles.forEach((file, index) => {
           formData.append(`file_${index}`, file);
-          formData.append(`file_${index}_mime_type`, file.type);
         });
         
         const response = await fetch('http://n8n.voisero.info/webhook-test/snippet', {
