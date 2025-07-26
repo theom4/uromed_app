@@ -87,7 +87,7 @@ export default function SettingsPage() {
                     placeholder="Introduceți prompt-ul personalizat aici..."
                     value={promptText}
                     onChange={(e) => setPromptText(e.target.value)}
-                    className="mt-2 min-h-[200px] resize-none"
+                    className="mt-2 min-h-[300px] max-h-[400px] resize-y"
                   />
                 </div>
               </div>
@@ -95,9 +95,9 @@ export default function SettingsPage() {
           </Card>
 
           {/* Right Side - Document Type Selector, Exemplu, and Temperature */}
-          <div className="space-y-6">
+          <div className="space-y-6 flex flex-col">
             {/* Configurări Card */}
-            <Card className="shadow-lg border-slate-200">
+            <Card className="shadow-lg border-slate-200 flex-shrink-0">
               <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
                 <CardTitle className="flex items-center space-x-2 text-slate-800">
                   <Settings className="w-5 h-5 text-green-600" />
@@ -134,7 +134,7 @@ export default function SettingsPage() {
                       placeholder="Introduceți exemplul aici..."
                       value={exempluText}
                       onChange={(e) => setExempluText(e.target.value)}
-                      className="mt-2 min-h-[200px] resize-none"
+                      className="mt-2 min-h-[150px] max-h-[200px] resize-y"
                     />
                   </div>
                 </div>
@@ -142,7 +142,7 @@ export default function SettingsPage() {
             </Card>
 
             {/* Temperature Slider Card */}
-            <Card className="shadow-lg border-slate-200">
+            <Card className="shadow-lg border-slate-200 flex-shrink-0">
               <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
                 <CardTitle className="flex items-center space-x-2 text-slate-800">
                   <Settings className="w-5 h-5 text-orange-600" />
