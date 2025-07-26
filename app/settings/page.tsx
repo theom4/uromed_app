@@ -82,6 +82,26 @@ export default function SettingsPage() {
                   <Label htmlFor="prompt-text" className="text-sm font-medium text-slate-700">
                     Configurați prompt-ul pentru generarea documentelor medicale
                   </Label>
+                  
+                  <div className="mt-2 mb-4">
+                    <Label className="text-sm font-medium text-slate-700">
+                      Selectați tipul documentului medical implicit
+                    </Label>
+                    <Select value={documentType} onValueChange={setDocumentType}>
+                      <SelectTrigger className="w-full mt-2">
+                        <SelectValue placeholder="Selectați tipul documentului medical" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
+                        <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
+                        <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
+                        <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
+                        <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
+                        <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
                   <Textarea
                     id="prompt-text"
                     placeholder="Introduceți prompt-ul personalizat aici..."
@@ -89,25 +109,6 @@ export default function SettingsPage() {
                     onChange={(e) => setPromptText(e.target.value)}
                     className="mt-2 min-h-[600px] max-h-[700px] resize-y"
                   />
-                </div>
-                
-                <div>
-                  <Label className="text-sm font-medium text-slate-700">
-                    Selectați tipul documentului medical implicit
-                  </Label>
-                  <Select value={documentType} onValueChange={setDocumentType}>
-                    <SelectTrigger className="w-full mt-2">
-                      <SelectValue placeholder="Selectați tipul documentului medical" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
-                      <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
-                      <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
-                      <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
-                      <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
-                      <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
             </CardContent>
