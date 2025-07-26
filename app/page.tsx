@@ -108,9 +108,13 @@ export default function Home() {
           
           // Handle transcription results according to Gladia protocol
           if (message.type === 'transcript') {
+            // Initialize variables with default values
+            let transcriptText = '';
+            let isFinal = false;
+            
             if (message.data) {
-              const transcriptText = message.data.utterance?.text || message.data.text || '';
-              const isFinal = message.data.is_final || false;
+              transcriptText = message.data.utterance?.text || message.data.text || '';
+              isFinal = message.data.is_final || false;
               
               console.log(`📝 ${isFinal ? 'FINAL' : 'partial'}: "${transcriptText}"`);
               
