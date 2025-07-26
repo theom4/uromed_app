@@ -472,7 +472,6 @@ export default function Home() {
         attachedFiles.forEach((file, index) => {
           formData.append(`file_${index}`, file);
         });
-        
         const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
           method: 'POST',
           body: formData,
