@@ -33,6 +33,7 @@ export default function Home() {
 
   // Audio context for processing audio data
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   
   // Add a ref to track the current activeTranscribe value in the WebSocket handler
   const activeTranscribeRef = useRef<'medical' | 'previous' | null>(null);
@@ -453,6 +454,52 @@ export default function Home() {
     }
   };
 
+  const handleMainFileUpload = (files: FileList | null) => {
+    if (!files) return;
+    const fileArray = Array.from(files);
+    setAttachedFiles(fileArray);
+  };
+
+  const handleAddPatientClick = async () => {
+    if (attachedFiles.length > 0) {
+      try {
+        const formData = new FormData();
+        
+        // Add operation property
+        formData.append('operation', 'search-patient');
+        
+        // Add files with their mime types
+        attachedFiles.forEach((file, index) => {
+          formData.append(`file_${index}`, file);
+          formData.append(`file_${index}_mime_type`, file.type);
+        });
+        
+        const response = await fetch('http://n8n.voisero.info/webhook-test/snippet', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          console.log('Files uploaded successfully');
+          // Clear attached files after successful upload
+          setAttachedFiles([]);
+          // Reset the file input
+          const fileInput = document.getElementById('main-documents') as HTMLInputElement;
+          if (fileInput) {
+            fileInput.value = '';
+          }
+        } else {
+          console.error('Failed to upload files:', response.status);
+        }
+      } catch (error) {
+        console.error('Error uploading files:', error);
+      }
+    } else {
+      // If no files attached, navigate to patients page as before
+      router.push('/pacienti');
+    }
+  };
+
   if (!isLoggedIn) {
     return <LoginScreen onLogin={handleLogin} />;
   }
@@ -569,6 +616,7 @@ export default function Home() {
                   type="file"
                   multiple
                   accept="image/*,.pdf,.doc,.docx,.txt"
+                  onChange={(e) => handleMainFileUpload(e.target.files)}
                   className="hidden"
                   id="main-documents"
                 />
@@ -578,7 +626,7 @@ export default function Home() {
                 </Label>
               </div>
               <Button
-                onClick={() => router.push('/pacienti')}
+                onClick={handleAddPatientClick}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 mr-2" />
