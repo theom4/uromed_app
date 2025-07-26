@@ -51,27 +51,7 @@ export default function SettingsPage() {
           body: JSON.stringify({
             documentType: value
           }),
-            let content = responseData.output || 'Document generat cu succes!';
-            
-            // Extract content from iframe if present
-            if (content.includes('<iframe srcdoc="')) {
-              const match = content.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
-              if (match) {
-                content = match[1];
-                // Decode HTML entities
-                content = content.replace(/&quot;/g, '"')
-                                .replace(/&amp;/g, '&')
-                                .replace(/&lt;/g, '<')
-                                .replace(/&gt;/g, '>');
-              }
-            }
-            
-            // Convert \n to actual newlines
-            content = content.replace(/\\n/g, '\n');
-            
-            setPromptText(content);
-        }
-        )
+        });
 
         if (response.ok) {
             let responseText = await response.text();
