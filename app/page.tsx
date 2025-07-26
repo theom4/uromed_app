@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle, Mic, X } from 'lucide-react';
-import { Menu, User, Bot, Gamepad2, Building2, Calendar } from 'lucide-react';
+import { Menu, User, Bot, Gamepad2, Building2, Calendar, Search, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -552,6 +552,29 @@ export default function Home() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Search and Add Patient Section */}
+        <Card className="shadow-lg border-slate-200">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="cauta pacient"
+                  className="pl-10 h-12 text-lg"
+                />
+              </div>
+              <Button
+                onClick={() => router.push('/pacienti')}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Patient
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Medical Information Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
