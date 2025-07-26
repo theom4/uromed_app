@@ -50,7 +50,8 @@ export default function SettingsPage() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            documentType: value
+            documentType: value,
+            operation: "get-prompt"
           }),
         });
 
