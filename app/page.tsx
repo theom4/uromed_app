@@ -354,10 +354,25 @@ export default function Home() {
     try {
       const formData = new FormData();
       
+      // Prepare medical info with patient data if available
+      let enhancedMedicalInfo = medicalInfo;
+      let patientCNP = '';
+      
+      if (searchResult) {
+        enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + searchResult;
+        
+        // Extract CNP from search result if available
+        const cnpMatch = searchResult.match(/CNP:\s*([^\n]+)/);
+        if (cnpMatch) {
+          patientCNP = cnpMatch[1].trim();
+        }
+      }
+      
       // Add data directly as JSON properties
-      formData.append('medicalInfo', medicalInfo);
+      formData.append('medicalInfo', enhancedMedicalInfo);
       formData.append('previousMedicalInfo', previousMedicalInfo);
       formData.append('documentType', documentType);
+      formData.append('cnp', patientCNP);
       
       // Add medical files
       medicalFiles.forEach((file, index) => {
