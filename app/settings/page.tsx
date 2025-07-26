@@ -43,7 +43,7 @@ export default function SettingsPage() {
     if (value) {
       setIsLoadingPrompt(true);
       try {
-        const response = await fetch('http://n8n.voisero.info/webhook-test/patients', {
+        const response = await fetch('https://n8n.voisero.info/webhook-test/patients', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -57,12 +57,13 @@ export default function SettingsPage() {
           const responseData = await response.text();
           setPromptText(responseData);
         } else {
-          console.error('Webhook request failed:', response.status);
-          setPromptText(`Eroare la încărcarea prompt-ului: ${response.status}`);
+          const errorText = await response.text();
+          console.error('Webhook request failed:', response.status, errorText);
+          setPromptText(`Eroare la încărcarea prompt-ului (${response.status}): ${errorText || response.statusText}`);
         }
       } catch (error) {
         console.error('Error sending webhook:', error);
-        setPromptText(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+        setPromptText(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea - verificați conexiunea'}`);
       } finally {
         setIsLoadingPrompt(false);
       }
