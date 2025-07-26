@@ -564,6 +564,19 @@ export default function Home() {
                   className="pl-10 h-12 text-lg"
                 />
               </div>
+              <div className="relative">
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                  className="hidden"
+                  id="main-documents"
+                />
+                <Label htmlFor="main-documents" className="cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 h-12 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 transition-colors text-slate-600 hover:text-blue-600">
+                  <Upload className="w-4 h-4" />
+                  <span className="text-sm">Atașează documente</span>
+                </Label>
+              </div>
               <Button
                 onClick={() => router.push('/pacienti')}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"

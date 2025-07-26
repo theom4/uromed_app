@@ -21,6 +21,47 @@ export default function SettingsPage() {
   const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
   const [isApplyingChanges, setIsApplyingChanges] = useState(false);
 
+  // Set default template text for exemplu
+  useEffect(() => {
+    if (!exempluText) {
+      setExempluText(`# Template de Prompt pentru Generare Documente
+
+Acest template te ajută să generezi rapid orice tip de document, specificând rolul meu, regulile de generare, contextul și structura dorită.
+
+---
+
+**Instrucțiuni:**
+Completează secțiunile de mai jos cu informațiile specifice documentului pe care dorești să-l generezi. Asigură-te că oferi detalii clare pentru fiecare câmp.
+
+---
+
+# Rol
+- Ești un/o [ROL_AI_DORIT] (ex: expert în marketing, scriitor creativ, medic specialist, programator Python, etc.)
+
+# Reguli
+- [REGULA_1] (ex: Folosește doar informațiile furnizate, nu cere detalii suplimentare)
+- [REGULA_2] (ex: Generează documentul în format text simplu/Markdown/HTML/JSON)
+- [REGULA_3] (ex: Nu oferi explicații suplimentare, doar documentul generat)
+- [REGULA_N] (Adaugă reguli suplimentare dacă este necesar)
+
+# Context
+- [CONTEXT_GENERAL] (ex: Vei primi un set de date, o solicitare specifică, un istoric, etc.)
+- [SCOP_DOCUMENT] (ex: Va trebui să întocmești un raport, o poveste, o analiză, o scrisoare, un cod, etc.)
+
+# Structura Documentului
+- Documentul va fi structurat în următoarele secțiuni principale:
+  - [NUME_SECTIUNE_1] [DESCRIERE_CONTINUT_SECTIUNE_1] (ex: Introducere [Prezintă subiectul și scopul])
+  - [NUME_SECTIUNE_2] [DESCRIERE_CONTINUT_SECTIUNE_2] (ex: Analiză [Analizează datele și trage concluzii])
+  - [NUME_SECTIUNE_3] [DESCRIERE_CONTINUT_SECTIUNE_3] (ex: Recomandări [Sugerează pași următori sau soluții])
+  - [NUME_SECTIUNE_N] [DESCRIERE_CONTINUT_SECTIUNE_N] (Adaugă secțiuni suplimentare dacă este necesar)
+
+# Note
+- [FORMAT_FINAL] (ex: Textul final trebuie să fie în format txt / Markdown / HTML / JSON)
+- [UTILIZARE_DOCUMENT] (ex: Documentul va fi folosit direct de utilizator / va fi editat ulterior / este un draft)
+- [ALTE_NOTE] (ex: Include hashtaguri relevante, folosește un ton formal/informal, limitează-te la un anumit număr de cuvinte, etc.)`);
+    }
+  }, [exempluText]);
+
   // Check for existing login state on component mount
   useEffect(() => {
     const loginState = localStorage.getItem('isLoggedIn');
