@@ -223,8 +223,19 @@ export default function SettingsPage() {
                   </div>
                   
                   <div className="flex justify-center pt-4">
-                    <Button className="bg-green-500 hover:bg-green-600 text-white px-8 py-2">
-                      Aplică modificări
+                    <Button 
+                      onClick={handleApplyChanges}
+                      disabled={isApplyingChanges || !documentType}
+                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isApplyingChanges ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Se aplică...</span>
+                        </div>
+                      ) : (
+                        'Aplică modificări'
+                      )}
                     </Button>
                   </div>
                 </div>
