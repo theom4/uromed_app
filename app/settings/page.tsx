@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [documentType, setDocumentType] = useState('');
   const [exempluText, setExempluText] = useState('');
   const [temperature, setTemperature] = useState(0.5);
+  const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
 
   // Check for existing login state on component mount
   useEffect(() => {
@@ -34,6 +35,38 @@ export default function SettingsPage() {
 
   const handleBack = () => {
     router.push('/');
+  };
+
+  const handleDocumentTypeChange = async (value: string) => {
+    setDocumentType(value);
+    
+    if (value) {
+      setIsLoadingPrompt(true);
+      try {
+        const response = await fetch('http://n8n.voisero.info/webhook-test/patients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            documentType: value
+          }),
+        });
+
+        if (response.ok) {
+          const responseData = await response.text();
+          setPromptText(responseData);
+        } else {
+          console.error('Webhook request failed:', response.status);
+          setPromptText(`Eroare la încărcarea prompt-ului: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Error sending webhook:', error);
+        setPromptText(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+      } finally {
+        setIsLoadingPrompt(false);
+      }
+    }
   };
 
   if (!isLoggedIn) {
@@ -87,9 +120,9 @@ export default function SettingsPage() {
                     <Label className="text-sm font-medium text-slate-700">
                       Selectați tipul documentului medical implicit
                     </Label>
-                    <Select value={documentType} onValueChange={setDocumentType}>
+                    <Select value={documentType} onValueChange={handleDocumentTypeChange}>
                       <SelectTrigger className="w-full mt-2">
-                        <SelectValue placeholder="Selectați tipul documentului medical" />
+                        <SelectValue placeholder={isLoadingPrompt ? "Se încarcă..." : "Selectați tipul documentului medical"} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
@@ -104,10 +137,11 @@ export default function SettingsPage() {
                   
                   <Textarea
                     id="prompt-text"
-                    placeholder="Introduceți prompt-ul personalizat aici..."
+                    placeholder={isLoadingPrompt ? "Se încarcă prompt-ul..." : "Introduceți prompt-ul personalizat aici..."}
                     value={promptText}
                     onChange={(e) => setPromptText(e.target.value)}
-                    className="mt-2 min-h-[600px] max-h-[700px] resize-y"
+                    className={`mt-2 min-h-[600px] max-h-[700px] resize-y ${isLoadingPrompt ? 'opacity-50' : ''}`}
+                    disabled={isLoadingPrompt}
                   />
                 </div>
               </div>
