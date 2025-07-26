@@ -356,13 +356,13 @@ export default function Home() {
       
       // Prepare medical info with patient data if available
       let enhancedMedicalInfo = medicalInfo;
-      let patientCNP = '';
+      let patientCNP = '0';
       
       if (searchResult) {
         enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + searchResult;
         
-        // Extract CNP from search result if available
-        const cnpMatch = searchResult.match(/CNP:\s*([^\n]+)/);
+        // Extract CNP from search result if available (handles both JSON and formatted text)
+        const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
         if (cnpMatch) {
           patientCNP = cnpMatch[1].trim();
         }
