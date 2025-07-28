@@ -383,7 +383,6 @@ export default function Home() {
       previousMedicalFiles.forEach((file, index) => {
         formData.append(`previousMedicalFile_${index}`, file);
       });
-      
       const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
         method: 'POST',
         mode: 'cors',
