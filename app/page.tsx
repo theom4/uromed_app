@@ -387,6 +387,12 @@ export default function Home() {
       const response = await fetch('https://n8n.voisero.info/webhook-test/uromed-app', {
       const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
         method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
         body: formData,
       });
       
