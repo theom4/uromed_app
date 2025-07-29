@@ -540,6 +540,12 @@ export default function Home() {
           setShowSearchResult(true);
           // Clear attached files after successful upload
           setAttachedFiles([]);
+          // Clear medical information fields for new patient
+          setMedicalInfo('');
+          setPreviousMedicalInfo('');
+          // Clear medical files
+          setMedicalFiles([]);
+          setPreviousMedicalFiles([]);
           // Reset the file input
           const fileInput = document.getElementById('main-documents') as HTMLInputElement;
           if (fileInput) {
@@ -550,6 +556,12 @@ export default function Home() {
           console.error('Failed to upload files:', response.status, errorText);
           setSearchResult(`❌ EROARE\n\nCod eroare: ${response.status}\nDetalii: ${errorText}`);
           setShowSearchResult(true);
+          // Clear medical information fields even on error for consistency
+          setMedicalInfo('');
+          setPreviousMedicalInfo('');
+          // Clear medical files
+          setMedicalFiles([]);
+          setPreviousMedicalFiles([]);
         }
       } catch (error) {
         console.error('Error uploading files:', error);
@@ -570,6 +582,12 @@ export default function Home() {
         
         setSearchResult(errorMessage);
         setShowSearchResult(true);
+        // Clear medical information fields even on error for consistency
+        setMedicalInfo('');
+        setPreviousMedicalInfo('');
+        // Clear medical files
+        setMedicalFiles([]);
+        setPreviousMedicalFiles([]);
       }
     } else {
       // If no files attached, navigate to patients page as before
