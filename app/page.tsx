@@ -17,7 +17,7 @@ export default function Home() {
   const router = useRouter();
   const [medicalInfo, setMedicalInfo] = useState('');
   const [previousMedicalInfo, setPreviousMedicalInfo] = useState('');
-  const [documentType, setDocumentType] = useState('');
+  const [documentType, setDocumentType] = useState('spitalizare-zi');
   const [medicalFiles, setMedicalFiles] = useState<File[]>([]);
   const [previousMedicalFiles, setPreviousMedicalFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
