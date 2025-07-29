@@ -36,6 +36,11 @@ export default function Home() {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [searchResult, setSearchResult] = useState<string>('');
   const [showSearchResult, setShowSearchResult] = useState(false);
+  const [dragStates, setDragStates] = useState({
+    main: false,
+    medical: false,
+    previous: false
+  });
   
   // Add a ref to track the current activeTranscribe value in the WebSocket handler
   const activeTranscribeRef = useRef<'medical' | 'previous' | null>(null);
@@ -572,6 +577,33 @@ export default function Home() {
     }
   };
 
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent, type: 'main' | 'medical' | 'previous') => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [type]: true }));
+  };
+
+  const handleDragLeave = (e: React.DragEvent, type: 'main' | 'medical' | 'previous') => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [type]: false }));
+  };
+
+  const handleDrop = (e: React.DragEvent, type: 'main' | 'medical' | 'previous') => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [type]: false }));
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      if (type === 'main') {
+        handleMainFileUpload(files);
+      } else if (type === 'medical') {
+        handleFileUpload(files, 'medical');
+      } else if (type === 'previous') {
+        handleFileUpload(files, 'previous');
+      }
+    }
+  };
+
   if (!isLoggedIn) {
     return <LoginScreen onLogin={handleLogin} />;
   }
@@ -694,7 +726,12 @@ export default function Home() {
             
             {/* File Upload Section */}
             <div className="mt-4 pt-4 border-t border-slate-200">
-              <div className="relative">
+              <div 
+                className="relative"
+                onDragOver={(e) => handleDragOver(e, 'main')}
+                onDragLeave={(e) => handleDragLeave(e, 'main')}
+                onDrop={(e) => handleDrop(e, 'main')}
+              >
                 <Input
                   type="file"
                   multiple
@@ -703,9 +740,13 @@ export default function Home() {
                   id="main-documents"
                   className="hidden"
                 />
-                <Label htmlFor="main-documents" className="cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 h-12 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 transition-colors text-slate-600 hover:text-blue-600">
+                <Label 
+                  htmlFor="main-documents" 
+                  className={`cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 h-12 border-2 border-dashed rounded-lg transition-colors ${
+                    dragStates.main ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-300 hover:border-blue-400 text-slate-600 hover:text-blue-600'
+                  }`}>
                   <Upload className="w-4 h-4" />
-                  <span className="text-sm">Atașează documente</span>
+                  <span className="text-sm">{dragStates.main ? 'Eliberează pentru a încărca' : 'Atașează documente sau trage aici'}</span>
                 </Label>
                 {attachedFiles.length > 0 && (
                   <div className="mt-2 space-y-1">
@@ -810,7 +851,14 @@ export default function Home() {
                 <Label className="text-sm font-medium text-slate-700">
                   Atașați fișiere medicale (imagini, documente)
                 </Label>
-                <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+                <div 
+                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors ${
+                    dragStates.medical ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-blue-400'
+                  }`}
+                  onDragOver={(e) => handleDragOver(e, 'medical')}
+                  onDragLeave={(e) => handleDragLeave(e, 'medical')}
+                  onDrop={(e) => handleDrop(e, 'medical')}
+                >
                   <Input
                     type="file"
                     multiple
@@ -819,9 +867,11 @@ export default function Home() {
                     className="hidden"
                     id="medical-files"
                   />
-                  <Label htmlFor="medical-files" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600">
+                  <Label htmlFor="medical-files" className={`cursor-pointer flex items-center justify-center space-x-2 ${
+                    dragStates.medical ? 'text-blue-700' : 'text-slate-600 hover:text-blue-600'
+                  }`}>
                     <Upload className="w-5 h-5" />
-                    <span>Încărcați fișiere medicale</span>
+                    <span>{dragStates.medical ? 'Eliberează pentru a încărca' : 'Încărcați fișiere medicale sau trage aici'}</span>
                   </Label>
                 </div>
                 {medicalFiles.length > 0 && (
@@ -899,7 +949,14 @@ export default function Home() {
                 <p className="text-xs text-slate-500 mt-1">
                   Formate suportate: PDF, DOC, DOCX, TXT, JPG, PNG (OCR pentru imagini în documente)
                 </p>
-                <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
+                <div 
+                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors ${
+                    dragStates.previous ? 'border-purple-500 bg-purple-50' : 'border-slate-300 hover:border-purple-400'
+                  }`}
+                  onDragOver={(e) => handleDragOver(e, 'previous')}
+                  onDragLeave={(e) => handleDragLeave(e, 'previous')}
+                  onDrop={(e) => handleDrop(e, 'previous')}
+                >
                   <Input
                     type="file"
                     multiple
@@ -908,9 +965,11 @@ export default function Home() {
                     className="hidden"
                     id="previous-medical-files"
                   />
-                  <Label htmlFor="previous-medical-files" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 hover:text-purple-600">
+                  <Label htmlFor="previous-medical-files" className={`cursor-pointer flex items-center justify-center space-x-2 ${
+                    dragStates.previous ? 'text-purple-700' : 'text-slate-600 hover:text-purple-600'
+                  }`}>
                     <Upload className="w-5 h-5" />
-                    <span>Încărcați documente anterioare</span>
+                    <span>{dragStates.previous ? 'Eliberează pentru a încărca' : 'Încărcați documente anterioare sau trage aici'}</span>
                   </Label>
                 </div>
                 {previousMedicalFiles.length > 0 && (
