@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [documentType, setDocumentType] = useState('');
   const [exempluText, setExempluText] = useState('');
   const [temperature, setTemperature] = useState(0.5);
+  const [sumarizareAI, setSumarizareAI] = useState('');
   const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
   const [isApplyingChanges, setIsApplyingChanges] = useState(false);
 
@@ -148,7 +149,8 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
           documentType: documentType,
           promptText: promptText,
           exempluText: exempluText,
-          temperature: temperature
+          temperature: temperature,
+          sumarizareAI: sumarizareAI
         }),
       });
 
@@ -274,6 +276,31 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
               </CardContent>
             </Card>
 
+            {/* Sumarizare AI Card */}
+            <Card className="shadow-lg border-slate-200 flex-shrink-0">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-slate-200">
+                <CardTitle className="flex items-center space-x-2 text-slate-800">
+                  <Settings className="w-5 h-5 text-yellow-600" />
+                  <span>Sumarizare AI</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="sumarizare-ai" className="text-sm font-medium text-slate-700">
+                      Configurați sumarizarea AI
+                    </Label>
+                    <Textarea
+                      id="sumarizare-ai"
+                      placeholder="Introduceți configurarea pentru sumarizarea AI..."
+                      value={sumarizareAI}
+                      onChange={(e) => setSumarizareAI(e.target.value)}
+                      className="mt-2 min-h-[100px] max-h-[150px] resize-y"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             {/* Temperature Slider Card */}
             <Card className="shadow-lg border-slate-200 flex-shrink-0">
               <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">

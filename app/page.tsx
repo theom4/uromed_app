@@ -17,10 +17,8 @@ import { cn } from '@/lib/utils';
 export default function Home() {
   const router = useRouter();
   const [medicalInfo, setMedicalInfo] = useState('');
-  const [previousMedicalInfo, setPreviousMedicalInfo] = useState('');
   const [documentType, setDocumentType] = useState('spitalizare-zi');
   const [medicalFiles, setMedicalFiles] = useState<File[]>([]);
-  const [previousMedicalFiles, setPreviousMedicalFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedDocument, setGeneratedDocument] = useState('');
   const [isCopied, setIsCopied] = useState(false);
@@ -39,8 +37,7 @@ export default function Home() {
   const [showSearchResult, setShowSearchResult] = useState(false);
   const [dragStates, setDragStates] = useState({
     main: false,
-    medical: false,
-    previous: false
+    medical: false
   });
   
   // Add a ref to track the current activeTranscribe value in the WebSocket handler
@@ -141,16 +138,6 @@ export default function Home() {
                     console.log('✅ Updated medical info to:', newText);
                     return newText;
                   });
-                } else if (currentTarget === 'previous') {
-                  console.log('🔄 About to update previous medical info state');
-                  console.log('Current activeTranscribe:', currentTarget);
-                  console.log('Current previousMedicalInfo:', previousMedicalInfo);
-                  console.log('Transcript to add:', transcriptText.trim());
-                  setPreviousMedicalInfo(prev => {
-                    const newText = prev + (prev ? ' ' : '') + transcriptText.trim();
-                    console.log('✅ Updated previous medical info to:', newText);
-                    return newText;
-                  });
                 } else {
                   console.log('❌ No active transcribe target, activeTranscribe is:', currentTarget);
                 }
@@ -228,22 +215,14 @@ export default function Home() {
     if (!files) return;
     
     const fileArray = Array.from(files);
-    if (type === 'medical') {
-      setMedicalFiles((prev: File[]) => [...prev, ...fileArray]);
-    } else {
-      setPreviousMedicalFiles((prev: File[]) => [...prev, ...fileArray]);
-    }
+    setMedicalFiles((prev: File[]) => [...prev, ...fileArray]);
   };
 
-  const removeFile = (index: number, type: 'medical' | 'previous') => {
-    if (type === 'medical') {
-      setMedicalFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
-    } else {
-      setPreviousMedicalFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
-    }
+  const removeFile = (index: number) => {
+    setMedicalFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
   };
 
-  const toggleTranscribe = async (type: 'medical' | 'previous') => {
+  const toggleTranscribe = async (type: 'medical') => {
     console.log('🎯 toggleTranscribe called with type:', type);
     console.log('🎯 Current activeTranscribe:', activeTranscribe);
     
@@ -376,18 +355,12 @@ export default function Home() {
       
       // Add data directly as JSON properties
       formData.append('medicalInfo', enhancedMedicalInfo);
-      formData.append('previousMedicalInfo', previousMedicalInfo);
       formData.append('documentType', documentType);
       formData.append('cnp', patientCNP);
       
       // Add medical files
       medicalFiles.forEach((file, index) => {
         formData.append(`medicalFile_${index}`, file);
-      });
-      
-      // Add previous medical files
-      previousMedicalFiles.forEach((file, index) => {
-        formData.append(`previousMedicalFile_${index}`, file);
       });
       const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
         method: 'POST',
@@ -541,12 +514,10 @@ export default function Home() {
           setShowSearchResult(true);
           // Clear attached files after successful upload
           setAttachedFiles([]);
-          // Clear medical information fields for new patient
+          // Clear medical information field for new patient
           setMedicalInfo('');
-          setPreviousMedicalInfo('');
-          // Clear medical files
+          // Clear medical file
           setMedicalFiles([]);
-          setPreviousMedicalFiles([]);
           // Reset the file input
           const fileInput = document.getElementById('main-documents') as HTMLInputElement;
           if (fileInput) {
@@ -557,12 +528,10 @@ export default function Home() {
           console.error('Failed to upload files:', response.status, errorText);
           setSearchResult(`❌ EROARE\n\nCod eroare: ${response.status}\nDetalii: ${errorText}`);
           setShowSearchResult(true);
-          // Clear medical information fields even on error for consistency
+          // Clear medical information field even on error for consistency
           setMedicalInfo('');
-          setPreviousMedicalInfo('');
-          // Clear medical files
+          // Clear medical file
           setMedicalFiles([]);
-          setPreviousMedicalFiles([]);
         }
       } catch (error) {
         console.error('Error uploading files:', error);
@@ -583,12 +552,10 @@ export default function Home() {
         
         setSearchResult(errorMessage);
         setShowSearchResult(true);
-        // Clear medical information fields even on error for consistency
+        // Clear medical information field even on error for consistency
         setMedicalInfo('');
-        setPreviousMedicalInfo('');
-        // Clear medical files
+        // Clear medical file
         setMedicalFiles([]);
-        setPreviousMedicalFiles([]);
       }
     } else {
       // If no files attached, navigate to patients page as before
@@ -597,17 +564,17 @@ export default function Home() {
   };
 
   // Drag and drop handlers
-  const handleDragOver = (e: React.DragEvent, type: 'main' | 'medical' | 'previous') => {
+  const handleDragOver = (e: React.DragEvent, type: 'main' | 'medical') => {
     e.preventDefault();
     setDragStates(prev => ({ ...prev, [type]: true }));
   };
 
-  const handleDragLeave = (e: React.DragEvent, type: 'main' | 'medical' | 'previous') => {
+  const handleDragLeave = (e: React.DragEvent, type: 'main' | 'medical') => {
     e.preventDefault();
     setDragStates(prev => ({ ...prev, [type]: false }));
   };
 
-  const handleDrop = (e: React.DragEvent, type: 'main' | 'medical' | 'previous') => {
+  const handleDrop = (e: React.DragEvent, type: 'main' | 'medical') => {
     e.preventDefault();
     setDragStates(prev => ({ ...prev, [type]: false }));
     
@@ -615,10 +582,8 @@ export default function Home() {
     if (files && files.length > 0) {
       if (type === 'main') {
         handleMainFileUpload(files);
-      } else if (type === 'medical') {
+      } else {
         handleFileUpload(files, 'medical');
-      } else if (type === 'previous') {
-        handleFileUpload(files, 'previous');
       }
     }
   };
@@ -904,105 +869,7 @@ export default function Home() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeFile(index, 'medical')}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          ×
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Previous Medical Information Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
-            <CardTitle className="flex items-center justify-between text-slate-800">
-              <div className="flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-purple-600" />
-                <span>Informații Medicale Anterioare</span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => toggleTranscribe('previous')}
-                className={cn(
-                  "flex items-center space-x-1",
-                  activeTranscribe === 'previous' ? "bg-red-50 border-red-200 text-red-600" : "hover:bg-purple-50"
-                )}
-              >
-                {activeTranscribe === 'previous' ? (
-                  <X className="w-4 h-4" />
-                ) : (
-                  <Mic className="w-4 h-4" />
-                )}
-                <span className="text-xs">
-                  {activeTranscribe === 'previous' ? 'Stop' : 'Transcrie'}
-                </span>
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="previous-medical-info" className="text-sm font-medium text-slate-700">
-                  Introduceți informațiile medicale anterioare relevante (istoric medical, analize anterioare, tratamente precedente, etc.) sau încărcați documente...
-                </Label>
-                <Textarea
-                  id="previous-medical-info"
-                  placeholder="Introduceți informațiile medicale anterioare..."
-                  value={previousMedicalInfo}
-                  onChange={(e) => setPreviousMedicalInfo(e.target.value)}
-                  className="mt-2 min-h-[120px] resize-none"
-                />
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-slate-700">
-                  Acceptă următoarele tip de fișiere în contextul medical pentru a evaluarea mai rapidă:
-                </Label>
-                <p className="text-xs text-slate-500 mt-1">
-                  Formate suportate: PDF, DOC, DOCX, TXT, JPG, PNG (OCR pentru imagini în documente)
-                </p>
-                <div 
-                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors ${
-                    dragStates.previous ? 'border-purple-500 bg-purple-50' : 'border-slate-300 hover:border-purple-400'
-                  }`}
-                  onDragOver={(e) => handleDragOver(e, 'previous')}
-                  onDragLeave={(e) => handleDragLeave(e, 'previous')}
-                  onDrop={(e) => handleDrop(e, 'previous')}
-                >
-                  <Input
-                    type="file"
-                    multiple
-                    accept="image/*,.pdf,.doc,.docx,.txt"
-                    onChange={(e) => handleFileUpload(e.target.files, 'previous')}
-                    className="hidden"
-                    id="previous-medical-files"
-                  />
-                  <Label htmlFor="previous-medical-files" className={`cursor-pointer flex items-center justify-center space-x-2 ${
-                    dragStates.previous ? 'text-purple-700' : 'text-slate-600 hover:text-purple-600'
-                  }`}>
-                    <Upload className="w-5 h-5" />
-                    <span>{dragStates.previous ? 'Eliberează pentru a încărca' : 'Încărcați documente anterioare sau trage aici'}</span>
-                  </Label>
-                </div>
-                {previousMedicalFiles.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {previousMedicalFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded">
-                        <div className="flex items-center space-x-2">
-                          <Image className="w-4 h-4 text-slate-600" />
-                          <span className="text-sm text-slate-700">{file.name}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFile(index, 'previous')}
+                          onClick={() => removeFile(index)}
                           className="text-red-500 hover:text-red-700"
                         >
                           ×
