@@ -851,7 +851,7 @@ export default function Home() {
                     className="hidden"
                     id="medical-files"
                   />
-                  <Label htmlFor="medical-files" className={`cursor-pointer flex items-center justify-center space-x-2 ${
+                  <Label htmlFor="medical-files" className={`cursor-pointer flex items-center justify-center space-x-2 h-20 ${
                     dragStates.medical ? 'text-blue-700' : 'text-slate-600 hover:text-blue-600'
                   }`}>
                     <Upload className="w-5 h-5" />
