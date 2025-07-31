@@ -763,6 +763,11 @@ export default function Home() {
                   className={`cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 h-12 border-2 border-dashed rounded-lg transition-colors ${
                     dragStates.main ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-300 hover:border-blue-400 text-slate-600 hover:text-blue-600'
                   }`}>
+                <Label 
+                  htmlFor="main-documents" 
+                  className={`cursor-pointer flex items-center justify-center space-x-2 px-4 py-6 h-20 border-2 border-dashed rounded-lg transition-colors ${
+                    dragStates.main ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-300 hover:border-blue-400 text-slate-600 hover:text-blue-600'
+                  }`}>
                   <Upload className="w-4 h-4" />
                   <span className="text-sm">{dragStates.main ? 'Eliberează pentru a încărca' : 'Atașează documente sau trage aici'}</span>
                 </Label>
