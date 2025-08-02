@@ -481,33 +481,117 @@ export default function Home() {
         
         if (response.ok) {
           console.log('Files uploaded successfully', response.status);
-          const responseText = await response.text();
+          const parsedResponse = await response.json();
           
-          // Try to parse as JSON first
-          let formattedResult = '';
-          try {
-            const jsonData = JSON.parse(responseText);
+          // Extract data from nested structure - response is array with output property
+          const responseData = Array.isArray(parsedResponse) && parsedResponse.length > 0 
+            ? parsedResponse[0].output 
+            : parsedResponse;
+          
+          // Handle when patient is found (status is array with presentations)
+          if (Array.isArray(responseData.status)) {
+            const presentations = [];
+            const status = responseData.status;
             
-            if (jsonData.status === "Pacient nou creat") {
-              formattedResult = "✅ PACIENT NOU CREAT\n\nPacientul nu a fost găsit în baza de date și a fost creat un nou profil.";
-            } else if (jsonData.status === "Pacient gasit") {
-              formattedResult = `✅ PACIENT GĂSIT\n\n` +
-                `Nume: ${jsonData.nume || 'N/A'}\n` +
-                `Prenume: ${jsonData.prenume || 'N/A'}\n` +
-                `CNP: ${jsonData.cnp || 'N/A'}\n` +
-                `Telefon: ${jsonData.telefon || 'N/A'}\n` +
-                `Data nașterii: ${jsonData.data_nasterii || 'N/A'}`;
-            } else {
-              // Unknown status, show formatted JSON
-              formattedResult = `Status: ${jsonData.status || 'Necunoscut'}\n\n` +
-                Object.entries(jsonData)
-                  .filter(([key]) => key !== 'status')
-                  .map(([key, value]) => `${key}: ${value}`)
-                  .join('\n');
+            // Extract presentations from status array
+            for (const presentation of status) {
+              if (presentation.prezentare) {
+                presentations.push({
+                  data: presentation.data || 'Data necunoscută',
+                  prezentare: presentation.prezentare
+                });
+              }
             }
-          } catch (parseError) {
-            // If not valid JSON, show as plain text
-            formattedResult = responseText || 'Căutare completă cu succes!';
+            
+            formattedResult = (
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <h3 className="text-lg font-bold text-green-700">📋 PACIENT GĂSIT</h3>
+                </div>
+                
+                {/* Patient Data Section */}
+                {responseData.patientData && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-green-800 mb-3 flex items-center">
+                      <span className="mr-2">👤</span>
+                      DATE PACIENT
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div><span className="font-medium">Nume:</span> {responseData.patientData.nume}</div>
+                      <div><span className="font-medium">Prenume:</span> {responseData.patientData.prenume}</div>
+                      <div><span className="font-medium">CNP:</span> {responseData.patientData.cnp}</div>
+                      <div><span className="font-medium">Telefon:</span> {responseData.patientData.telefon}</div>
+                      <div className="col-span-2"><span className="font-medium">Data nașterii:</span> {responseData.patientData.data_nasterii}</div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Presentations Section */}
+                {presentations.length > 0 && (
+                  <div className="bg-white border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-green-800 mb-3 flex items-center">
+                      <span className="mr-2">📝</span>
+                      PREZENTĂRI ANTERIOARE ({presentations.length})
+                    </h4>
+                    <div className="space-y-4 max-h-64 overflow-y-auto">
+                      {presentations.map((presentation, index) => (
+                        <div key={index} className="border-l-4 border-green-400 pl-4 py-2 bg-green-25">
+                          <div className="text-xs text-green-600 font-medium mb-1">
+                            📅 {presentation.data}
+                          </div>
+                          <div className="text-sm text-gray-700 leading-relaxed">
+                            {presentation.prezentare}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          } else if (responseData.status === 'Pacient nou creat!') {
+            formattedResult = (
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <h3 className="text-lg font-bold text-blue-700">🆕 PACIENT NOU CREAT</h3>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-blue-800">
+                    Pacientul nu a fost găsit în baza de date și a fost creat un nou profil.
+                  </p>
+                  {responseData.patientData && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold text-blue-800 mb-2">Date pacient nou:</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-blue-700">
+                        <div><span className="font-medium">Nume:</span> {responseData.patientData?.nume || 'N/A'}</div>
+                        <div><span className="font-medium">Prenume:</span> {responseData.patientData?.prenume || 'N/A'}</div>
+                        <div><span className="font-medium">CNP:</span> {responseData.patientData?.cnp || 'N/A'}</div>
+                        <div><span className="font-medium">Telefon:</span> {responseData.patientData?.telefon || 'N/A'}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          } else {
+            // Unknown status, show formatted response
+            formattedResult = (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <h3 className="text-lg font-bold text-yellow-700">⚠️ RĂSPUNS NECUNOSCUT</h3>
+                </div>
+                
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <pre className="text-sm text-yellow-800 whitespace-pre-wrap">{JSON.stringify(responseData, null, 2)}</pre>
+                </div>
+              </div>
+            );
           }
           
           setSearchResult(formattedResult);
