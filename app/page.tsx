@@ -38,7 +38,7 @@ export default function Home() {
 }
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-  const [searchResult, setSearchResult] = useState<string>('');
+ const [searchResult, setSearchResult] = useState<string | React.ReactNode>('');
   const [showSearchResult, setShowSearchResult] = useState(false);
   const [dragStates, setDragStates] = useState({
     main: false,
@@ -864,9 +864,15 @@ export default function Home() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-64 overflow-y-auto">
+                <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-64 overflow-y-auto">
+                      {typeof searchResult === 'string' ? (
                 <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
-                  {searchResult}
+                {searchResult}
                 </pre>
+  ) : (
+    searchResult
+  )}
+</div>
               </div>
             </CardContent>
           </Card>
