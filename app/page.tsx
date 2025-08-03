@@ -1053,11 +1053,12 @@ export default function Home() {
           <CardContent className="p-6">
             {generatedDocument ? (
               <div className="space-y-4">
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
-                    {generatedDocument}
-                  </pre>
-                </div>
+                <Textarea
+                  value={generatedDocument}
+                  onChange={(e) => setGeneratedDocument(e.target.value)}
+                  className="min-h-[400px] max-h-[600px] resize-y text-sm font-mono leading-relaxed"
+                  placeholder="Documentul generat va apărea aici și poate fi editat..."
+                />
               </div>
             ) : (
               <p className="text-slate-600 text-sm">
