@@ -491,18 +491,7 @@ export default function Home() {
           // Handle when patient is found (status is array with presentations)
           let formattedResult: string | JSX.Element;
           if (Array.isArray(responseData.status)) {
-            const presentations = [];
-            const status = responseData.status;
-            
-            // Extract presentations from status array
-            for (const presentation of status) {
-              if (presentation.prezentare) {
-                presentations.push({
-                  data: presentation.data || 'Data necunoscută',
-                  prezentare: presentation.prezentare
-                });
-              }
-            }
+            const presentations = responseData.status;
             
             formattedResult = (
               <div className="space-y-6">
@@ -539,11 +528,16 @@ export default function Home() {
                     <div className="space-y-4 max-h-64 overflow-y-auto">
                       {presentations.map((presentation, index) => (
                         <div key={index} className="border-l-4 border-green-400 pl-4 py-2 bg-green-25">
-                          <div className="text-xs text-green-600 font-medium mb-1">
-                            📅 {presentation.data}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-xs text-green-600 font-medium">
+                              📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
+                            </div>
+                            <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {presentation.titlu}
+                            </div>
                           </div>
                           <div className="text-sm text-gray-700 leading-relaxed">
-                            {presentation.prezentare}
+                            {presentation.continut_text}
                           </div>
                         </div>
                       ))}
