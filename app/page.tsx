@@ -31,6 +31,11 @@ export default function Home() {
   const [isTranscribing, setIsTranscribing] = useState(false);
 
   // Audio context for processing audio data
+  interface Presentation {
+  data_consult: string;
+  titlu: string;
+  continut_text: string;
+}
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [searchResult, setSearchResult] = useState<string>('');
@@ -526,21 +531,21 @@ export default function Home() {
                       PREZENTĂRI ANTERIOARE ({presentations.length})
                     </h4>
                     <div className="space-y-4 max-h-64 overflow-y-auto">
-                      {presentations.map((presentation, index) => (
-                        <div key={index} className="border-l-4 border-green-400 pl-4 py-2 bg-green-25">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="text-xs text-green-600 font-medium">
-                              📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
-                            </div>
-                            <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                              {presentation.titlu}
-                            </div>
-                          </div>
-                          <div className="text-sm text-gray-700 leading-relaxed">
-                            {presentation.continut_text}
-                          </div>
-                        </div>
-                      ))}
+                    {presentations.map((presentation: Presentation, index: number) => (
+  <div key={index} className="border-l-4 border-green-400 pl-4 py-2 bg-green-25">
+    <div className="flex items-center justify-between mb-2">
+      <div className="text-xs text-green-600 font-medium">
+        📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
+      </div>
+      <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+        {presentation.titlu}
+      </div>
+    </div>
+    <div className="text-sm text-gray-700 leading-relaxed">
+      {presentation.continut_text}
+    </div>
+  </div>
+))}
                     </div>
                   </div>
                 )}
