@@ -489,6 +489,7 @@ export default function Home() {
             : parsedResponse;
           
           // Handle when patient is found (status is array with presentations)
+          let formattedResult: string | JSX.Element;
           if (Array.isArray(responseData.status)) {
             const presentations = [];
             const status = responseData.status;
