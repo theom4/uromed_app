@@ -352,10 +352,12 @@ export default function Home() {
         enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + searchResult;
         
         // Extract CNP from search result if available (handles both JSON and formatted text)
-        const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
-        if (cnpMatch) {
-          patientCNP = cnpMatch[1].trim();
-        }
+      if (typeof searchResult === 'string') {
+  const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
+  if (cnpMatch) {
+    patientCNP = cnpMatch[1].trim();
+  }
+}
       }
       
       // Add data directly as JSON properties
