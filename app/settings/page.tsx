@@ -132,10 +132,7 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
   };
 
   const handleApplyChanges = async () => {
-    if (!documentType) {
-      alert('Vă rugăm să selectați un tip de document');
-      return;
-    }
+  
 
     setIsApplyingChanges(true);
     try {
@@ -146,7 +143,7 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
         },
         body: JSON.stringify({
           operation: "set-prompt",
-          documentType: documentType,
+          documentType: documentType || null,
           promptText: promptText,
           exempluText: exempluText,
           temperature: temperature,
@@ -332,7 +329,7 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
                   <div className="flex justify-center pt-4">
                     <Button 
                       onClick={handleApplyChanges}
-                      disabled={isApplyingChanges || !documentType}
+                      disabled={isApplyingChanges}
                       className="bg-green-500 hover:bg-green-600 text-white px-8 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isApplyingChanges ? (
