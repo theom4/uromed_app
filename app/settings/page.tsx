@@ -21,6 +21,7 @@ export default function SettingsPage() {
   const [sumarizareAI, setSumarizareAI] = useState('');
   const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
   const [isApplyingChanges, setIsApplyingChanges] = useState(false);
+  const [isLoadingSummPrompt, setIsLoadingSummPrompt] = useState(false);
 
   // Set default template text for exemplu
   useEffect(() => {
@@ -128,6 +129,52 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
       } finally {
         setIsLoadingPrompt(false);
       }
+    }
+  };
+
+  const handleGetSummPrompt = async () => {
+    setIsLoadingSummPrompt(true);
+    try {
+      const response = await fetch('https://n8n.voisero.info/webhook/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          operation: "get-summ-prompt"
+        }),
+      });
+
+      if (response.ok) {
+        let responseText = await response.text();
+        
+        // Extract content from iframe if present
+        if (responseText.includes('<iframe srcdoc="')) {
+          const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
+          if (match) {
+            responseText = match[1];
+            // Decode HTML entities
+            responseText = responseText.replace(/&quot;/g, '"')
+                                     .replace(/&amp;/g, '&')
+                                     .replace(/&lt;/g, '<')
+                                     .replace(/&gt;/g, '>');
+          }
+        }
+        
+        // Convert \n to actual newlines
+        responseText = responseText.replace(/\\n/g, '\n');
+        
+        setSumarizareAI(responseText || 'Prompt sumarizare obținut cu succes!');
+      } else {
+        const errorText = await response.text();
+        console.error('Webhook request failed:', response.status, errorText);
+        alert(`Eroare la obținerea prompt-ului de sumarizare (${response.status}): ${errorText || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error sending webhook:', error);
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsLoadingSummPrompt(false);
     }
   };
 
@@ -294,6 +341,23 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
                       onChange={(e) => setSumarizareAI(e.target.value)}
                       className="mt-2 min-h-[100px] max-h-[150px] resize-y"
                     />
+                  </div>
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={handleGetSummPrompt}
+                      disabled={isLoadingSummPrompt}
+                      variant="outline"
+                      className="bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
+                    >
+                      {isLoadingSummPrompt ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span>Se încarcă...</span>
+                        </div>
+                      ) : (
+                        'Obține prompt curent'
+                      )}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
