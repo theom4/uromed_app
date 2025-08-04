@@ -404,6 +404,9 @@ export default function Home() {
             content = content.replace(/\\n/g, '\n');
             
             setGeneratedDocument(content);
+            
+            // Clear medical information input after successful document generation
+            setMedicalInfo('');
           } catch (jsonError) {
             console.error('JSON parsing error:', jsonError);
             setGeneratedDocument(`Eroare la parsarea răspunsului JSON: ${jsonError instanceof Error ? jsonError.message : 'Format JSON invalid'}`);
@@ -430,6 +433,9 @@ export default function Home() {
             responseText = responseText.replace(/\\n/g, '\n');
             
             setGeneratedDocument(responseText || 'Document generat cu succes!');
+            
+            // Clear medical information input after successful document generation
+            setMedicalInfo('');
           } catch (textError) {
             console.error('Text parsing error:', textError);
             setGeneratedDocument(`Eroare la citirea răspunsului: ${textError instanceof Error ? textError.message : 'Eroare de citire'}`);
