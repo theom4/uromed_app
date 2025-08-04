@@ -40,6 +40,7 @@ export default function Home() {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
  const [searchResult, setSearchResult] = useState<string | React.ReactNode>('');
   const [showSearchResult, setShowSearchResult] = useState(false);
+  const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [dragStates, setDragStates] = useState({
     main: false,
     medical: false
@@ -476,6 +477,7 @@ export default function Home() {
 
   const handleAddPatientClick = async () => {
     if (attachedFiles.length > 0) {
+      setIsSearchingPatient(true);
       try {
         const formData = new FormData();
         
@@ -648,6 +650,8 @@ export default function Home() {
         setMedicalInfo('');
         // Clear medical file
         setMedicalFiles([]);
+      } finally {
+        setIsSearchingPatient(false);
       }
     } else {
       // If no files attached, navigate to patients page as before
@@ -793,10 +797,20 @@ export default function Home() {
               </div>
               <Button
                 onClick={handleAddPatientClick}
+                disabled={isSearchingPatient}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 h-12 font-medium whitespace-nowrap"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Cauta Pacient
+                {isSearchingPatient ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Se caută...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Cauta Pacient
+                  </>
+                )}
               </Button>
             </div>
             
