@@ -529,33 +529,31 @@ export default function Home() {
                       <div><span className="font-medium">CNP:</span> {responseData.patientData.cnp}</div>
                       <div><span className="font-medium">Telefon:</span> {responseData.patientData.telefon}</div>
                       <div className="col-span-2"><span className="font-medium">Data nașterii:</span> {responseData.patientData.data_nasterii}</div>
+                      {responseData.patientData.istoric && (
+                        <div className="col-span-2"><span className="font-medium">Istoric:</span> {responseData.patientData.istoric}</div>
+                      )}
                     </div>
                   </div>
                 )}
                 
-                {/* Presentations Section */}
+                {/* Presentation Dates Section */}
                 {presentations.length > 0 && (
                   <div className="bg-white border border-green-200 rounded-lg p-4">
                     <h4 className="font-semibold text-green-800 mb-3 flex items-center">
                       <span className="mr-2">📝</span>
-                      PREZENTĂRI ANTERIOARE ({presentations.length})
+                      DATE PREZENTĂRI ANTERIOARE ({presentations.length})
                     </h4>
-                    <div className="space-y-4 max-h-64 overflow-y-auto">
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
                     {presentations.map((presentation: Presentation, index: number) => (
-  <div key={index} className="border-l-4 border-green-400 pl-4 py-2 bg-green-25">
-    <div className="flex items-center justify-between mb-2">
-      <div className="text-xs text-green-600 font-medium">
-        📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
-      </div>
-      <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-        {presentation.titlu}
-      </div>
-    </div>
-    <div className="text-sm text-gray-700 leading-relaxed">
-      {presentation.continut_text}
-    </div>
-  </div>
-))}
+                      <div key={index} className="flex items-center justify-between p-2 bg-green-25 rounded">
+                        <div className="text-sm text-green-600 font-medium">
+                          📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
+                        </div>
+                        <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                          {presentation.titlu}
+                        </div>
+                      </div>
+                    ))}
                     </div>
                   </div>
                 )}
