@@ -884,7 +884,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-96 overflow-y-auto">
-                <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-64 overflow-y-auto">
+                <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-[32rem] overflow-y-auto">
                       {typeof searchResult === 'string' ? (
                 <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
                 {searchResult}
