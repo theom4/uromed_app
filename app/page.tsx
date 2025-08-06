@@ -41,6 +41,8 @@ export default function Home() {
  const [searchResult, setSearchResult] = useState<string | React.ReactNode>('');
   const [showSearchResult, setShowSearchResult] = useState(false);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
+  const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
   const [dragStates, setDragStates] = useState({
     main: false,
     medical: false
@@ -466,6 +468,48 @@ export default function Home() {
     } catch (error) {
       console.error('Failed to copy text:', error);
       setGeneratedDocument(`Eroare la generarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea. Verificați conexiunea și încercați din nou.'}`);
+    }
+  };
+
+  const handleUpdateDocument = async () => {
+    if (!generatedDocument.trim()) {
+      setUpdateMessage('Nu există document de actualizat');
+      setTimeout(() => setUpdateMessage(''), 3000);
+      return;
+    }
+
+    setIsUpdatingDocument(true);
+    setUpdateMessage('');
+
+    try {
+      const response = await fetch('http://n8n.voisero.info/webhook/update-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          document: generatedDocument
+        }),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        if (responseData.status === 'success') {
+          setUpdateMessage('Document actualizat cu succes');
+        } else {
+          setUpdateMessage('Eroare la actualizarea documentului');
+        }
+      } else {
+        const errorText = await response.text();
+        setUpdateMessage(`Eroare la actualizarea documentului (${response.status}): ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error updating document:', error);
+      setUpdateMessage(`Eroare la actualizarea documentului: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsUpdatingDocument(false);
+      // Clear message after 3 seconds
+      setTimeout(() => setUpdateMessage(''), 3000);
     }
   };
 
@@ -1055,26 +1099,56 @@ export default function Home() {
                 <span>Document General</span>
               </CardTitle>
               {generatedDocument && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyDocument}
-                  className="flex items-center space-x-2"
-                >
-                  {isCopied ? (
-                    <>
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-green-600">Copiat!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>Copiază</span>
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyDocument}
+                    className="flex items-center space-x-2"
+                  >
+                    {isCopied ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-green-600">Copiat!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        <span>Copiază</span>
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUpdateDocument}
+                    disabled={isUpdatingDocument}
+                    className="flex items-center space-x-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                  >
+                    {isUpdatingDocument ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Se actualizează...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-4 h-4" />
+                        <span>Actualizează Document</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
+            {updateMessage && (
+              <div className={`mt-2 text-sm px-3 py-2 rounded-md ${
+                updateMessage.includes('succes') 
+                  ? 'bg-green-50 text-green-700 border border-green-200' 
+                  : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                {updateMessage}
+              </div>
+            )}
           </CardHeader>
           <CardContent className="p-6">
             {generatedDocument ? (
