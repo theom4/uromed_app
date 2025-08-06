@@ -298,6 +298,17 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                     <span className="text-sm text-slate-600">cm</span>
                   </div>
                 </div>
+
+                <div>
+                  <Label htmlFor="observatii-pacient" className="text-sm font-medium text-slate-700">
+                    Observații pacient:
+                  </Label>
+                  <Input
+                    id="observatii-pacient"
+                    placeholder="Introduceți observațiile pentru pacient"
+                    className="mt-1 bg-slate-50 border-slate-200"
+                  />
+                </div>
               </div>
             </div>
           </CardContent>

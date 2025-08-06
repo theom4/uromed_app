@@ -543,7 +543,7 @@ export default function Home() {
                       <span className="mr-2">📝</span>
                       DATE PREZENTĂRI ANTERIOARE ({presentations.length})
                     </h4>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
                     {presentations.map((presentation: Presentation, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-green-25 rounded">
                         <div className="text-sm text-green-600 font-medium">
