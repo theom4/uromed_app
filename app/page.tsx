@@ -481,6 +481,16 @@ export default function Home() {
     setIsUpdatingDocument(true);
     setUpdateMessage('');
 
+    // Extract CNP from search result if available
+    let patientCNP = '';
+    if (searchResult) {
+      if (typeof searchResult === 'string') {
+        const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
+        if (cnpMatch) {
+          patientCNP = cnpMatch[1].trim();
+        }
+      }
+    }
     try {
       const response = await fetch('http://n8n.voisero.info/webhook/update-document', {
         method: 'POST',
@@ -488,7 +498,8 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          document: generatedDocument
+          document: generatedDocument,
+          cnp: patientCNP
         }),
       });
 
