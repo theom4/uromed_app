@@ -508,7 +508,8 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+          content: generatedDocument,
+          cnp: window.currentPatientCNP || ''
           document: generatedDocument,
           cnp: patientCNP,
           medicalInfo: medicalInfo,
