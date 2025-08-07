@@ -349,18 +349,27 @@ export default function Home() {
       
       // Prepare medical info with patient data if available
       let enhancedMedicalInfo = medicalInfo;
-      let patientCNP = '0';
+      let patientCNP = (window as any).currentPatientCNP || '0';
       
       if (searchResult) {
-        enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + searchResult;
+        // Convert searchResult to string for medical info
+        const searchResultText = typeof searchResult === 'string' ? searchResult : JSON.stringify(searchResult, null, 2);
+        enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + searchResultText;
         
-        // Extract CNP from search result if available (handles both JSON and formatted text)
-      if (typeof searchResult === 'string') {
-  const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
-  if (cnpMatch) {
-    patientCNP = cnpMatch[1].trim();
-  }
-}
+        // Fallback: try to extract CNP from search result text if not already stored
+        if (patientCNP === '0') {
+          if (typeof searchResult === 'object' && searchResult !== null) {
+            const cnpMatch = searchResultText.match(/"cnp":\s*"([^"]+)"/);
+            if (cnpMatch) {
+              patientCNP = cnpMatch[1].trim();
+            }
+          } else if (typeof searchResult === 'string') {
+            const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
+            if (cnpMatch) {
+              patientCNP = cnpMatch[1].trim();
+            }
+          }
+        }
       }
       
       // Add data directly as JSON properties
@@ -560,8 +569,11 @@ export default function Home() {
           
           // Handle when patient is found (status is array with presentations)
           let formattedResult: string | JSX.Element;
+          let patientData = null;
+          
           if (Array.isArray(responseData.status)) {
             const presentations = responseData.status;
+            patientData = responseData.patientData;
             
             formattedResult = (
               <div className="space-y-6">
@@ -615,6 +627,8 @@ export default function Home() {
               </div>
             );
           } else if (responseData.status === 'Pacient nou creat!') {
+            patientData = responseData;
+            
             formattedResult = (
               <div className="space-y-4">
                 {/* Header */}
@@ -660,6 +674,13 @@ export default function Home() {
           }
           
           setSearchResult(formattedResult);
+          
+          // Store patient data separately for CNP extraction during document generation
+          if (patientData && patientData.cnp) {
+            // Store the CNP in a way that can be accessed during document generation
+            (window as any).currentPatientCNP = patientData.cnp;
+          }
+          
           setShowSearchResult(true);
           // Clear attached files after successful upload
           setAttachedFiles([]);
