@@ -32,13 +32,13 @@ export default function Home() {
 
   // Audio context for processing audio data
   interface Presentation {
-  data_consult: string;
-  titlu: string;
-  continut_text: string;
-}
+    data_consult: string;
+    titlu: string;
+    continut_text: string;
+  }
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
- const [searchResult, setSearchResult] = useState<string | React.ReactNode>('');
+  const [searchResult, setSearchResult] = useState<string | React.ReactNode>('');
   const [showSearchResult, setShowSearchResult] = useState(false);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
@@ -500,13 +500,20 @@ export default function Home() {
         }
       }
     }
+
+    try {
+      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           document: generatedDocument,
-          cnp: patientCNP
-        }),
+          cnp: patientCNP,
           medicalInfo: medicalInfo,
+        }),
+      });
 
       if (response.ok) {
         const responseData = await response.json();
@@ -607,16 +614,16 @@ export default function Home() {
                       DATE PREZENTĂRI ANTERIOARE ({presentations.length})
                     </h4>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {presentations.map((presentation: Presentation, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-green-25 rounded">
-                        <div className="text-sm text-green-600 font-medium">
-                          📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
+                      {presentations.map((presentation: Presentation, index: number) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-green-25 rounded">
+                          <div className="text-sm text-green-600 font-medium">
+                            📅 {new Date(presentation.data_consult).toLocaleDateString('ro-RO')}
+                          </div>
+                          <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            {presentation.titlu}
+                          </div>
                         </div>
-                        <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                          {presentation.titlu}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                     </div>
                   </div>
                 )}
@@ -959,14 +966,14 @@ export default function Home() {
             <CardContent className="p-6">
               <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-96 overflow-y-auto">
                 <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-[32rem] overflow-y-auto">
-                      {typeof searchResult === 'string' ? (
-                <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
-                {searchResult}
-                </pre>
-  ) : (
-    searchResult
-  )}
-</div>
+                  {typeof searchResult === 'string' ? (
+                    <pre className="whitespace-pre-wrap text-sm text-slate-800 font-mono leading-relaxed">
+                      {searchResult}
+                    </pre>
+                  ) : (
+                    searchResult
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
