@@ -511,7 +511,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           content: generatedDocument,
-          cnp: currentPatientCNP,
+          cnp: window.currentPatientCNP || '',
           document: generatedDocument,
           cnp: patientCNP,
           medicalInfo: medicalInfo,
