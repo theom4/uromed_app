@@ -1008,7 +1008,7 @@ export default function Home() {
                   {activeTranscribe === 'medical' ? 'Stop' : 'Transcrie'}
                 </span>
               </Button>
-            </CardTitle>
+          setCurrentPatientCNP(responseData.cnp || '');
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
