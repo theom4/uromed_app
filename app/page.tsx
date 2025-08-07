@@ -511,7 +511,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           content: generatedDocument,
-          cnp: window.currentPatientCNP || '',
+          cnp: currentPatientCNP,
           document: generatedDocument,
           cnp: patientCNP,
           medicalInfo: medicalInfo,
@@ -1008,7 +1008,7 @@ export default function Home() {
                   {activeTranscribe === 'medical' ? 'Stop' : 'Transcrie'}
                 </span>
               </Button>
-          setCurrentPatientCNP(responseData.cnp || '');
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
