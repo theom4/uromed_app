@@ -42,6 +42,7 @@ export default function Home() {
   const [showSearchResult, setShowSearchResult] = useState(false);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
+  const [currentPatientCNP, setCurrentPatientCNP] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
   const [dragStates, setDragStates] = useState({
     main: false,
