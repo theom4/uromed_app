@@ -492,7 +492,7 @@ export default function Home() {
       }
     }
     try {
-      const response = await fetch('http://n8n.voisero.info/webhook/update-document', {
+      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
