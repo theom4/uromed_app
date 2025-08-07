@@ -500,17 +500,13 @@ export default function Home() {
         }
       }
     }
-    try {
-      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
-        method: 'POST',
-        headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           document: generatedDocument,
           cnp: patientCNP
         }),
-      });
+          medicalInfo: medicalInfo,
 
       if (response.ok) {
         const responseData = await response.json();
