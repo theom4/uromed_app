@@ -627,17 +627,19 @@ export default function Home() {
                   <p className="text-blue-800">
                     Pacientul nu a fost găsit în baza de date și a fost creat un nou profil.
                   </p>
-                  {responseData.patientData && (
-                    <div className="mt-4">
-                      <h4 className="font-semibold text-blue-800 mb-2">Date pacient nou:</h4>
-                      <div className="grid grid-cols-2 gap-2 text-sm text-blue-700">
-                        <div><span className="font-medium">Nume:</span> {responseData.patientData?.nume || 'N/A'}</div>
-                        <div><span className="font-medium">Prenume:</span> {responseData.patientData?.prenume || 'N/A'}</div>
-                        <div><span className="font-medium">CNP:</span> {responseData.patientData?.cnp || 'N/A'}</div>
-                        <div><span className="font-medium">Telefon:</span> {responseData.patientData?.telefon || 'N/A'}</div>
-                      </div>
+                  <div className="mt-4">
+                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                      <span className="mr-2">👤</span>
+                      DATE PACIENT NOU
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div><span className="font-medium">Nume:</span> {responseData.nume || 'N/A'}</div>
+                      <div><span className="font-medium">Prenume:</span> {responseData.prenume || 'N/A'}</div>
+                      <div><span className="font-medium">CNP:</span> {responseData.cnp || 'N/A'}</div>
+                      <div><span className="font-medium">Telefon:</span> {responseData.telefon || 'N/A'}</div>
+                      <div className="col-span-2"><span className="font-medium">Data nașterii:</span> {responseData.data_nasterii || 'N/A'}</div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             );
