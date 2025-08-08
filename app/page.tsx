@@ -352,25 +352,12 @@ export default function Home() {
       let enhancedMedicalInfo = medicalInfo;
       let patientCNP = (window as any).currentPatientCNP || '0';
       
-      if (searchResult) {
+      if (searchResult && (window as any).currentPatientCNP) {
         // Convert searchResult to string for medical info
-        const searchResultText = typeof searchResult === 'string' ? searchResult : JSON.stringify(searchResult, null, 2);
-        enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + searchResultText;
+        const patientInfo = `CNP: ${(window as any).currentPatientCNP}`;
+  enhancedMedicalInfo = medicalInfo + (medicalInfo ? '\n\n' : '') + 'Date pacient:\n' + patientInfo;
         
         // Fallback: try to extract CNP from search result text if not already stored
-        if (patientCNP === '0') {
-          if (typeof searchResult === 'object' && searchResult !== null) {
-            const cnpMatch = searchResultText.match(/"cnp":\s*"([^"]+)"/);
-            if (cnpMatch) {
-              patientCNP = cnpMatch[1].trim();
-            }
-          } else if (typeof searchResult === 'string') {
-            const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
-            if (cnpMatch) {
-              patientCNP = cnpMatch[1].trim();
-            }
-          }
-        }
       }
       
       // Add data directly as JSON properties
@@ -492,15 +479,8 @@ export default function Home() {
     setUpdateMessage('');
 
     // Extract CNP from search result if available
-    let patientCNP = '';
-    if (searchResult) {
-      if (typeof searchResult === 'string') {
-        const cnpMatch = searchResult.match(/(?:cnp|CNP):\s*([^\n\s]+)/);
-        if (cnpMatch) {
-          patientCNP = cnpMatch[1].trim();
-        }
-      }
-    }
+    const storedCNP = (window as any).currentPatientCNP || '';
+
 
     try {
       const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
@@ -511,9 +491,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           content: generatedDocument,
-          cnp: window.currentPatientCNP || '',
           document: generatedDocument,
-          cnp: patientCNP,
+          cnp: storedCNP,
           medicalInfo: medicalInfo,
         }),
       });
