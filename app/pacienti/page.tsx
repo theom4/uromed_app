@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,11 +24,11 @@ interface Patient {
 }
 
 export default function PacientiPage() {
+  const { user, loading } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [patientsLoading, setPatientsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
   const [addPatientDialogOpen, setAddPatientDialogOpen] = useState(false);
@@ -54,24 +55,16 @@ export default function PacientiPage() {
   });
   const [isAddingPatient, setIsAddingPatient] = useState(false);
 
-  // Check for existing login state on component mount
-  useEffect(() => {
-    const loginState = localStorage.getItem('isLoggedIn');
-    if (loginState === 'true') {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
   // Fetch patients from Supabase
   useEffect(() => {
-    if (isLoggedIn) {
+    if (user) {
       fetchPatients();
     }
-  }, [isLoggedIn]);
+  }, [user]);
 
   const fetchPatients = async () => {
     try {
-      setLoading(true);
+      setPatientsLoading(true);
       const { data, error } = await supabase
         .from('patients')
         .select('id, nume, prenume, email, telefon, created_at')
@@ -88,7 +81,7 @@ export default function PacientiPage() {
       console.error('Error:', error);
       setPatients([]);
     } finally {
-      setLoading(false);
+      setPatientsLoading(false);
     }
   };
 
@@ -240,17 +233,20 @@ export default function PacientiPage() {
     });
   };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
-  };
-
   const handleBack = () => {
     router.push('/');
   };
 
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
   }
 
   return (
@@ -322,7 +318,7 @@ export default function PacientiPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            {loading ? (
+            {patientsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-slate-600">Se încarcă pacienții...</span>

@@ -1,29 +1,17 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ProgramariPage() {
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  // Check for existing login state on component mount
-  useEffect(() => {
-    const loginState = localStorage.getItem('isLoggedIn');
-    if (loginState === 'true') {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
-  };
 
   const handleBack = () => {
     router.push('/');
@@ -53,8 +41,16 @@ export default function ProgramariPage() {
 
   const dayNames = ['Dum', 'Lun', 'Mar', 'Mie', 'Joi', 'Vin', 'Sâm'];
 
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
   }
 
   const daysInMonth = getDaysInMonth(currentDate);

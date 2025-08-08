@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,8 +13,8 @@ import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Settings, FileText } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [promptText, setPromptText] = useState('');
   const [documentType, setDocumentType] = useState('');
   const [exempluText, setExempluText] = useState('');
@@ -63,19 +64,6 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
 - [ALTE_NOTE] (ex: Include hashtaguri relevante, folosește un ton formal/informal, limitează-te la un anumit număr de cuvinte, etc.)`);
     }
   }, [exempluText]);
-
-  // Check for existing login state on component mount
-  useEffect(() => {
-    const loginState = localStorage.getItem('isLoggedIn');
-    if (loginState === 'true') {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
-  };
 
   const handleBack = () => {
     router.push('/');
@@ -213,8 +201,16 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
     }
   };
 
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
   }
 
   return (

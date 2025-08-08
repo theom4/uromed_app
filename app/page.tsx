@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const [medicalInfo, setMedicalInfo] = useState('');
   const [documentType, setDocumentType] = useState('spitalizare-zi');
@@ -24,7 +26,6 @@ export default function Home() {
   const [generatedDocument, setGeneratedDocument] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [activeTranscribe, setActiveTranscribe] = useState<'medical' | 'previous' | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
@@ -59,22 +60,8 @@ export default function Home() {
     console.log('🔄 activeTranscribe changed to:', activeTranscribe);
   }, [activeTranscribe]);
 
-  // Check for existing login state on component mount
-  useEffect(() => {
-    const loginState = localStorage.getItem('isLoggedIn');
-    if (loginState === 'true') {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
+  const handleLogout = async () => {
+    await signOut();
     // Clear any stored patient data
     setCurrentPatientCNP('');
     setSearchResult('');
@@ -84,6 +71,20 @@ export default function Home() {
     setMedicalFiles([]);
     setAttachedFiles([]);
   };
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Show login screen if not authenticated
+  if (!user) {
+    return <LoginScreen />;
+  }
 
   const startGladiaTranscription = async () => {
     try {
@@ -758,10 +759,6 @@ export default function Home() {
       }
     }
   };
-
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
