@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
       setSuccess(true);
       setTimeout(() => {
         router.push('/');
-      redirectTo: `${window.location.origin}/auth/callback`,
+      }, 2000);
     }
     setIsLoading(false);
   };
