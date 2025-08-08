@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import LoginScreen from '@/components/LoginScreen';
