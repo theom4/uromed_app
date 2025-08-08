@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, FileText, Image, Activity, Settings, Copy, CheckCircle, Mic, X } from 'lucide-react';
 import { Menu, User, Bot, Gamepad2, Building2, Calendar, Search, Plus } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
@@ -69,6 +70,19 @@ export default function Home() {
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
+    // Clear any stored patient data
+    setCurrentPatientCNP('');
+    setSearchResult('');
+    setShowSearchResult(false);
+    setGeneratedDocument('');
+    setMedicalInfo('');
+    setMedicalFiles([]);
+    setAttachedFiles([]);
   };
 
   const startGladiaTranscription = async () => {
@@ -838,6 +852,15 @@ export default function Home() {
                 <h1 className="text-xl font-semibold text-slate-900">MyWAbP</h1>
                 <p className="text-sm text-slate-600">My personal writing assistant</p>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-red-600 ml-4"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
