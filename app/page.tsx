@@ -95,7 +95,7 @@ const toggleTranscribe = async (type: string) => {
       audioContext.close();
       
       // Stop all tracks to release the microphone
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       
       audioChunksRef.current = null;
     }
