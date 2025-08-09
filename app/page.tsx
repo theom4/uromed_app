@@ -81,108 +81,139 @@ export default function Home() {
     setMedicalFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const toggleTranscribe = async (type: string) => {
-    console.log('🎯 toggleTranscribe called with type:', type);
-    console.log('🎯 Current activeTranscribe:', activeTranscribe);
+const toggleTranscribe = async (type: string) => {
+  console.log('🎯 toggleTranscribe called with type:', type);
+  console.log('🎯 Current activeTranscribe:', activeTranscribe);
 
-    if (activeTranscribe === type) {
-      console.log('🛑 Turning OFF transcription for:', type);
-      // Stop transcription
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
-      if (websocketRef.current) {
-        websocketRef.current.close();
-      }
-      setActiveTranscribe(null);
-    } else {
-      console.log('🟢 Turning ON transcription for:', type);
-      setActiveTranscribe(type);
-      await startGladiaTranscription();
+  if (activeTranscribe === type) {
+    console.log('🛑 Turning OFF transcription for:', type);
+    
+    // Stop recording and close properly
+    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      // Send stop_recording message before closing
+      websocketRef.current.send(JSON.stringify({
+        type: "stop_recording"
+      }));
+      
+      // Close with code 1000 to indicate intentional closure
+      setTimeout(() => {
+        websocketRef.current?.close(1000);
+      }, 1000);
     }
-  };
-
-  const startGladiaTranscription = async () => {
-    try {
-      // Create WebSocket connection to Gladia
-     const ws = new WebSocket('wss://api.gladia.io/v2/live');
-      websocketRef.current = ws;
-
-      ws.onopen = () => {
-        console.log('✅ Gladia WebSocket connected');
-        // Send configuration
-        ws.send(JSON.stringify({
-          type: 'configure',
-          x_gladia_key: 'YOUR_ACTUAL_GLADIA_API_KEY_HERE',
-            encoding: 'wav/pcm',
-          sample_rate: 16000,
-        language: 'ro',  // Use 'ro' instead of 'romanian'
-          model: 'fast'
-}));
-      };
-
- ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  if (data.type === 'transcription' && data.transcription) {
-    console.log('📝 Received transcript:', data.transcription);
-    // Append to medical info
-    setMedicalInfo(prev => prev + ' ' + data.transcription);
+    
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      // Stop all tracks to release the microphone
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+    
+    setActiveTranscribe(null);
+  } else {
+    console.log('🟢 Turning ON transcription for:', type);
+    setActiveTranscribe(type);
+    await startGladiaTranscription();
   }
 };
+const startGladiaTranscription = async () => {
+  try {
+    // Step 1: Initiate the session
+    const response = await fetch('https://api.gladia.io/v2/live', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Gladia-Key': 'YOUR_ACTUAL_GLADIA_API_KEY_HERE', // Replace with your actual API key
+      },
+      body: JSON.stringify({
+        encoding: 'wav/pcm',
+        sample_rate: 16000,
+        bit_depth: 16,
+        channels: 1,
+        language: 'ro', // Romanian language code
+      }),
+    });
 
-      ws.onerror = (error) => {
-        console.error('❌ Gladia WebSocket error:', error);
-      };
-
-      ws.onclose = () => {
-        console.log('🔌 Gladia WebSocket closed');
-      };
-
-      // Get microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 16000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true
-        }
-      });
-
-      console.log('🎤 Microphone permission granted');
-
-      // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-          
-          // Convert to base64 and send to Gladia
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const base64Audio = reader.result?.toString().split(',')[1];
-            if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-             websocketRef.current.send(JSON.stringify({
-  type: 'audio',
-  audio: base64Audio
-}));
-            }
-          };
-          reader.readAsDataURL(event.data);
-        }
-      };
-
-      mediaRecorder.start(250); // Send chunks every 250ms
-      console.log('✅ Gladia transcription started successfully');
-
-    } catch (error) {
-      console.error('❌ Error starting Gladia transcription:', error);
+    if (!response.ok) {
+      console.error(`❌ Failed to initiate session: ${response.status}: ${await response.text()}`);
       setActiveTranscribe(null);
+      return;
     }
-  };
+
+    const { id, url } = await response.json();
+    console.log('✅ Session initiated, WebSocket URL:', url);
+
+    // Step 2: Connect to the WebSocket
+    const ws = new WebSocket(url);
+    websocketRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('✅ Gladia WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log('📝 Received message:', message);
+      
+      if (message.type === 'transcript' && message.data?.utterance?.text) {
+        console.log('📝 Transcript:', message.data.utterance.text);
+        // Append to medical info
+        setMedicalInfo(prev => prev + ' ' + message.data.utterance.text);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('❌ Gladia WebSocket error:', error);
+    };
+
+    ws.onclose = ({ code, reason }) => {
+      console.log(`🔌 Gladia WebSocket closed - Code: ${code}, Reason: ${reason}`);
+      if (code !== 1000) {
+        console.log('Connection closed unexpectedly, you can reconnect to the same URL');
+      }
+    };
+
+    // Step 3: Get microphone access and send audio
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        sampleRate: 16000,
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true
+      }
+    });
+
+    console.log('🎤 Microphone permission granted');
+
+    // Create MediaRecorder
+    const mediaRecorder = new MediaRecorder(stream, {
+      mimeType: 'audio/webm;codecs=opus'
+    });
+    mediaRecorderRef.current = mediaRecorder;
+
+    mediaRecorder.ondataavailable = async (event) => {
+      if (event.data.size > 0 && websocketRef.current?.readyState === WebSocket.OPEN) {
+        // Convert blob to ArrayBuffer then to base64
+        const arrayBuffer = await event.data.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64Audio = buffer.toString('base64');
+        
+        // Send as JSON with base64
+        websocketRef.current.send(JSON.stringify({
+          type: 'audio_chunk',
+          data: {
+            chunk: base64Audio
+          }
+        }));
+      }
+    };
+
+    mediaRecorder.start(250); // Send chunks every 250ms
+    console.log('✅ Gladia transcription started successfully');
+
+  } catch (error) {
+    console.error('❌ Error starting Gladia transcription:', error);
+    setActiveTranscribe(null);
+  }
+};
 
   useEffect(() => {
     console.log('🔄 activeTranscribe changed to:', activeTranscribe);
