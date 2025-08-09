@@ -112,7 +112,7 @@ export default function Home() {
         console.log('✅ Gladia WebSocket connected');
         // Send configuration
         ws.send(JSON.stringify({
-          x_gladia_key: 'gsk_2f4b8b4b8b4b8b4b8b4b8b4b8b4b8b4b8b4b8b4b', // Replace with your actual API key
+          x_gladia_key: '66e1c189-a317-4ede-be75-d48e743a2af4', // Replace with your actual API key
           language: 'romanian',
           model_type: 'fast',
           transcription_hint: 'medical terminology'
