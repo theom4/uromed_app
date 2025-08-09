@@ -121,14 +121,14 @@ export default function Home() {
 }));
       };
 
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'transcript' && data.transcript) {
-          console.log('📝 Received transcript:', data.transcript);
-          // Append to medical info
-          setMedicalInfo(prev => prev + ' ' + data.transcript);
-        }
-      };
+ ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  if (data.type === 'transcription' && data.transcription) {
+    console.log('📝 Received transcript:', data.transcription);
+    // Append to medical info
+    setMedicalInfo(prev => prev + ' ' + data.transcription);
+  }
+};
 
       ws.onerror = (error) => {
         console.error('❌ Gladia WebSocket error:', error);
