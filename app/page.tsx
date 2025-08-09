@@ -130,7 +130,6 @@ const startGladiaTranscription = async () => {
         sample_rate: 16000,
         bit_depth: 16,
         channels: 1,
-        language: 'ro',
       }),
     });
 
