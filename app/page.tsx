@@ -105,7 +105,7 @@ export default function Home() {
   const startGladiaTranscription = async () => {
     try {
       // Create WebSocket connection to Gladia
-      const ws = new WebSocket('wss://api.gladia.io/audio/text/audio-transcription');
+     const ws = new WebSocket('wss://api.gladia.io/v2/live');
       websocketRef.current = ws;
 
       ws.onopen = () => {
