@@ -115,36 +115,46 @@ const toggleTranscribe = async (type: string) => {
   }
 };
 const startGladiaTranscription = async () => {
-  try {
+ try {
+    console.log('📡 Initiating Gladia session...');
+    
     // Step 1: Initiate the session
     const response = await fetch('https://api.gladia.io/v2/live', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Gladia-Key': 'YOUR_ACTUAL_GLADIA_API_KEY_HERE', // Replace with your actual API key
+        'X-Gladia-Key': 'YOUR_ACTUAL_GLADIA_API_KEY_HERE', // ← Make sure this is your real API key!
       },
       body: JSON.stringify({
         encoding: 'wav/pcm',
         sample_rate: 16000,
         bit_depth: 16,
         channels: 1,
-        language: 'ro', // Romanian language code
+        language: 'ro',
       }),
     });
 
+    console.log('📡 Response status:', response.status);
+
     if (!response.ok) {
-      console.error(`❌ Failed to initiate session: ${response.status}: ${await response.text()}`);
+      const errorText = await response.text();
+      console.error(`❌ Failed to initiate session: ${response.status}: ${errorText}`);
+      setActiveTranscribe(null);
+      return; // Important: return here if the session fails
+    }
+
+    const sessionData = await response.json();
+    console.log('✅ Session initiated:', sessionData);
+    
+    if (!sessionData.url) {
+      console.error('❌ No WebSocket URL in response');
       setActiveTranscribe(null);
       return;
     }
 
-    const { id, url } = await response.json();
-    console.log('✅ Session initiated, WebSocket URL:', url);
-
-    // Step 2: Connect to the WebSocket
-    const ws = new WebSocket(url);
+    // Step 2: Connect to the WebSocket URL from the response
+    const ws = new WebSocket(sessionData.url); // ← Use the URL from the response!
     websocketRef.current = ws;
-
     ws.onopen = () => {
       console.log('✅ Gladia WebSocket connected');
     };
