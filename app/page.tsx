@@ -112,11 +112,13 @@ export default function Home() {
         console.log('✅ Gladia WebSocket connected');
         // Send configuration
         ws.send(JSON.stringify({
-          x_gladia_key: '66e1c189-a317-4ede-be75-d48e743a2af4', // Replace with your actual API key
-          language: 'romanian',
-          model_type: 'fast',
-          transcription_hint: 'medical terminology'
-        }));
+          type: 'configure',
+          x_gladia_key: 'YOUR_ACTUAL_GLADIA_API_KEY_HERE',
+            encoding: 'wav/pcm',
+          sample_rate: 16000,
+        language: 'ro',  // Use 'ro' instead of 'romanian'
+          model: 'fast'
+}));
       };
 
       ws.onmessage = (event) => {
@@ -163,10 +165,10 @@ export default function Home() {
           reader.onloadend = () => {
             const base64Audio = reader.result?.toString().split(',')[1];
             if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-              websocketRef.current.send(JSON.stringify({
-                type: 'audio_chunk',
-                data: base64Audio
-              }));
+             websocketRef.current.send(JSON.stringify({
+  type: 'audio',
+  audio: base64Audio
+}));
             }
           };
           reader.readAsDataURL(event.data);
