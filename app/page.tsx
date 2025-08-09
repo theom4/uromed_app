@@ -123,7 +123,7 @@ const startGladiaTranscription = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Gladia-Key': 'YOUR_ACTUAL_GLADIA_API_KEY_HERE', // ← Make sure this is your real API key!
+        'X-Gladia-Key': '66e1c189-a317-4ede-be75-d48e743a2af4', // ← Make sure this is your real API key!
       },
       body: JSON.stringify({
         encoding: 'wav/pcm',
