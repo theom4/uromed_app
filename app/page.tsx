@@ -46,8 +46,7 @@ export default function Home() {
   // Refs for transcription
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const websocketRef = useRef<WebSocket | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-
+const audioChunksRef = useRef<any>(null);
   const handleSignOut = async () => {
     await signOut();
   };
