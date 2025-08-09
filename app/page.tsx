@@ -80,7 +80,6 @@ export default function Home() {
   const removeFile = (index: number) => {
     setMedicalFiles(prev => prev.filter((_, i) => i !== index));
   };
-
 const toggleTranscribe = async (type: string) => {
   console.log('🎯 toggleTranscribe called with type:', type);
   console.log('🎯 Current activeTranscribe:', activeTranscribe);
@@ -88,23 +87,29 @@ const toggleTranscribe = async (type: string) => {
   if (activeTranscribe === type) {
     console.log('🛑 Turning OFF transcription for:', type);
     
-    // Stop recording and close properly
+    // Clean up audio processing
+    if (audioChunksRef.current) {
+      const { audioContext, processor, source, stream } = audioChunksRef.current;
+      
+      processor.disconnect();
+      source.disconnect();
+      audioContext.close();
+      
+      // Stop all tracks to release the microphone
+      stream.getTracks().forEach(track => track.stop());
+      
+      audioChunksRef.current = null;
+    }
+    
+    // Stop recording and close WebSocket
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      // Send stop_recording message before closing
       websocketRef.current.send(JSON.stringify({
         type: "stop_recording"
       }));
       
-      // Close with code 1000 to indicate intentional closure
       setTimeout(() => {
         websocketRef.current?.close(1000);
       }, 1000);
-    }
-    
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-      // Stop all tracks to release the microphone
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
     
     setActiveTranscribe(null);
