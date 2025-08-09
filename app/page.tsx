@@ -115,7 +115,7 @@ const toggleTranscribe = async (type: string) => {
   }
 };
 const startGladiaTranscription = async () => {
- try {
+  try {
     console.log('📡 Initiating Gladia session...');
     
     // Step 1: Initiate the session
@@ -123,7 +123,7 @@ const startGladiaTranscription = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Gladia-Key': '66e1c189-a317-4ede-be75-d48e743a2af4', // ← Make sure this is your real API key!
+        'X-Gladia-Key': 'YOUR_ACTUAL_GLADIA_API_KEY_HERE',
       },
       body: JSON.stringify({
         encoding: 'wav/pcm',
@@ -139,7 +139,7 @@ const startGladiaTranscription = async () => {
       const errorText = await response.text();
       console.error(`❌ Failed to initiate session: ${response.status}: ${errorText}`);
       setActiveTranscribe(null);
-      return; // Important: return here if the session fails
+      return;
     }
 
     const sessionData = await response.json();
@@ -151,9 +151,10 @@ const startGladiaTranscription = async () => {
       return;
     }
 
-    // Step 2: Connect to the WebSocket URL from the response
-    const ws = new WebSocket(sessionData.url); // ← Use the URL from the response!
+    // Step 2: Connect to the WebSocket
+    const ws = new WebSocket(sessionData.url);
     websocketRef.current = ws;
+
     ws.onopen = () => {
       console.log('✅ Gladia WebSocket connected');
     };
@@ -162,8 +163,9 @@ const startGladiaTranscription = async () => {
       const message = JSON.parse(event.data);
       console.log('📝 Received message:', message);
       
+      // Check for transcript messages
       if (message.type === 'transcript' && message.data?.utterance?.text) {
-        console.log('📝 Transcript:', message.data.utterance.text);
+        console.log('🎯 TRANSCRIPT:', message.data.utterance.text);
         // Append to medical info
         setMedicalInfo(prev => prev + ' ' + message.data.utterance.text);
       }
@@ -175,12 +177,9 @@ const startGladiaTranscription = async () => {
 
     ws.onclose = ({ code, reason }) => {
       console.log(`🔌 Gladia WebSocket closed - Code: ${code}, Reason: ${reason}`);
-      if (code !== 1000) {
-        console.log('Connection closed unexpectedly, you can reconnect to the same URL');
-      }
     };
 
-    // Step 3: Get microphone access and send audio
+    // Step 3: Set up audio capture with AudioContext for PCM conversion
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         sampleRate: 16000,
@@ -192,18 +191,32 @@ const startGladiaTranscription = async () => {
 
     console.log('🎤 Microphone permission granted');
 
-    // Create MediaRecorder
-    const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'audio/webm;codecs=opus'
-    });
-    mediaRecorderRef.current = mediaRecorder;
+    // Use AudioContext to get PCM data
+    const audioContext = new AudioContext({ sampleRate: 16000 });
+    const source = audioContext.createMediaStreamSource(stream);
+    const processor = audioContext.createScriptProcessor(4096, 1, 1);
 
-    mediaRecorder.ondataavailable = async (event) => {
-      if (event.data.size > 0 && websocketRef.current?.readyState === WebSocket.OPEN) {
-        // Convert blob to ArrayBuffer then to base64
-        const arrayBuffer = await event.data.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const base64Audio = buffer.toString('base64');
+    source.connect(processor);
+    processor.connect(audioContext.destination);
+
+    processor.onaudioprocess = (e) => {
+      if (websocketRef.current?.readyState === WebSocket.OPEN) {
+        const inputData = e.inputBuffer.getChannelData(0);
+        
+        // Convert float32 to int16 PCM
+        const pcmData = new Int16Array(inputData.length);
+        for (let i = 0; i < inputData.length; i++) {
+          const s = Math.max(-1, Math.min(1, inputData[i]));
+          pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        
+        // Convert to base64
+        const uint8Array = new Uint8Array(pcmData.buffer);
+        let binary = '';
+        for (let i = 0; i < uint8Array.byteLength; i++) {
+          binary += String.fromCharCode(uint8Array[i]);
+        }
+        const base64Audio = btoa(binary);
         
         // Send as JSON with base64
         websocketRef.current.send(JSON.stringify({
@@ -215,7 +228,9 @@ const startGladiaTranscription = async () => {
       }
     };
 
-    mediaRecorder.start(250); // Send chunks every 250ms
+    // Store references for cleanup
+    audioChunksRef.current = { audioContext, processor, source, stream };
+    
     console.log('✅ Gladia transcription started successfully');
 
   } catch (error) {
@@ -223,7 +238,6 @@ const startGladiaTranscription = async () => {
     setActiveTranscribe(null);
   }
 };
-
   useEffect(() => {
     console.log('🔄 activeTranscribe changed to:', activeTranscribe);
   }, [activeTranscribe]);
