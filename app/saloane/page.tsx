@@ -140,11 +140,13 @@ export default function SaloanePage() {
                     <Building2 className="w-5 h-5 text-slate-600" />
                     <h3 className="text-lg font-semibold text-slate-800">Salon {salonNumber}</h3>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Array.from({ length: 4 }).map((_, bedIndex) => (
+                  <div className={salonNumber === 5 ? "flex justify-center" : "grid grid-cols-2 gap-3"}>
+                    {Array.from({ length: salonNumber === 5 ? 1 : 4 }).map((_, bedIndex) => (
                       <div
                         key={bedIndex}
-                        className="border-2 border-dashed border-green-400 rounded-lg p-6 text-center bg-green-50/50 hover:bg-green-100/50 transition-colors cursor-pointer"
+                        className={`border-2 border-dashed border-green-400 rounded-lg p-6 text-center bg-green-50/50 hover:bg-green-100/50 transition-colors cursor-pointer ${
+                          salonNumber === 5 ? 'w-32' : ''
+                        }`}
                       >
                         <div className="text-green-600 font-medium">Liber</div>
                       </div>
@@ -159,18 +161,20 @@ export default function SaloanePage() {
         {/* Third Row of Salons */}
         <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {salons.slice(8, 10).map((salonNumber) => (
                 <div key={salonNumber} className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
                     <Building2 className="w-5 h-5 text-slate-600" />
                     <h3 className="text-lg font-semibold text-slate-800">Salon {salonNumber}</h3>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Array.from({ length: 4 }).map((_, bedIndex) => (
+                  <div className={salonNumber === 10 ? "flex justify-center" : "grid grid-cols-2 gap-3"}>
+                    {Array.from({ length: salonNumber === 10 ? 1 : 4 }).map((_, bedIndex) => (
                       <div
                         key={bedIndex}
-                        className="border-2 border-dashed border-green-400 rounded-lg p-6 text-center bg-green-50/50 hover:bg-green-100/50 transition-colors cursor-pointer"
+                        className={`border-2 border-dashed border-green-400 rounded-lg p-6 text-center bg-green-50/50 hover:bg-green-100/50 transition-colors cursor-pointer ${
+                          salonNumber === 10 ? 'w-32' : ''
+                        }`}
                       >
                         <div className="text-green-600 font-medium">Liber</div>
                       </div>
@@ -178,9 +182,19 @@ export default function SaloanePage() {
                   </div>
                 </div>
               ))}
-              {/* Empty spaces to maintain grid alignment */}
-              <div className="hidden lg:block"></div>
-              <div className="hidden lg:block"></div>
+              
+              {/* Salon 11 - În așteptare */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Building2 className="w-5 h-5 text-slate-600" />
+                  <h3 className="text-lg font-semibold text-slate-800">Salon 11 (în așteptare)</h3>
+                </div>
+                <div className="flex justify-center">
+                  <div className="border-2 border-dashed border-yellow-400 rounded-lg p-6 text-center bg-yellow-50/50 hover:bg-yellow-100/50 transition-colors cursor-pointer w-32">
+                    <div className="text-yellow-600 font-medium">În așteptare</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
