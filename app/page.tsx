@@ -132,7 +132,7 @@ const handlePatientSearch = async () => {
     console.log('Parsed result:', result);
     
     // Extract patient data - handle both array and object responses
-    let patientOutput = null;
+    let patientOutput: any = null;
     
     // Check if result is an array
     if (Array.isArray(result)) {
