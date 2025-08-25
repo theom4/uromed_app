@@ -725,11 +725,6 @@ const clearCurrentPatient = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                <pre className="text-xs text-blue-800 overflow-auto">
-                  {JSON.stringify(foundPatient, null, 2)}
-                </pre>
-              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Patient Basic Info */}
                 <div className="space-y-4">
