@@ -68,6 +68,8 @@ export default function Home() {
 
 // Replace your handlePatientSearch function with this updated version:
 
+// Replace your handlePatientSearch function with this improved version:
+
 const handlePatientSearch = async () => {
   if (patientSearchFiles.length === 0) {
     return;
@@ -88,62 +90,202 @@ const handlePatientSearch = async () => {
       body: formData,
     });
 
-    if (response.ok) {
-      const result = await response.json();
-      console.log('Patient search result:', result);
-      
-      // Extract patient data from the response
-      let patientOutput = null;
-      
-      if (Array.isArray(result) && result.length > 0 && result[0].output) {
-        patientOutput = result[0].output;
-      } else if (result && result.output) {
-        patientOutput = result.output;
-      }
-      
-      if (patientOutput && patientOutput.patientData) {
-        console.log('Found patient data:', patientOutput.patientData);
-        setFoundPatient(patientOutput);
-        
-        // AUTO-POPULATE the medical info field with patient history
-        if (patientOutput.patientData.istoric) {
-          // Append patient info to existing medical info
-          const patientInfo = `PACIENT: ${patientOutput.patientData.nume} ${patientOutput.patientData.prenume}
-CNP: ${patientOutput.patientData.cnp}
-Data nașterii: ${patientOutput.patientData.data_nasterii}
-Telefon: ${patientOutput.patientData.telefon}
-
-ISTORIC MEDICAL:
-${patientOutput.patientData.istoric}
-
-${medicalInfo ? '\nINFORMAȚII ADIȚIONALE:\n' + medicalInfo : ''}`;
-          
-          setMedicalInfo(patientInfo);
-        }
-        
-        // Store patient ID for later use (if needed)
-        // You might want to add a state variable for this:
-        // setCurrentPatientId(patientOutput.patientData.id);
-        
-        // Clear the files after successful search
-        setPatientSearchFiles([]);
-      } else {
-        console.log('No patient data found in response:', result);
-        alert('Nu au fost găsite informații despre pacient în răspuns.');
-      }
-    } else {
+    if (!response.ok) {
       const errorText = await response.text();
       console.error('Patient search failed:', response.status, errorText);
       alert('Eroare la căutarea pacientului');
+      return;
     }
+
+    // Get response as text first to handle potential parsing issues
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+    
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      console.log('Attempting to extract JSON from response...');
+      
+      // Try to extract JSON if it's embedded in other content
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        try {
+          result = JSON.parse(jsonMatch[0]);
+          console.log('Successfully extracted JSON from response');
+        } catch (e) {
+          console.error('Failed to parse extracted JSON:', e);
+          alert('Eroare la procesarea răspunsului de la server');
+          return;
+        }
+      } else {
+        alert('Răspuns invalid de la server');
+        return;
+      }
+    }
+
+    console.log('Parsed result:', result);
+    
+    // Extract patient data - handle both array and object responses
+    let patientOutput = null;
+    
+    // Check if result is an array
+    if (Array.isArray(result)) {
+      if (result.length > 0 && result[0].output) {
+        patientOutput = result[0].output;
+        console.log('Found output in array[0]:', patientOutput);
+      }
+    } 
+    // Check if result is an object with output property
+    else if (result && typeof result === 'object') {
+      if (result.output) {
+        patientOutput = result.output;
+        console.log('Found output in object:', patientOutput);
+      } else if (result.patientData) {
+        // Direct patient data without wrapper
+        patientOutput = { patientData: result.patientData, status: result.status };
+        console.log('Found direct patient data:', patientOutput);
+      }
+    }
+    
+    // Validate and use the patient data
+    if (patientOutput && patientOutput.patientData) {
+      console.log('✅ Successfully found patient data:', patientOutput.patientData);
+      
+      // Set the found patient
+      setFoundPatient(patientOutput);
+      
+      // Auto-populate the medical info field with patient history
+      if (patientOutput.patientData.istoric || patientOutput.patientData.nume) {
+        const patientInfo = `PACIENT: ${patientOutput.patientData.nume || ''} ${patientOutput.patientData.prenume || ''}
+CNP: ${patientOutput.patientData.cnp || 'N/A'}
+Data nașterii: ${patientOutput.patientData.data_nasterii || 'N/A'}
+Telefon: ${patientOutput.patientData.telefon || 'N/A'}
+
+${patientOutput.patientData.istoric ? 'ISTORIC MEDICAL:\n' + patientOutput.patientData.istoric + '\n' : ''}
+${medicalInfo ? '\nINFORMAȚII ADIȚIONALE:\n' + medicalInfo : ''}`;
+        
+        setMedicalInfo(prevInfo => {
+          // Only update if we have new patient info
+          if (patientOutput.patientData.nume) {
+            return patientInfo;
+          }
+          return prevInfo;
+        });
+        
+        // Show success message (optional)
+        console.log('✅ Patient found and data loaded successfully!');
+      }
+      
+      // Clear the files after successful search
+      setPatientSearchFiles([]);
+      
+    } else {
+      // Only show alert if we truly couldn't find patient data
+      console.error('❌ No patient data found in response structure:', {
+        hasResult: !!result,
+        isArray: Array.isArray(result),
+        resultKeys: result ? Object.keys(result) : [],
+        firstItemKeys: Array.isArray(result) && result[0] ? Object.keys(result[0]) : [],
+        patientOutput: patientOutput
+      });
+      
+      // Don't show alert immediately - check console logs first
+      if (!patientOutput) {
+        alert('Nu au fost găsite informații despre pacient în răspuns. Verificați consola pentru detalii.');
+      }
+    }
+    
   } catch (error) {
-    console.error('Error searching patient:', error);
-    alert('Eroare la conectarea la server pentru căutarea pacientului');
+    console.error('❌ Error searching patient:', error);
+    alert(`Eroare la căutarea pacientului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
   } finally {
     setIsSearchingPatient(false);
   }
 };
 
+// Also update the handleSubmit function to include patient context:
+
+const handleSubmit = async () => {
+  if (!documentType || (!medicalInfo && medicalFiles.length === 0)) {
+    alert('Vă rugăm să completați informațiile medicale și să selectați tipul documentului.');
+    return;
+  }
+
+  setIsLoading(true);
+  setGeneratedDocument('');
+
+  try {
+    // Build request body with patient context if available
+    const requestBody = {
+      medicalInfo,
+      documentType,
+      operation: "generate-document"
+    };
+    
+    // Add patient context if we have a found patient
+    if (foundPatient && foundPatient.patientData) {
+      requestBody.patientContext = {
+        nume: foundPatient.patientData.nume,
+        prenume: foundPatient.patientData.prenume,
+        cnp: foundPatient.patientData.cnp,
+        data_nasterii: foundPatient.patientData.data_nasterii,
+        telefon: foundPatient.patientData.telefon,
+        istoric: foundPatient.patientData.istoric,
+        // Include consultation history if available
+        consultations: foundPatient.status || []
+      };
+      
+      console.log('Including patient context in document generation:', requestBody.patientContext);
+    }
+
+    const response = await fetch('https://n8n.voisero.info/webhook/patients', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (response.ok) {
+      let responseText = await response.text();
+      
+      // Handle iframe wrapped responses
+      if (responseText.includes('<iframe srcdoc="')) {
+        const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
+        if (match) {
+          responseText = match[1];
+          responseText = responseText.replace(/&quot;/g, '"')
+                                   .replace(/&amp;/g, '&')
+                                   .replace(/&lt;/g, '<')
+                                   .replace(/&gt;/g, '>');
+        }
+      }
+      
+      responseText = responseText.replace(/\\n/g, '\n');
+      
+      setGeneratedDocument(responseText || 'Document generat cu succes!');
+    } else {
+      const errorText = await response.text();
+      console.error('Webhook request failed:', response.status, errorText);
+      alert(`Eroare la generarea documentului (${response.status}): ${errorText || response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error sending webhook:', error);
+    alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea - verificați conexiunea'}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// Helper function to clear current patient (add this as a new function)
+const clearCurrentPatient = () => {
+  setFoundPatient(null);
+  setMedicalInfo('');
+  setPatientSearchFiles([]);
+  console.log('Patient data cleared');
+};
 // Also update your handleSubmit function to include patient context:
 
 const handleSubmit = async () => {
