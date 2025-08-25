@@ -241,7 +241,7 @@ const handleSubmit = async () => {
       console.log('Including patient context in document generation:', requestBody.patientContext);
     }
 
-    const response = await fetch('https://n8n.voisero.info/webhook/patients', {
+    const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
