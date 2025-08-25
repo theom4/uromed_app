@@ -42,6 +42,7 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
+  const [patientSearchFiles, setPatientSearchFiles] = useState<File[]>([]);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
 
   // Refs for transcription
@@ -53,15 +54,31 @@ export default function Home() {
     await signOut();
   };
 
-  const handlePatientSearchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handlePatientSearchUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const fileArray = Array.from(files);
+    setPatientSearchFiles(prev => [...prev, ...fileArray]);
+  };
+
+  const removePatientSearchFile = (index: number) => {
+    setPatientSearchFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePatientSearch = async () => {
+    if (patientSearchFiles.length === 0) {
+      // Do nothing if no files are attached
+      return;
+    }
 
     setIsSearchingPatient(true);
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      patientSearchFiles.forEach((file, index) => {
+        formData.append(`file_${index}`, file);
+      });
+      formData.append('operation', 'search-patient');
 
       const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
         method: 'POST',
@@ -71,8 +88,9 @@ export default function Home() {
       if (response.ok) {
         const result = await response.text();
         console.log('Patient search result:', result);
-        // You can handle the response here - maybe show patient info or redirect
         alert('Căutarea pacientului a fost procesată cu succes!');
+        // Clear the files after successful search
+        setPatientSearchFiles([]);
       } else {
         console.error('Patient search failed:', response.status);
         alert('Eroare la căutarea pacientului');
@@ -516,6 +534,7 @@ export default function Home() {
                     type="file"
                     accept="image/*"
                     onChange={handlePatientSearchUpload}
+                    multiple
                     className="hidden"
                     id="patient-search-file"
                   />
@@ -523,6 +542,45 @@ export default function Home() {
                     <Upload className="w-5 h-5" />
                     <span>Încărcați imagine pentru căutarea pacientului</span>
                   </Label>
+                </div>
+                {patientSearchFiles.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {patientSearchFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-purple-50 p-2 rounded">
+                        <div className="flex items-center space-x-2">
+                          <Image className="w-4 h-4 text-purple-600" />
+                          <span className="text-sm text-purple-700">{file.name}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removePatientSearchFile(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    onClick={handlePatientSearch}
+                    disabled={isSearchingPatient || patientSearchFiles.length === 0}
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSearchingPatient ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Se caută pacientul...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <User className="w-4 h-4" />
+                        <span>Caută Pacient</span>
+                      </div>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
