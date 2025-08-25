@@ -281,87 +281,12 @@ const handleSubmit = async () => {
   }
 };
 
-// Helper function to clear current patient (add this as a new function)
+// Helper function to clear current patient
 const clearCurrentPatient = () => {
   setFoundPatient(null);
   setMedicalInfo('');
   setPatientSearchFiles([]);
   console.log('Patient data cleared');
-};
-
-// Helper function to clear current patient (add this as a new function)
-const clearCurrentPatient = () => {
-  setFoundPatient(null);
-  setMedicalInfo('');
-  setPatientSearchFiles([]);
-  console.log('Patient data cleared');
-};
-// Also update your handleSubmit function to include patient context:
-
-const handleSubmit = async () => {
-  if (!documentType || (!medicalInfo && medicalFiles.length === 0)) {
-    alert('Vă rugăm să completați informațiile medicale și să selectați tipul documentului.');
-    return;
-  }
-
-  setIsLoading(true);
-  setGeneratedDocument('');
-
-  try {
-    // Include patient data if available
-    const requestBody = {
-      medicalInfo,
-      documentType,
-      operation: "generate-document"
-    };
-    
-    // Add patient context if we have a found patient
-    if (foundPatient && foundPatient.patientData) {
-      requestBody.patientContext = {
-        nume: foundPatient.patientData.nume,
-        prenume: foundPatient.patientData.prenume,
-        cnp: foundPatient.patientData.cnp,
-        data_nasterii: foundPatient.patientData.data_nasterii,
-        istoric: foundPatient.patientData.istoric
-      };
-    }
-
-    const response = await fetch('https://n8n.voisero.info/webhook/patients', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (response.ok) {
-      let responseText = await response.text();
-      
-      if (responseText.includes('<iframe srcdoc="')) {
-        const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
-        if (match) {
-          responseText = match[1];
-          responseText = responseText.replace(/&quot;/g, '"')
-                                   .replace(/&amp;/g, '&')
-                                   .replace(/&lt;/g, '<')
-                                   .replace(/&gt;/g, '>');
-        }
-      }
-      
-      responseText = responseText.replace(/\\n/g, '\n');
-      
-      setGeneratedDocument(responseText || 'Document generat cu succes!');
-    } else {
-      const errorText = await response.text();
-      console.error('Webhook request failed:', response.status, errorText);
-      alert(`Eroare la generarea documentului (${response.status}): ${errorText || response.statusText}`);
-    }
-  } catch (error) {
-    console.error('Error sending webhook:', error);
-    alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea - verificați conexiunea'}`);
-  } finally {
-    setIsLoading(false);
-  }
 };
 
   const handleDragOver = (e: React.DragEvent, type: string) => {
