@@ -223,7 +223,6 @@ const handleSubmit = async () => {
         prenume: foundPatient.patientData.prenume,
         cnp: foundPatient.patientData.cnp,
         data_nasterii: foundPatient.patientData.data_nasterii,
-      const requestBody = {
         istoric: foundPatient.patientData.istoric,
         // Include consultation history if available
         operation: "generate-document",
@@ -494,7 +493,21 @@ const clearCurrentPatient = () => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
       } catch (error) {
-      console.log('Sending request to uromed-app webhook:', requestBody);
+        console.error('Failed to copy document:', error);
+      }
+    }
+  };
+
+  const handleUpdateDocument = async () => {
+    if (!generatedDocument) {
+      alert('Nu există document pentru actualizare.');
+      return;
+    }
+
+    setIsUpdatingDocument(true);
+    setUpdateMessage('');
+
+    console.log('Sending request to uromed-app webhook:', { document: generatedDocument, operation: "update-document" });
     try {
       const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
         method: 'POST',
