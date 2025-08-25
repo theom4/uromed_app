@@ -46,6 +46,13 @@ export default function Home() {
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [foundPatient, setFoundPatient] = useState<any>(null);
 
+  // Set default document type to spitalizare-zi
+  useEffect(() => {
+    if (!documentType) {
+      setDocumentType('spitalizare-zi');
+    }
+  }, [documentType]);
+
   // Refs for transcription
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const websocketRef = useRef<WebSocket | null>(null);
@@ -160,27 +167,8 @@ const handlePatientSearch = async () => {
       // Set the found patient
       setFoundPatient(patientOutput);
       
-      // Auto-populate the medical info field with patient history
-      if (patientOutput.patientData.istoric || patientOutput.patientData.nume) {
-        const patientInfo = `PACIENT: ${patientOutput.patientData.nume || ''} ${patientOutput.patientData.prenume || ''}
-CNP: ${patientOutput.patientData.cnp || 'N/A'}
-Data nașterii: ${patientOutput.patientData.data_nasterii || 'N/A'}
-Telefon: ${patientOutput.patientData.telefon || 'N/A'}
-
-${patientOutput.patientData.istoric ? 'ISTORIC MEDICAL:\n' + patientOutput.patientData.istoric + '\n' : ''}
-${medicalInfo ? '\nINFORMAȚII ADIȚIONALE:\n' + medicalInfo : ''}`;
-        
-        setMedicalInfo(prevInfo => {
-          // Only update if we have new patient info
-          if (patientOutput.patientData.nume) {
-            return patientInfo;
-          }
-          return prevInfo;
-        });
-        
-        // Show success message (optional)
-        console.log('✅ Patient found and data loaded successfully!');
-      }
+      // Don't auto-populate medical info - just log success
+      console.log('✅ Patient found and data loaded successfully!');
       
       // Clear the files after successful search
       setPatientSearchFiles([]);
