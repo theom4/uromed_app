@@ -42,6 +42,7 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
+  const [isSearchingPatient, setIsSearchingPatient] = useState(false);
 
   // Refs for transcription
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -50,6 +51,58 @@ const audioChunksRef = useRef<any>(null);
   const handleSignOut = async () => {
     await signOut();
   };
+
+  const handlePatientSearchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsSearchingPatient(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.text();
+        console.log('Patient search result:', result);
+    setIsSearchingPatient(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('operation', 'search-patient');
+
+      const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.text();
+        console.log('Patient search result:', result);
+        // You can handle the response here - maybe show patient info or redirect
+        alert('Căutarea pacientului a fost procesată cu succes!');
+      } else {
+        console.error('Patient search failed:', response.status);
+        alert('Eroare la căutarea pacientului');
+      }
+    } catch (error) {
+      console.error('Error searching patient:', error);
+      alert('Eroare la conectarea la server pentru căutarea pacientului');
+    } finally {
+      setIsSearchingPatient(false);
+    }
+  };
+
+  const removePatientSearchFile = (index: number) => {
+    setPatientSearchFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
 
   const handleDragOver = (e: React.DragEvent, type: string) => {
     e.preventDefault();
@@ -460,6 +513,38 @@ const startGladiaTranscription = async () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Patient Search Section */}
+        <Card className="shadow-lg border-slate-200">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
+            <CardTitle className="flex items-center space-x-2 text-slate-800">
+              <User className="w-5 h-5 text-purple-600" />
+              <span>Căutare Pacient</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium text-slate-700">
+                  Atașați screenshot sau imagine pentru căutarea pacientului
+                </Label>
+                <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePatientSearchUpload}
+                    className="hidden"
+                    id="patient-search-file"
+                  />
+                  <Label htmlFor="patient-search-file" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 hover:text-purple-600 h-20">
+                    <Upload className="w-5 h-5" />
+                    <span>Încărcați imagine pentru căutarea pacientului</span>
+                  </Label>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Medical Information Section */}
         <Card className="shadow-lg border-slate-200">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
