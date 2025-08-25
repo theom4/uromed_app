@@ -205,13 +205,6 @@ ${medicalInfo ? '\nINFORMAȚII ADIȚIONALE:\n' + medicalInfo : ''}`;
   }
 };
 
-    console.error('Error sending webhook:', error);
-    alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea - verificați conexiunea'}`);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
 // Helper function to clear current patient (add this as a new function)
 const clearCurrentPatient = () => {
   setFoundPatient(null);
