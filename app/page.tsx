@@ -47,7 +47,8 @@ export default function Home() {
   // Refs for transcription
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const websocketRef = useRef<WebSocket | null>(null);
-const audioChunksRef = useRef<any>(null);
+  const audioChunksRef = useRef<any>(null);
+  
   const handleSignOut = async () => {
     await signOut();
   };
@@ -70,21 +71,6 @@ const audioChunksRef = useRef<any>(null);
       if (response.ok) {
         const result = await response.text();
         console.log('Patient search result:', result);
-    setIsSearchingPatient(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('operation', 'search-patient');
-
-      const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const result = await response.text();
-        console.log('Patient search result:', result);
         // You can handle the response here - maybe show patient info or redirect
         alert('Căutarea pacientului a fost procesată cu succes!');
       } else {
@@ -98,11 +84,6 @@ const audioChunksRef = useRef<any>(null);
       setIsSearchingPatient(false);
     }
   };
-
-  const removePatientSearchFile = (index: number) => {
-    setPatientSearchFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
 
   const handleDragOver = (e: React.DragEvent, type: string) => {
     e.preventDefault();
@@ -132,169 +113,172 @@ const audioChunksRef = useRef<any>(null);
   const removeFile = (index: number) => {
     setMedicalFiles(prev => prev.filter((_, i) => i !== index));
   };
-const toggleTranscribe = async (type: string) => {
-  console.log('🎯 toggleTranscribe called with type:', type);
-  console.log('🎯 Current activeTranscribe:', activeTranscribe);
 
-  if (activeTranscribe === type) {
-    console.log('🛑 Turning OFF transcription for:', type);
-    
-    // Clean up audio processing
-    if (audioChunksRef.current) {
-      const { audioContext, processor, source, stream } = audioChunksRef.current;
+  const toggleTranscribe = async (type: string) => {
+    console.log('🎯 toggleTranscribe called with type:', type);
+    console.log('🎯 Current activeTranscribe:', activeTranscribe);
+
+    if (activeTranscribe === type) {
+      console.log('🛑 Turning OFF transcription for:', type);
       
-      processor.disconnect();
-      source.disconnect();
-      audioContext.close();
-      
-      // Stop all tracks to release the microphone
-      stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-      
-      audioChunksRef.current = null;
-    }
-    
-    // Stop recording and close WebSocket
-    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      websocketRef.current.send(JSON.stringify({
-        type: "stop_recording"
-      }));
-      
-      setTimeout(() => {
-        websocketRef.current?.close(1000);
-      }, 1000);
-    }
-    
-    setActiveTranscribe(null);
-  } else {
-    console.log('🟢 Turning ON transcription for:', type);
-    setActiveTranscribe(type);
-    await startGladiaTranscription();
-  }
-};
-const startGladiaTranscription = async () => {
-  try {
-    console.log('📡 Initiating Gladia session...');
-    
-    // Step 1: Initiate the session
-    const response = await fetch('https://api.gladia.io/v2/live', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Gladia-Key': '66e1c189-a317-4ede-be75-d48e743a2af4	',
-      },
-      body: JSON.stringify({
-        encoding: 'wav/pcm',
-        sample_rate: 16000,
-        bit_depth: 16,
-        channels: 1,
-      }),
-    });
-
-    console.log('📡 Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Failed to initiate session: ${response.status}: ${errorText}`);
-      setActiveTranscribe(null);
-      return;
-    }
-
-    const sessionData = await response.json();
-    console.log('✅ Session initiated:', sessionData);
-    
-    if (!sessionData.url) {
-      console.error('❌ No WebSocket URL in response');
-      setActiveTranscribe(null);
-      return;
-    }
-
-    // Step 2: Connect to the WebSocket
-    const ws = new WebSocket(sessionData.url);
-    websocketRef.current = ws;
-
-    ws.onopen = () => {
-      console.log('✅ Gladia WebSocket connected');
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log('📝 Received message:', message);
-      
-      // Check for transcript messages
-      if (message.type === 'transcript' && message.data?.utterance?.text) {
-        console.log('🎯 TRANSCRIPT:', message.data.utterance.text);
-        // Append to medical info
-        setMedicalInfo(prev => prev + ' ' + message.data.utterance.text);
+      // Clean up audio processing
+      if (audioChunksRef.current) {
+        const { audioContext, processor, source, stream } = audioChunksRef.current;
+        
+        processor.disconnect();
+        source.disconnect();
+        audioContext.close();
+        
+        // Stop all tracks to release the microphone
+        stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+        
+        audioChunksRef.current = null;
       }
-    };
-
-    ws.onerror = (error) => {
-      console.error('❌ Gladia WebSocket error:', error);
-    };
-
-    ws.onclose = ({ code, reason }) => {
-      console.log(`🔌 Gladia WebSocket closed - Code: ${code}, Reason: ${reason}`);
-    };
-
-    // Step 3: Set up audio capture with AudioContext for PCM conversion
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        sampleRate: 16000,
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true
-      }
-    });
-
-    console.log('🎤 Microphone permission granted');
-
-    // Use AudioContext to get PCM data
-    const audioContext = new AudioContext({ sampleRate: 16000 });
-    const source = audioContext.createMediaStreamSource(stream);
-    const processor = audioContext.createScriptProcessor(4096, 1, 1);
-
-    source.connect(processor);
-    processor.connect(audioContext.destination);
-
-    processor.onaudioprocess = (e) => {
-      if (websocketRef.current?.readyState === WebSocket.OPEN) {
-        const inputData = e.inputBuffer.getChannelData(0);
-        
-        // Convert float32 to int16 PCM
-        const pcmData = new Int16Array(inputData.length);
-        for (let i = 0; i < inputData.length; i++) {
-          const s = Math.max(-1, Math.min(1, inputData[i]));
-          pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-        }
-        
-        // Convert to base64
-        const uint8Array = new Uint8Array(pcmData.buffer);
-        let binary = '';
-        for (let i = 0; i < uint8Array.byteLength; i++) {
-          binary += String.fromCharCode(uint8Array[i]);
-        }
-        const base64Audio = btoa(binary);
-        
-        // Send as JSON with base64
+      
+      // Stop recording and close WebSocket
+      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
         websocketRef.current.send(JSON.stringify({
-          type: 'audio_chunk',
-          data: {
-            chunk: base64Audio
-          }
+          type: "stop_recording"
         }));
+        
+        setTimeout(() => {
+          websocketRef.current?.close(1000);
+        }, 1000);
       }
-    };
+      
+      setActiveTranscribe(null);
+    } else {
+      console.log('🟢 Turning ON transcription for:', type);
+      setActiveTranscribe(type);
+      await startGladiaTranscription();
+    }
+  };
 
-    // Store references for cleanup
-    audioChunksRef.current = { audioContext, processor, source, stream };
-    
-    console.log('✅ Gladia transcription started successfully');
+  const startGladiaTranscription = async () => {
+    try {
+      console.log('📡 Initiating Gladia session...');
+      
+      // Step 1: Initiate the session
+      const response = await fetch('https://api.gladia.io/v2/live', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Gladia-Key': '66e1c189-a317-4ede-be75-d48e743a2af4	',
+        },
+        body: JSON.stringify({
+          encoding: 'wav/pcm',
+          sample_rate: 16000,
+          bit_depth: 16,
+          channels: 1,
+        }),
+      });
 
-  } catch (error) {
-    console.error('❌ Error starting Gladia transcription:', error);
-    setActiveTranscribe(null);
-  }
-};
+      console.log('📡 Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Failed to initiate session: ${response.status}: ${errorText}`);
+        setActiveTranscribe(null);
+        return;
+      }
+
+      const sessionData = await response.json();
+      console.log('✅ Session initiated:', sessionData);
+      
+      if (!sessionData.url) {
+        console.error('❌ No WebSocket URL in response');
+        setActiveTranscribe(null);
+        return;
+      }
+
+      // Step 2: Connect to the WebSocket
+      const ws = new WebSocket(sessionData.url);
+      websocketRef.current = ws;
+
+      ws.onopen = () => {
+        console.log('✅ Gladia WebSocket connected');
+      };
+
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log('📝 Received message:', message);
+        
+        // Check for transcript messages
+        if (message.type === 'transcript' && message.data?.utterance?.text) {
+          console.log('🎯 TRANSCRIPT:', message.data.utterance.text);
+          // Append to medical info
+          setMedicalInfo(prev => prev + ' ' + message.data.utterance.text);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('❌ Gladia WebSocket error:', error);
+      };
+
+      ws.onclose = ({ code, reason }) => {
+        console.log(`🔌 Gladia WebSocket closed - Code: ${code}, Reason: ${reason}`);
+      };
+
+      // Step 3: Set up audio capture with AudioContext for PCM conversion
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true
+        }
+      });
+
+      console.log('🎤 Microphone permission granted');
+
+      // Use AudioContext to get PCM data
+      const audioContext = new AudioContext({ sampleRate: 16000 });
+      const source = audioContext.createMediaStreamSource(stream);
+      const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      processor.connect(audioContext.destination);
+
+      processor.onaudioprocess = (e) => {
+        if (websocketRef.current?.readyState === WebSocket.OPEN) {
+          const inputData = e.inputBuffer.getChannelData(0);
+          
+          // Convert float32 to int16 PCM
+          const pcmData = new Int16Array(inputData.length);
+          for (let i = 0; i < inputData.length; i++) {
+            const s = Math.max(-1, Math.min(1, inputData[i]));
+            pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          }
+          
+          // Convert to base64
+          const uint8Array = new Uint8Array(pcmData.buffer);
+          let binary = '';
+          for (let i = 0; i < uint8Array.byteLength; i++) {
+            binary += String.fromCharCode(uint8Array[i]);
+          }
+          const base64Audio = btoa(binary);
+          
+          // Send as JSON with base64
+          websocketRef.current.send(JSON.stringify({
+            type: 'audio_chunk',
+            data: {
+              chunk: base64Audio
+            }
+          }));
+        }
+      };
+
+      // Store references for cleanup
+      audioChunksRef.current = { audioContext, processor, source, stream };
+      
+      console.log('✅ Gladia transcription started successfully');
+
+    } catch (error) {
+      console.error('❌ Error starting Gladia transcription:', error);
+      setActiveTranscribe(null);
+    }
+  };
+
   useEffect(() => {
     console.log('🔄 activeTranscribe changed to:', activeTranscribe);
   }, [activeTranscribe]);
