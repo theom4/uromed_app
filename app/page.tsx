@@ -222,7 +222,7 @@ const handleSubmit = async () => {
 
   try {
     // Build request body with patient context if available
-    const requestBody = {
+    const requestBody: any = {
       medicalInfo,
       documentType,
       operation: "generate-document"
