@@ -91,8 +91,68 @@ export default function Home() {
         const result = await response.json();
         console.log('Patient search result:', result);
         
-        // Extract patient data from the response
-        if (result && result.length > 0 && result[0].output) {
+        // Extract patient data from the response - check if it's an array or direct object
+        let patientOutput = null;
+        
+        if (Array.isArray(result) && result.length > 0 && result[0].output) {
+          patientOutput = result[0].output;
+        } else if (result && result.output) {
+          patientOutput = result.output;
+        }
+        
+        if (patientOutput && patientOutput.patientData) {
+          console.log('Found patient data:', patientOutput.patientData);
+          setFoundPatient(patientOutput);
+          // Clear the files after successful search
+          setPatientSearchFiles([]);
+        } else {
+          console.log('No patient data found in response:', result);
+          alert('Nu au fost găsite informații despre pacient în răspuns.');
+        }
+      } else {
+        const errorText = await response.text();
+        console.error('Patient search failed:', response.status, errorText);
+        alert('Eroare la căutarea pacientului');
+      }
+    } catch (error) {
+      console.error('Error searching patient:', error);
+      // Try to parse as text if JSON parsing fails
+      try {
+        const response2 = await fetch('https://n8n.voisero.info/webhook/snippet', {
+          method: 'POST',
+          body: formData,
+        });
+        const textResult = await response2.text();
+        console.log('Text response:', textResult);
+        
+        // Try to extract JSON from text response
+        const jsonMatch = textResult.match(/\[.*\]/s);
+        if (jsonMatch) {
+          const parsedResult = JSON.parse(jsonMatch[0]);
+          console.log('Parsed from text:', parsedResult);
+          
+          let patientOutput = null;
+          if (Array.isArray(parsedResult) && parsedResult.length > 0 && parsedResult[0].output) {
+            patientOutput = parsedResult[0].output;
+          }
+          
+          if (patientOutput && patientOutput.patientData) {
+            setFoundPatient(patientOutput);
+            setPatientSearchFiles([]);
+            return;
+          }
+        }
+      } catch (textError) {
+        console.error('Text parsing also failed:', textError);
+      }
+      
+      alert('Eroare la conectarea la server pentru căutarea pacientului');
+    } finally {
+      setIsSearchingPatient(false);
+    }
+  };
+
+@@ .. @@
           setFoundPatient(result[0].output);
         } else {
           alert('Nu au fost găsite informații despre pacient.');
@@ -606,6 +666,11 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                <pre className="text-xs text-blue-800 overflow-auto">
+                  {JSON.stringify(foundPatient, null, 2)}
+                </pre>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Patient Basic Info */}
                 <div className="space-y-4">
@@ -629,7 +694,7 @@ export default function Home() {
                     </div>
                     <div className="flex justify-between">
                       <span className="font-medium text-slate-600">Data nașterii:</span>
-                      <span className="text-slate-800">{foundPatient.patientData?.data_nasterii || 'N/A'}</span>
+                      <span className="text-slate-800">{foundPatient.patientData?.data_nasterii || foundPatient.patientData?.data_nastere || 'N/A'}</span>
                     </div>
                   </div>
                   
