@@ -152,26 +152,6 @@ export default function Home() {
     }
   };
 
-@@ .. @@
-          setFoundPatient(result[0].output);
-        } else {
-          alert('Nu au fost găsite informații despre pacient.');
-        }
-        
-        // Clear the files after successful search
-        setPatientSearchFiles([]);
-      } else {
-        console.error('Patient search failed:', response.status);
-        alert('Eroare la căutarea pacientului');
-      }
-    } catch (error) {
-      console.error('Error searching patient:', error);
-      alert('Eroare la conectarea la server pentru căutarea pacientului');
-    } finally {
-      setIsSearchingPatient(false);
-    }
-  };
-
   const handleDragOver = (e: React.DragEvent, type: string) => {
     e.preventDefault();
     setDragStates(prev => ({ ...prev, [type]: true }));
