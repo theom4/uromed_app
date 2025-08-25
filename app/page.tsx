@@ -223,10 +223,20 @@ const handleSubmit = async () => {
         prenume: foundPatient.patientData.prenume,
         cnp: foundPatient.patientData.cnp,
         data_nasterii: foundPatient.patientData.data_nasterii,
-        telefon: foundPatient.patientData.telefon,
+      const requestBody = {
         istoric: foundPatient.patientData.istoric,
         // Include consultation history if available
-        consultations: foundPatient.status || []
+        operation: "generate-document",
+        // Include patient data if available
+        patientData: foundPatient ? {
+          nume: foundPatient.patientData?.nume,
+          prenume: foundPatient.patientData?.prenume,
+          cnp: foundPatient.patientData?.cnp,
+          data_nasterii: foundPatient.patientData?.data_nasterii || foundPatient.patientData?.data_nastere,
+          telefon: foundPatient.patientData?.telefon,
+          istoric: foundPatient.patientData?.istoric,
+          consultations: foundPatient.status || []
+        } : null
       };
       
       console.log('Including patient context in document generation:', requestBody.patientContext);
@@ -484,23 +494,9 @@ const clearCurrentPatient = () => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
       } catch (error) {
-        console.error('Error copying to clipboard:', error);
-      }
-    }
-  };
-
-  const handleUpdateDocument = async () => {
-    if (!generatedDocument) {
-      setUpdateMessage('Nu există document de actualizat.');
-      setTimeout(() => setUpdateMessage(''), 3000);
-      return;
-    }
-
-    setIsUpdatingDocument(true);
-    setUpdateMessage('');
-
+      console.log('Sending request to uromed-app webhook:', requestBody);
     try {
-      const response = await fetch('https://n8n.voisero.info/webhook/patients', {
+      const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
