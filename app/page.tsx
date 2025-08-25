@@ -44,6 +44,7 @@ export default function Home() {
   const [updateMessage, setUpdateMessage] = useState('');
   const [patientSearchFiles, setPatientSearchFiles] = useState<File[]>([]);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
+  const [foundPatient, setFoundPatient] = useState<any>(null);
 
   // Refs for transcription
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -72,6 +73,7 @@ export default function Home() {
     }
 
     setIsSearchingPatient(true);
+    setFoundPatient(null);
 
     try {
       const formData = new FormData();
@@ -86,9 +88,16 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const result = await response.text();
+        const result = await response.json();
         console.log('Patient search result:', result);
-        alert('Căutarea pacientului a fost procesată cu succes!');
+        
+        // Extract patient data from the response
+        if (result && result.length > 0 && result[0].output) {
+          setFoundPatient(result[0].output);
+        } else {
+          alert('Nu au fost găsite informații despre pacient.');
+        }
+        
         // Clear the files after successful search
         setPatientSearchFiles([]);
       } else {
@@ -586,6 +595,103 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Found Patient Details */}
+        {foundPatient && (
+          <Card className="shadow-lg border-slate-200">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-slate-200">
+              <CardTitle className="flex items-center space-x-2 text-slate-800">
+                <User className="w-5 h-5 text-green-600" />
+                <span>Pacient Găsit</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Patient Basic Info */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Informații Personale</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-600">Nume:</span>
+                      <span className="text-slate-800">{foundPatient.patientData?.nume || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-600">Prenume:</span>
+                      <span className="text-slate-800">{foundPatient.patientData?.prenume || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-600">CNP:</span>
+                      <span className="text-slate-800 font-mono">{foundPatient.patientData?.cnp || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-600">Telefon:</span>
+                      <span className="text-slate-800">{foundPatient.patientData?.telefon || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-600">Data nașterii:</span>
+                      <span className="text-slate-800">{foundPatient.patientData?.data_nasterii || 'N/A'}</span>
+                    </div>
+                  </div>
+                  
+                  {foundPatient.patientData?.istoric && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-slate-600 mb-2">Istoric Medical:</h4>
+                      <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">
+                        {foundPatient.patientData.istoric}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Consultation History */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Istoric Consultații</h3>
+                  {foundPatient.status && foundPatient.status.length > 0 ? (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {foundPatient.status.map((consultation: any, index: number) => (
+                        <div key={consultation.id || index} className="bg-slate-50 p-4 rounded-lg border">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-sm font-medium text-blue-600 capitalize">
+                              {consultation.titlu?.replace('-', ' ') || 'Consultație'}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {new Date(consultation.data_consult).toLocaleDateString('ro-RO')}
+                            </span>
+                          </div>
+                          <div className="text-sm text-slate-700">
+                            <p className="line-clamp-4">
+                              {consultation.continut_text?.substring(0, 200)}
+                              {consultation.continut_text?.length > 200 ? '...' : ''}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-slate-500 text-sm">Nu există consultații anterioare înregistrate.</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-center space-x-3">
+                <Button
+                  onClick={() => setFoundPatient(null)}
+                  variant="outline"
+                  className="px-6"
+                >
+                  Închide
+                </Button>
+                <Button
+                  onClick={() => router.push(`/pacienti/${foundPatient.patientData?.id || ''}`)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6"
+                  disabled={!foundPatient.patientData?.id}
+                >
+                  Vezi Detalii Complete
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Medical Information Section */}
         <Card className="shadow-lg border-slate-200">
