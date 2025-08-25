@@ -410,66 +410,6 @@ const handleSubmit = async () => {
     console.log('🔄 activeTranscribe changed to:', activeTranscribe);
   }, [activeTranscribe]);
 
-  const handleSubmit = async () => {
-    if (!documentType || (!medicalInfo && medicalFiles.length === 0)) {
-      alert('Vă rugăm să completați informațiile medicale și să selectați tipul documentului.');
-      return;
-    }
-
-    setIsLoading(true);
-    setGeneratedDocument('');
-
-    try {
-      const formData = new FormData();
-      formData.append('medicalInfo', medicalInfo);
-      formData.append('documentType', documentType);
-      
-      medicalFiles.forEach((file, index) => {
-        formData.append(`file_${index}`, file);
-      });
-
-      const response = await fetch('https://n8n.voisero.info/webhook/patients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          medicalInfo,
-          documentType,
-          operation: "generate-document"
-        }),
-      });
-
-      if (response.ok) {
-        let responseText = await response.text();
-        
-        if (responseText.includes('<iframe srcdoc="')) {
-          const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
-          if (match) {
-            responseText = match[1];
-            responseText = responseText.replace(/&quot;/g, '"')
-                                     .replace(/&amp;/g, '&')
-                                     .replace(/&lt;/g, '<')
-                                     .replace(/&gt;/g, '>');
-          }
-        }
-        
-        responseText = responseText.replace(/\\n/g, '\n');
-        
-        setGeneratedDocument(responseText || 'Document generat cu succes!');
-      } else {
-        const errorText = await response.text();
-        console.error('Webhook request failed:', response.status, errorText);
-        alert(`Eroare la generarea documentului (${response.status}): ${errorText || response.statusText}`);
-      }
-    } catch (error) {
-      console.error('Error sending webhook:', error);
-      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea - verificați conexiunea'}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleCopyDocument = async () => {
     if (generatedDocument) {
       try {
