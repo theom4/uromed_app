@@ -99,12 +99,17 @@ const handlePatientSearch = async () => {
     const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
       method: 'POST',
       body: formData,
+      headers: {
+        'Accept': 'application/json',
+      },
+      // Add timeout to prevent hanging requests
+      signal: AbortSignal.timeout(30000) // 30 second timeout
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Patient search failed:', response.status, errorText);
-      alert('Eroare la căutarea pacientului');
+      alert(`Eroare la căutarea pacientului: Server a returnat codul ${response.status}. Verificați conexiunea la internet și încercați din nou.`);
       return;
     }
 
@@ -127,11 +132,11 @@ const handlePatientSearch = async () => {
           console.log('Successfully extracted JSON from response');
         } catch (e) {
           console.error('Failed to parse extracted JSON:', e);
-          alert('Eroare la procesarea răspunsului de la server');
+          alert('Eroare la procesarea răspunsului de la server. Răspunsul nu este în format JSON valid.');
           return;
         }
       } else {
-        alert('Răspuns invalid de la server');
+        alert('Răspuns invalid de la server. Nu s-au găsit date JSON în răspuns.');
         return;
       }
     }
@@ -191,7 +196,15 @@ const handlePatientSearch = async () => {
     
   } catch (error) {
     console.error('❌ Error searching patient:', error);
-    alert(`Eroare la căutarea pacientului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+    
+    // Provide more specific error messages based on error type
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      alert('Nu se poate conecta la serverul de căutare pacienti. Verificați:\n• Conexiunea la internet\n• Dacă serverul https://n8n.voisero.info este disponibil\n• Setările de firewall sau proxy');
+    } else if (error instanceof Error && error.name === 'AbortError') {
+      alert('Căutarea pacientului a expirat după 30 de secunde. Încercați din nou.');
+    } else {
+      alert(`Eroare la căutarea pacientului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+    }
   } finally {
     setIsSearchingPatient(false);
   }
