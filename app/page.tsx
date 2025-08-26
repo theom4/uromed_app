@@ -201,8 +201,6 @@ const handlePatientSearch = async () => {
       alert('Nu au fost găsite informații despre pacient în răspuns. Verificați consola pentru detalii.');
       }
     }
-    
-  } catch (error) {
     console.error('❌ Error searching patient:', error);
     
     // Provide more specific error messages based on error type
