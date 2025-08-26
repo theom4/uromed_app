@@ -143,26 +143,40 @@ const handlePatientSearch = async () => {
 
     console.log('Parsed result:', result);
     
-    // Extract patient data - handle both array and object responses
+    // Handle the new response structure: array with patientData and output
     let patientOutput: any = null;
     
-    // Check if result is an array
+    // The response is now an array with objects containing patientData and output
     if (Array.isArray(result)) {
-      if (result.length > 0 && result[0].output) {
-        patientOutput = result[0].output;
-        console.log('Found output in array[0]:', patientOutput);
+      if (result.length > 0 && result[0].patientData) {
+        patientOutput = {
+          patientData: result[0].patientData,
+          status: result[0].output || [] // consultations are now in 'output' field
+        };
+        console.log('Found patient data in array[0]:', patientOutput);
       }
-    } 
-    // Check if result is an object with output property
-    else if (result && typeof result === 'object') {
-      if (result.output) {
-        patientOutput = result.output;
-        console.log('Found output in object:', patientOutput);
-      } else if (result.patientData) {
-        // Direct patient data without wrapper
-        patientOutput = { patientData: result.patientData, status: result.status };
-        console.log('Found direct patient data:', patientOutput);
-      }
+    }
+    // Fallback: check if result is a single object (not array)
+    else if (result && typeof result === 'object' && result.patientData) {
+      patientOutput = {
+        patientData: result.patientData,
+        status: result.output || []
+      };
+      console.log('Found patient data in single object:', patientOutput);
+    }
+    
+    // Additional validation for the expected structure
+    if (patientOutput && patientOutput.patientData) {
+      const { nume, prenume, cnp, telefon, data_nasterii, istoric } = patientOutput.patientData;
+      console.log('✅ Patient data extracted:', {
+        nume,
+        prenume, 
+        cnp,
+        telefon,
+        data_nasterii,
+        hasIstoric: !!istoric,
+        consultationsCount: patientOutput.status?.length || 0
+      });
     }
     
     // Validate and use the patient data
@@ -172,14 +186,10 @@ const handlePatientSearch = async () => {
       // Set the found patient
       setFoundPatient(patientOutput);
       
-      // Don't auto-populate medical info - just log success
-      console.log('✅ Patient found and data loaded successfully!');
-      
       // Clear the files after successful search
       setPatientSearchFiles([]);
       
     } else {
-      // Only show alert if we truly couldn't find patient data
       console.error('❌ No patient data found in response structure:', {
         hasResult: !!result,
         isArray: Array.isArray(result),
@@ -188,9 +198,7 @@ const handlePatientSearch = async () => {
         patientOutput: patientOutput
       });
       
-      // Don't show alert immediately - check console logs first
-      if (!patientOutput) {
-        alert('Nu au fost găsite informații despre pacient în răspuns. Verificați consola pentru detalii.');
+      alert('Nu au fost găsite informații despre pacient în răspuns. Verificați consola pentru detalii.');
       }
     }
     
