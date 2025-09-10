@@ -108,10 +108,13 @@ const handlePatientSearch = async () => {
 
   try {
     const formData = new FormData();
+    const mimeTypes: string[] = [];
+    
     patientSearchFiles.forEach((file, index) => {
       formData.append(`file_${index}`, file);
-      formData.append(`mimeType_${index}`, file.type);
+      mimeTypes.push(file.type);
     });
+    formData.append('mimeTypes', JSON.stringify(mimeTypes));
     formData.append('operation', 'search-patient');
 
     const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
