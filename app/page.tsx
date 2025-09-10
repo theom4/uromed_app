@@ -93,6 +93,7 @@ const handlePatientSearch = async () => {
     const formData = new FormData();
     patientSearchFiles.forEach((file, index) => {
       formData.append(`file_${index}`, file);
+      formData.append(`mimeType_${index}`, file.type);
     });
     formData.append('operation', 'search-patient');
 
@@ -695,7 +696,7 @@ const clearCurrentPatient = () => {
                 <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
                   <Input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,.pdf,.docx"
                     onChange={handlePatientSearchUpload}
                     multiple
                     className="hidden"
@@ -703,7 +704,7 @@ const clearCurrentPatient = () => {
                   />
                   <Label htmlFor="patient-search-file" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 hover:text-purple-600 h-20">
                     <Upload className="w-5 h-5" />
-                    <span>Încărcați imagine pentru căutarea pacientului</span>
+                    <span>Încărcați fișiere (imagine, PDF, DOCX) pentru căutarea pacientului</span>
                   </Label>
                 </div>
                 {patientSearchFiles.length > 0 && (
