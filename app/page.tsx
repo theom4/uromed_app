@@ -45,6 +45,7 @@ export default function Home() {
   const [patientSearchFiles, setPatientSearchFiles] = useState<File[]>([]);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [foundPatient, setFoundPatient] = useState<any>(null);
+  const [patientSearchDragState, setPatientSearchDragState] = useState(false);
 
   // Set default document type to spitalizare-zi
   useEffect(() => {
@@ -69,6 +70,22 @@ export default function Home() {
     setPatientSearchFiles(prev => [...prev, ...fileArray]);
   };
 
+  const handlePatientSearchDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setPatientSearchDragState(true);
+  };
+
+  const handlePatientSearchDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setPatientSearchDragState(false);
+  };
+
+  const handlePatientSearchDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setPatientSearchDragState(false);
+    const files = Array.from(e.dataTransfer.files);
+    setPatientSearchFiles(prev => [...prev, ...files]);
+  };
   const removePatientSearchFile = (index: number) => {
     setPatientSearchFiles(prev => prev.filter((_, i) => i !== index));
   };
@@ -693,7 +710,14 @@ const clearCurrentPatient = () => {
                 <Label className="text-sm font-medium text-slate-700">
                   Atașați screenshot sau imagine pentru căutarea pacientului
                 </Label>
-                <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
+                <div 
+                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors ${
+                    patientSearchDragState ? 'border-purple-500 bg-purple-50' : 'border-slate-300 hover:border-purple-400'
+                  }`}
+                  onDragOver={handlePatientSearchDragOver}
+                  onDragLeave={handlePatientSearchDragLeave}
+                  onDrop={handlePatientSearchDrop}
+                >
                   <Input
                     type="file"
                     accept="image/*,.pdf,.docx"
@@ -702,9 +726,11 @@ const clearCurrentPatient = () => {
                     className="hidden"
                     id="patient-search-file"
                   />
-                  <Label htmlFor="patient-search-file" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 hover:text-purple-600 h-20">
+                  <Label htmlFor="patient-search-file" className={`cursor-pointer flex items-center justify-center space-x-2 h-20 ${
+                    patientSearchDragState ? 'text-purple-700' : 'text-slate-600 hover:text-purple-600'
+                  }`}>
                     <Upload className="w-5 h-5" />
-                    <span>Încărcați fișiere (imagine, PDF, DOCX) pentru căutarea pacientului</span>
+                    <span>{patientSearchDragState ? 'Eliberează pentru a încărca' : 'Încărcați fișiere (imagine, PDF, DOCX) pentru căutarea pacientului sau trage aici'}</span>
                   </Label>
                 </div>
                 {patientSearchFiles.length > 0 && (
