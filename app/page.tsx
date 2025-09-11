@@ -621,9 +621,9 @@ const clearCurrentPatient = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -643,7 +643,7 @@ const clearCurrentPatient = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center">
                 <FileText className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-slate-900">UroMed AI</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">UroMed AI</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Button
@@ -710,10 +710,10 @@ const clearCurrentPatient = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Patient Search Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
                 <User className="w-5 h-5 text-purple-600" />
                 <span>Căutare Pacient</span>
               </CardTitle>
@@ -739,12 +739,14 @@ const clearCurrentPatient = () => {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium text-slate-700">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Atașați screenshot sau imagine pentru căutarea pacientului
                 </Label>
                 <div 
-                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors ${
-                    patientSearchDragState ? 'border-purple-500 bg-purple-50' : 'border-slate-300 hover:border-purple-400'
+                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors dark:bg-slate-700/50 ${
+                    patientSearchDragState 
+                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
+                      : 'border-slate-300 dark:border-slate-600 hover:border-purple-400 dark:hover:border-purple-500'
                   }`}
                   onDragOver={handlePatientSearchDragOver}
                   onDragLeave={handlePatientSearchDragLeave}
@@ -759,7 +761,9 @@ const clearCurrentPatient = () => {
                     id="patient-search-file"
                   />
                   <Label htmlFor="patient-search-file" className={`cursor-pointer flex items-center justify-center space-x-2 h-20 ${
-                    patientSearchDragState ? 'text-purple-700' : 'text-slate-600 hover:text-purple-600'
+                    patientSearchDragState 
+                      ? 'text-purple-700 dark:text-purple-300' 
+                      : 'text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}>
                     <Upload className="w-5 h-5" />
                     <span>{patientSearchDragState ? 'Eliberează pentru a încărca' : 'Încărcați fișiere (imagine, PDF, DOCX) pentru căutarea pacientului sau trage aici'}</span>
@@ -768,10 +772,10 @@ const clearCurrentPatient = () => {
                 {patientSearchFiles.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {patientSearchFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-purple-50 p-2 rounded">
+                      <div key={index} className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
                         <div className="flex items-center space-x-2">
                           <Image className="w-4 h-4 text-purple-600" />
-                          <span className="text-sm text-purple-700">{file.name}</span>
+                          <span className="text-sm text-purple-700 dark:text-purple-300">{file.name}</span>
                         </div>
                         <Button
                           variant="ghost"
@@ -792,9 +796,9 @@ const clearCurrentPatient = () => {
 
         {/* Found Patient Details */}
         {foundPatient && (
-          <Card className="shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-slate-200">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
                 <User className="w-5 h-5 text-green-600" />
                 <span>Pacient Găsit</span>
               </CardTitle>
@@ -803,34 +807,34 @@ const clearCurrentPatient = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Patient Basic Info */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Informații Personale</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-3">Informații Personale</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="font-medium text-slate-600">Nume:</span>
-                      <span className="text-slate-800">{foundPatient.patientData?.nume || 'N/A'}</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-400">Nume:</span>
+                      <span className="text-slate-800 dark:text-slate-200">{foundPatient.patientData?.nume || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium text-slate-600">Prenume:</span>
-                      <span className="text-slate-800">{foundPatient.patientData?.prenume || 'N/A'}</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-400">Prenume:</span>
+                      <span className="text-slate-800 dark:text-slate-200">{foundPatient.patientData?.prenume || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium text-slate-600">CNP:</span>
-                      <span className="text-slate-800 font-mono">{foundPatient.patientData?.cnp || 'N/A'}</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-400">CNP:</span>
+                      <span className="text-slate-800 dark:text-slate-200 font-mono">{foundPatient.patientData?.cnp || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium text-slate-600">Telefon:</span>
-                      <span className="text-slate-800">{foundPatient.patientData?.telefon || 'N/A'}</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-400">Telefon:</span>
+                      <span className="text-slate-800 dark:text-slate-200">{foundPatient.patientData?.telefon || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium text-slate-600">Data nașterii:</span>
-                      <span className="text-slate-800">{foundPatient.patientData?.data_nasterii || foundPatient.patientData?.data_nastere || 'N/A'}</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-400">Data nașterii:</span>
+                      <span className="text-slate-800 dark:text-slate-200">{foundPatient.patientData?.data_nasterii || foundPatient.patientData?.data_nastere || 'N/A'}</span>
                     </div>
                   </div>
                   
                   {foundPatient.patientData?.istoric && (
                     <div className="mt-4">
-                      <h4 className="font-medium text-slate-600 mb-2">Istoric Medical:</h4>
-                      <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">
+                      <h4 className="font-medium text-slate-600 dark:text-slate-400 mb-2">Istoric Medical:</h4>
+                      <p className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
                         {foundPatient.patientData.istoric}
                       </p>
                     </div>
@@ -839,20 +843,20 @@ const clearCurrentPatient = () => {
 
                 {/* Consultation History */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Istoric Consultații</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-3">Istoric Consultații</h3>
                   {foundPatient.status && foundPatient.status.length > 0 ? (
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {foundPatient.status.map((consultation: any, index: number) => (
-                        <div key={consultation.id || index} className="bg-slate-50 p-4 rounded-lg border">
+                        <div key={consultation.id || index} className="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg border dark:border-slate-600">
                           <div className="flex justify-between items-start mb-2">
                             <span className="text-sm font-medium text-blue-600 capitalize">
                               {consultation.titlu?.replace('-', ' ') || 'Consultație'}
                             </span>
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               {new Date(consultation.data_consult).toLocaleDateString('ro-RO')}
                             </span>
                           </div>
-                          <div className="text-sm text-slate-700">
+                          <div className="text-sm text-slate-700 dark:text-slate-300">
                             <p className="line-clamp-4">
                               {consultation.continut_text?.substring(0, 200)}
                               {consultation.continut_text?.length > 200 ? '...' : ''}
@@ -862,7 +866,7 @@ const clearCurrentPatient = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-500 text-sm">Nu există consultații anterioare înregistrate.</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Nu există consultații anterioare înregistrate.</p>
                   )}
                 </div>
               </div>
@@ -888,9 +892,9 @@ const clearCurrentPatient = () => {
         )}
 
         {/* Medical Information Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
-            <CardTitle className="flex items-center justify-between text-slate-800">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
               <div className="flex items-center space-x-2">
                 <FileText className="w-5 h-5 text-blue-600" />
                 <span>Informații Medicale</span>
@@ -918,7 +922,7 @@ const clearCurrentPatient = () => {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="medical-info" className="text-sm font-medium text-slate-700">
+                <Label htmlFor="medical-info" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Introduceți sau dictați informațiile medicale aici... Puteți scrie toate... structura textului conform standardelor medicale.
                 </Label>
                 <Textarea
@@ -931,12 +935,14 @@ const clearCurrentPatient = () => {
               </div>
               
               <div>
-                <Label className="text-sm font-medium text-slate-700">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Atașați fișiere medicale (imagini, documente)
                 </Label>
                 <div 
-                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors ${
-                    dragStates.medical ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-blue-400'
+                  className={`mt-2 border-2 border-dashed rounded-lg p-4 transition-colors dark:bg-slate-700/50 ${
+                    dragStates.medical 
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                      : 'border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500'
                   }`}
                   onDragOver={(e) => handleDragOver(e, 'medical')}
                   onDragLeave={(e) => handleDragLeave(e, 'medical')}
@@ -951,7 +957,9 @@ const clearCurrentPatient = () => {
                     id="medical-files"
                   />
                   <Label htmlFor="medical-files" className={`cursor-pointer flex items-center justify-center space-x-2 h-20 ${
-                    dragStates.medical ? 'text-blue-700' : 'text-slate-600 hover:text-blue-600'
+                    dragStates.medical 
+                      ? 'text-blue-700 dark:text-blue-300' 
+                      : 'text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'
                   }`}>
                     <Upload className="w-5 h-5" />
                     <span>{dragStates.medical ? 'Eliberează pentru a încărca' : 'Încărcați fișiere medicale sau trage aici'}</span>
@@ -960,10 +968,10 @@ const clearCurrentPatient = () => {
                 {medicalFiles.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {medicalFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded">
+                      <div key={index} className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-2 rounded">
                         <div className="flex items-center space-x-2">
                           <Image className="w-4 h-4 text-slate-600" />
-                          <span className="text-sm text-slate-700">{file.name}</span>
+                          <span className="text-sm text-slate-700 dark:text-slate-300">{file.name}</span>
                         </div>
                         <Button
                           variant="ghost"
@@ -983,9 +991,9 @@ const clearCurrentPatient = () => {
         </Card>
 
         {/* Document Type Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
               <Settings className="w-5 h-5 text-green-600" />
               <span>Tipul Documentului</span>
             </CardTitle>
@@ -1008,7 +1016,7 @@ const clearCurrentPatient = () => {
         </Card>
 
         {/* Generate Button */}
-        <Card className="shadow-lg border-slate-200">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
           <CardContent className="p-6">
             <Button
               onClick={handleSubmit}
@@ -1036,10 +1044,10 @@ const clearCurrentPatient = () => {
         </Card>
 
         {/* Document General Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-slate-200">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
                 <FileText className="w-5 h-5 text-slate-600" />
                 <span>Document General</span>
               </CardTitle>
@@ -1088,8 +1096,8 @@ const clearCurrentPatient = () => {
             {updateMessage && (
               <div className={`mt-2 text-sm px-3 py-2 rounded-md ${
                 updateMessage.includes('succes') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
+                  ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' 
+                  : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
               }`}>
                 {updateMessage}
               </div>
@@ -1106,7 +1114,7 @@ const clearCurrentPatient = () => {
                 />
               </div>
             ) : (
-              <p className="text-slate-600 text-sm">
+              <p className="text-slate-600 dark:text-slate-400 text-sm">
                 Documentul generat va fi disponibil după procesare. Vă rugăm să completați toate câmpurile necesare și să selectați tipul documentului dorit.
               </p>
             )}
