@@ -708,7 +708,7 @@ const clearCurrentPatient = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8 space-y-6">
+      <div className="max-w-[1400px] mx-auto px-8 sm:px-10 lg:px-16 py-8 space-y-6">
         {/* Patient Search Section */}
         <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
