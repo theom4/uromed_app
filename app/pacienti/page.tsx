@@ -314,14 +314,16 @@ export default function PacientiPage() {
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
             <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
               <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span>Pacienți Recenți</span>
+              <span>{searchQuery.trim() ? `Rezultate căutare: "${searchQuery}"` : 'Pacienți Recenți'}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             {patientsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-3 text-slate-600 dark:text-slate-400">Se încarcă pacienții...</span>
+                <span className="ml-3 text-slate-600 dark:text-slate-400">
+                  {searchQuery.trim() ? 'Se caută pacienții...' : 'Se încarcă pacienții...'}
+                </span>
               </div>
             ) : patients.length > 0 ? (
               <div className="space-y-3">
@@ -337,6 +339,12 @@ export default function PacientiPage() {
                       </div>
                       <div>
                         <h3 className="font-medium text-slate-800 dark:text-slate-200">{patient.nume} {patient.prenume}</h3>
+                        {patient.cnp && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
+                        )}
+                        {patient.telefon && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">Tel: {patient.telefon}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -361,9 +369,11 @@ export default function PacientiPage() {
             ) : (
               <div className="text-center py-8">
                 <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-600 dark:text-slate-400">Nu au fost găsiți pacienți</p>
+                <p className="text-slate-600 dark:text-slate-400">
+                  {searchQuery.trim() ? `Nu au fost găsiți pacienți pentru "${searchQuery}"` : 'Nu au fost găsiți pacienți'}
+                </p>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  Pacienții vor apărea aici când vor fi adăugați în baza de date
+                  {searchQuery.trim() ? 'Încercați să căutați cu alți termeni' : 'Pacienții vor apărea aici când vor fi adăugați în baza de date'}
                 </p>
               </div>
             )}
