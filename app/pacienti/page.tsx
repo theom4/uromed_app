@@ -64,12 +64,27 @@ export default function PacientiPage() {
 
   const fetchPatients = async () => {
     try {
-      setPatientsLoading(true);
-      const { data, error } = await supabase
+      console.log('Searching for:', query);
+      // First, let's try a more specific search approach
+      let searchQuery = supabase
         .from('patients')
-        .select('id, nume, prenume, email, telefon, created_at')
-        .limit(5)
+        .select('id, nume, prenume, email, telefon, cnp, created_at');
+      
+      // Check if query looks like a CNP (numeric and long)
+      if (/^\d+$/.test(query) && query.length >= 3) {
+        // Search CNP specifically
+        searchQuery = searchQuery.ilike('cnp', `%${query}%`);
+      } else {
+        // Search names
+        searchQuery = searchQuery.or(`nume.ilike.%${query}%,prenume.ilike.%${query}%`);
+      }
+      
+      const { data, error } = await searchQuery
+        .limit(20)
         .order('created_at', { ascending: false });
+
+      console.log('Search results:', data);
+      console.log('Search error:', error);
 
       if (error) {
         console.error('Error fetching patients:', error);
