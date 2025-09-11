@@ -23,13 +23,16 @@ import {
   User,
   Calendar,
   Building2,
-  Bot
+  Bot,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [medicalInfo, setMedicalInfo] = useState('');
   const [medicalFiles, setMedicalFiles] = useState<File[]>([]);
   const [documentType, setDocumentType] = useState('');
@@ -46,6 +49,19 @@ export default function Home() {
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [foundPatient, setFoundPatient] = useState<any>(null);
   const [patientSearchDragState, setPatientSearchDragState] = useState(false);
+
+  // Dark mode effect
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   // Set default document type to spitalizare-zi
   useEffect(() => {
@@ -611,6 +627,19 @@ const clearCurrentPatient = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleDarkMode}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {isDarkMode ? (
+                  <Sun className="w-5 h-5 text-yellow-500" />
+                ) : (
+                  <Moon className="w-5 h-5 text-slate-600" />
+                )}
+              </Button>
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center">
                 <FileText className="w-6 h-6 text-white" />
               </div>
