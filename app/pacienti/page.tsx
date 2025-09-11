@@ -64,33 +64,49 @@ export default function PacientiPage() {
 
   const fetchPatients = async () => {
     try {
-      console.log('Searching for:', query);
-      // First, let's try a more specific search approach
-      let searchQuery = supabase
+      console.log('Searching for:', searchQuery);
+      
+      let query = supabase
         .from('patients')
         .select('id, nume, prenume, email, telefon, cnp, created_at');
       
-      // Check if query looks like a CNP (numeric and long)
-      if (/^\d+$/.test(query) && query.length >= 3) {
-        // Search CNP specifically
-        searchQuery = searchQuery.ilike('cnp', `%${query}%`);
+      if (searchQuery.trim()) {
+        // Check if query looks like a CNP (numeric and long)
+        if (/^\d+$/.test(searchQuery) && searchQuery.length >= 3) {
+          // Search CNP specifically - try both exact match and partial match
+          console.log('Searching CNP for:', searchQuery);
+          query = query.or(`cnp.eq.${searchQuery},cnp.ilike.%${searchQuery}%`);
+        } else {
+          // Search names
+          console.log('Searching names for:', searchQuery);
+          query = query.or(`nume.ilike.%${searchQuery}%,prenume.ilike.%${searchQuery}%`);
+        }
+        
+        const { data, error } = await query
+          .limit(20)
+          .order('created_at', { ascending: false });
+        
+        console.log('Search results:', data);
+        console.log('Search error:', error);
+        
+        if (error) {
+          console.error('Error searching patients:', error);
+          setPatients([]);
+        } else {
+          setPatients(data || []);
+        }
       } else {
-        // Search names
-        searchQuery = searchQuery.or(`nume.ilike.%${query}%,prenume.ilike.%${query}%`);
-      }
-      
-      const { data, error } = await searchQuery
-        .limit(20)
-        .order('created_at', { ascending: false });
-
-      console.log('Search results:', data);
-      console.log('Search error:', error);
-
-      if (error) {
-        console.error('Error fetching patients:', error);
-        setPatients([]);
-      } else {
-        setPatients(data || []);
+        // No search query - fetch recent patients
+        const { data, error } = await query
+          .limit(10)
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error fetching recent patients:', error);
+          setPatients([]);
+        } else {
+          setPatients(data || []);
+        }
       }
     } catch (error) {
       console.error('Error:', error);
