@@ -250,9 +250,9 @@ export default function PacientiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -264,7 +264,7 @@ export default function PacientiPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </Button>
-              <h1 className="text-xl font-semibold text-slate-900">Pacienti</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Pacienti</h1>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center">
@@ -277,12 +277,12 @@ export default function PacientiPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
             <CardTitle className="flex items-center justify-between text-slate-800">
               <div className="flex items-center space-x-2">
-                <Search className="w-5 h-5 text-blue-600" />
-                <span>Căutare Pacienți</span>
+                <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span className="dark:text-white">Căutare Pacienți</span>
               </div>
               <Button
                 variant="outline"
@@ -310,10 +310,10 @@ export default function PacientiPage() {
         </Card>
 
         {/* Patients List */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <User className="w-5 h-5 text-purple-600" />
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+              <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <span>Pacienți Recenți</span>
             </CardTitle>
           </CardHeader>
@@ -321,14 +321,14 @@ export default function PacientiPage() {
             {patientsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-3 text-slate-600">Se încarcă pacienții...</span>
+                <span className="ml-3 text-slate-600 dark:text-slate-400">Se încarcă pacienții...</span>
               </div>
             ) : patients.length > 0 ? (
               <div className="space-y-3">
                 {patients.map((patient) => (
                   <div
                     key={patient.id}
-                    className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors cursor-pointer"
                     onClick={() => router.push(`/pacienti/${patient.id}`)}
                   >
                     <div className="flex items-center space-x-3">
@@ -336,11 +336,11 @@ export default function PacientiPage() {
                         <User className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-slate-800">{patient.nume} {patient.prenume}</h3>
+                        <h3 className="font-medium text-slate-800 dark:text-slate-200">{patient.nume} {patient.prenume}</h3>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="text-sm text-slate-500">
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
                         {new Date(patient.created_at).toLocaleDateString('ro-RO')}
                       </div>
                       <Button
@@ -361,8 +361,8 @@ export default function PacientiPage() {
             ) : (
               <div className="text-center py-8">
                 <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-600">Nu au fost găsiți pacienți</p>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-slate-600 dark:text-slate-400">Nu au fost găsiți pacienți</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   Pacienții vor apărea aici când vor fi adăugați în baza de date
                 </p>
               </div>

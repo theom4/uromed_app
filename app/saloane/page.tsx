@@ -31,9 +31,9 @@ export default function SaloanePage() {
   const salons = Array.from({ length: 10 }, (_, i) => i + 1);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-blue-500 to-purple-600">
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-blue-500 to-purple-600 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Header */}
-      <header className="bg-white/10 backdrop-blur-sm border-b border-white/20">
+      <header className="bg-white/10 dark:bg-slate-800/90 backdrop-blur-sm border-b border-white/20 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -41,13 +41,13 @@ export default function SaloanePage() {
                 variant="ghost"
                 size="sm"
                 onClick={handleBack}
-                className="p-2 text-white hover:bg-white/20"
+                className="p-2 text-white hover:bg-white/20 dark:hover:bg-slate-700"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div className="flex items-center space-x-2">
-                <Building2 className="w-6 h-6 text-white" />
-                <h1 className="text-xl font-semibold text-white">Management Pacienti - Secția Urologie</h1>
+                <Building2 className="w-6 h-6 text-white dark:text-slate-200" />
+                <h1 className="text-xl font-semibold text-white dark:text-slate-200">Management Pacienti - Secția Urologie</h1>
               </div>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function SaloanePage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Stats Cards */}
-        <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-xl border-0">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
@@ -80,7 +80,7 @@ export default function SaloanePage() {
         </Card>
 
         {/* Action Buttons */}
-        <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-xl border-0">
           <CardContent className="p-6">
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <div className="flex flex-wrap gap-3">
@@ -97,7 +97,7 @@ export default function SaloanePage() {
                   Setări
                 </Button>
               </div>
-              <div className="text-slate-600 font-medium">
+              <div className="text-slate-600 dark:text-slate-400 font-medium">
                 Vedere Saloane
               </div>
             </div>
@@ -105,14 +105,14 @@ export default function SaloanePage() {
         </Card>
 
         {/* Salons Grid */}
-        <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-xl border-0">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {salons.slice(0, 4).map((salonNumber) => (
                 <div key={salonNumber} className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Building2 className="w-5 h-5 text-slate-600" />
-                    <h3 className="text-lg font-semibold text-slate-800">Salon {salonNumber}</h3>
+                    <Building2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Salon {salonNumber}</h3>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {Array.from({ length: 4 }).map((_, bedIndex) => (
@@ -131,14 +131,14 @@ export default function SaloanePage() {
         </Card>
 
         {/* Second Row of Salons */}
-        <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-xl border-0">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {salons.slice(4, 8).map((salonNumber) => (
                 <div key={salonNumber} className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Building2 className="w-5 h-5 text-slate-600" />
-                    <h3 className="text-lg font-semibold text-slate-800">Salon {salonNumber}</h3>
+                    <Building2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Salon {salonNumber}</h3>
                   </div>
                   <div className={salonNumber === 5 ? "flex justify-center" : "grid grid-cols-2 gap-3"}>
                     {Array.from({ length: salonNumber === 5 ? 1 : 4 }).map((_, bedIndex) => (
@@ -159,14 +159,14 @@ export default function SaloanePage() {
         </Card>
 
         {/* Third Row of Salons */}
-        <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-xl border-0">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {salons.slice(8, 10).map((salonNumber) => (
                 <div key={salonNumber} className="space-y-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Building2 className="w-5 h-5 text-slate-600" />
-                    <h3 className="text-lg font-semibold text-slate-800">Salon {salonNumber}</h3>
+                    <Building2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Salon {salonNumber}</h3>
                   </div>
                   <div className={salonNumber === 10 ? "flex justify-center" : "grid grid-cols-2 gap-3"}>
                     {Array.from({ length: salonNumber === 10 ? 1 : 4 }).map((_, bedIndex) => (
@@ -186,8 +186,8 @@ export default function SaloanePage() {
               {/* Salon 11 - În așteptare */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2 mb-4">
-                  <Building2 className="w-5 h-5 text-slate-600" />
-                  <h3 className="text-lg font-semibold text-slate-800">Salon 11 (în așteptare)</h3>
+                  <Building2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                  <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Salon 11 (în așteptare)</h3>
                 </div>
                 <div className="flex justify-center">
                   <div className="border-2 border-dashed border-yellow-400 rounded-lg p-6 text-center bg-yellow-50/50 hover:bg-yellow-100/50 transition-colors cursor-pointer w-32">

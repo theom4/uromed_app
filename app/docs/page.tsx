@@ -45,9 +45,9 @@ export default function DocsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -59,7 +59,7 @@ export default function DocsPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </Button>
-              <h1 className="text-xl font-semibold text-slate-900">Documente AI</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Documente AI</h1>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center">
@@ -72,20 +72,20 @@ export default function DocsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Documente EAU Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <FileText className="w-5 h-5 text-blue-600" />
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+              <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <span>Documente EAU</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-medium text-slate-700">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Atașați documente EAU (European Association of Urology)
                 </Label>
-                <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+                <div className="mt-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 hover:border-blue-400 dark:hover:border-blue-500 transition-colors dark:bg-slate-700/50">
                   <Input
                     type="file"
                     multiple
@@ -94,7 +94,7 @@ export default function DocsPage() {
                     className="hidden"
                     id="eau-files"
                   />
-                  <Label htmlFor="eau-files" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600">
+                  <Label htmlFor="eau-files" className="cursor-pointer flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
                     <Upload className="w-5 h-5" />
                     <span>Încărcați documente EAU</span>
                   </Label>
@@ -102,10 +102,10 @@ export default function DocsPage() {
                 {eauFiles.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {eauFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-50 p-2 rounded">
+                      <div key={index} className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-2 rounded">
                         <div className="flex items-center space-x-2">
-                          <FileText className="w-4 h-4 text-slate-600" />
-                          <span className="text-sm text-slate-700">{file.name}</span>
+                          <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                          <span className="text-sm text-slate-700 dark:text-slate-300">{file.name}</span>
                         </div>
                         <Button
                           variant="ghost"
@@ -125,17 +125,17 @@ export default function DocsPage() {
         </Card>
 
         {/* Cunoștințe Generale Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <BookOpen className="w-5 h-5 text-green-600" />
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+              <BookOpen className="w-5 h-5 text-green-600 dark:text-green-400" />
               <span>Cunoștințe Generale</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="cunostinte-generale" className="text-sm font-medium text-slate-700">
+                <Label htmlFor="cunostinte-generale" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Introduceți cunoștințele generale medicale relevante
                 </Label>
                 <Textarea
@@ -151,17 +151,17 @@ export default function DocsPage() {
         </Card>
 
         {/* Reguli Section */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
-            <CardTitle className="flex items-center space-x-2 text-slate-800">
-              <Settings className="w-5 h-5 text-purple-600" />
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+              <Settings className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <span>Reguli</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="reguli" className="text-sm font-medium text-slate-700">
+                <Label htmlFor="reguli" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Definiți regulile și protocoalele medicale
                 </Label>
                 <Textarea
@@ -177,7 +177,7 @@ export default function DocsPage() {
         </Card>
 
         {/* Save Button */}
-        <Card className="shadow-lg border-slate-200">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
           <CardContent className="p-6">
             <Button
               className="w-full h-12 text-white font-medium text-lg bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 shadow-lg hover:shadow-xl transition-all duration-200"

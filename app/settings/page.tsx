@@ -214,9 +214,9 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -228,7 +228,7 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
               >
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </Button>
-              <h1 className="text-xl font-semibold text-slate-900">Setări</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Setări</h1>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center">
@@ -242,22 +242,22 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           {/* Left Side - Prompt */}
-          <Card className="shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
-                <FileText className="w-5 h-5 text-blue-600" />
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <span>Prompt</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="prompt-text" className="text-sm font-medium text-slate-700">
+                  <Label htmlFor="prompt-text" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Configurați prompt-ul pentru generarea documentelor medicale
                   </Label>
                   
                   <div className="mt-2 mb-4">
-                    <Label className="text-sm font-medium text-slate-700">
+                    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Selectați tipul documentului medical implicit
                     </Label>
                     <Select value={documentType} onValueChange={handleDocumentTypeChange}>
@@ -291,17 +291,17 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
           {/* Right Side - Document Type Selector, Exemplu, and Temperature */}
           <div className="space-y-6 flex flex-col">
             {/* Configurări Card */}
-            <Card className="shadow-lg border-slate-200 flex-shrink-0">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 border-b border-slate-200">
-                <CardTitle className="flex items-center space-x-2 text-slate-800">
-                  <Settings className="w-5 h-5 text-green-600" />
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 flex-shrink-0">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <Settings className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <span>Configurări</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="exemplu-text" className="text-sm font-medium text-slate-700">
+                    <Label htmlFor="exemplu-text" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Exemplu
                     </Label>
                     <Textarea
@@ -317,17 +317,17 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
             </Card>
 
             {/* Sumarizare AI Card */}
-            <Card className="shadow-lg border-slate-200 flex-shrink-0">
-              <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-slate-200">
-                <CardTitle className="flex items-center space-x-2 text-slate-800">
-                  <Settings className="w-5 h-5 text-yellow-600" />
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 flex-shrink-0">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <Settings className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                   <span>Sumarizare AI</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="sumarizare-ai" className="text-sm font-medium text-slate-700">
+                    <Label htmlFor="sumarizare-ai" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Configurați sumarizarea AI
                     </Label>
                     <Textarea
@@ -359,10 +359,10 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
               </CardContent>
             </Card>
             {/* Temperature Slider Card */}
-            <Card className="shadow-lg border-slate-200 flex-shrink-0">
-              <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
-                <CardTitle className="flex items-center space-x-2 text-slate-800">
-                  <Settings className="w-5 h-5 text-orange-600" />
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 flex-shrink-0">
+              <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <Settings className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                   <span>Temperatură</span>
                 </CardTitle>
               </CardHeader>
@@ -370,8 +370,8 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-sm font-medium text-slate-700">0</span>
-                      <span className="text-sm font-medium text-slate-700">1</span>
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">0</span>
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">1</span>
                     </div>
                     <Slider
                       value={[temperature]}
@@ -382,7 +382,7 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
                       className="w-full"
                     />
                     <div className="text-center mt-2">
-                      <span className="text-sm text-slate-600">Valoare curentă: {temperature.toFixed(2)}</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-400">Valoare curentă: {temperature.toFixed(2)}</span>
                     </div>
                   </div>
                   

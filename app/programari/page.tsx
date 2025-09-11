@@ -71,9 +71,9 @@ export default function ProgramariPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -85,7 +85,7 @@ export default function ProgramariPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </Button>
-              <h1 className="text-xl font-semibold text-slate-900">Programări</h1>
+              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Programări</h1>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center">
@@ -98,11 +98,11 @@ export default function ProgramariPage() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Calendar Card */}
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-slate-200">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center space-x-2 text-slate-800">
-                <Calendar className="w-5 h-5 text-blue-600" />
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <span>Calendar Programări</span>
               </CardTitle>
               <div className="flex items-center space-x-4">
@@ -114,7 +114,7 @@ export default function ProgramariPage() {
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <h2 className="text-lg font-semibold text-slate-800 min-w-[200px] text-center">
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-white min-w-[200px] text-center">
                   {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
                 <Button
@@ -135,7 +135,7 @@ export default function ProgramariPage() {
               {dayNames.map((day) => (
                 <div
                   key={day}
-                  className="p-3 text-center text-sm font-medium text-slate-600 bg-slate-50 rounded-lg"
+                  className="p-3 text-center text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-700 rounded-lg"
                 >
                   {day}
                 </div>
@@ -152,19 +152,19 @@ export default function ProgramariPage() {
                   <div
                     key={index}
                     className={`
-                      p-3 h-20 border border-slate-200 rounded-lg cursor-pointer transition-colors
-                      ${day ? 'hover:bg-blue-50' : 'bg-slate-50'}
-                      ${isToday ? 'bg-blue-100 border-blue-300' : ''}
+                      p-3 h-20 border border-slate-200 dark:border-slate-600 rounded-lg cursor-pointer transition-colors
+                      ${day ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'bg-slate-50 dark:bg-slate-700'}
+                      ${isToday ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600' : ''}
                     `}
                   >
                     {day && (
                       <div className="h-full flex flex-col">
-                        <div className={`text-sm font-medium ${isToday ? 'text-blue-700' : 'text-slate-700'}`}>
+                        <div className={`text-sm font-medium ${isToday ? 'text-blue-700 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
                           {day}
                         </div>
                         <div className="flex-1 mt-1">
                           {/* Placeholder for appointments */}
-                          <div className="text-xs text-slate-500">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             {/* Future appointments will be displayed here */}
                           </div>
                         </div>
@@ -178,11 +178,11 @@ export default function ProgramariPage() {
         </Card>
 
         {/* Empty state message */}
-        <Card className="shadow-lg border-slate-200 mt-6">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 mt-6">
           <CardContent className="p-6 text-center">
             <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-slate-700 mb-2">Calendar Gol</h3>
-            <p className="text-slate-500">
+            <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">Calendar Gol</h3>
+            <p className="text-slate-500 dark:text-slate-400">
               Nu există programări în acest moment. Programările vor fi afișate aici când vor fi adăugate.
             </p>
           </CardContent>
