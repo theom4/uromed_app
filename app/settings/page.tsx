@@ -209,7 +209,6 @@ Completează secțiunile de mai jos cu informațiile specifice documentului pe c
           operation: "set-prompt",
           documentType: documentType || null,
           promptText: promptText,
-          exempluText: exempluText,
           temperature: temperature,
           sumarizareAI: sumarizareAI
         }),
