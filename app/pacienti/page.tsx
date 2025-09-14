@@ -171,8 +171,8 @@ export default function PacientiPage() {
           observatii: ''
         });
         setAddPatientDialogOpen(false);
-        // Refresh the patients list
-        fetchPatients();
+        // Clear the patients list after adding
+        setPatients([]);
       }
     } catch (error) {
       console.error('Error:', error);
