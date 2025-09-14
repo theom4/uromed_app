@@ -445,8 +445,7 @@ export default function PacientiPage() {
                       Rezultatele căutării vor apărea aici
                     </p>
                   </>
-                ) : null
-                )}
+                ) : null}
               </div>
             )}
           </CardContent>
