@@ -234,10 +234,9 @@ export default function PacientiPage() {
         console.log('Search response:', responseData);
         
         // The response is an array of patients
-        if (Array.isArray(responseData) && responseData.length > 0) {
+        if (Array.isArray(responseData)) {
           setPatients(responseData);
         } else {
-          // Empty array means no patients found
           setPatients([]);
         }
       } else if (response.status === 404) {
