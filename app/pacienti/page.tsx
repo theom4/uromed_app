@@ -211,7 +211,7 @@ export default function PacientiPage() {
 
   const handleSearchPatient = async () => {
     // TOGGLE THIS TO false ONCE DEBUGGING IS COMPLETE
-    const DEBUG_MODE = true;
+    const DEBUG_MODE = false;
     
     if (!searchQuery.trim()) {
       alert('Vă rugăm să introduceți un nume sau CNP pentru căutare');
