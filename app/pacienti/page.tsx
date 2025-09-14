@@ -300,6 +300,10 @@ export default function PacientiPage() {
           } else if (responseData.items) {
             if (DEBUG_MODE) alert('DEBUG 5: Found items property, unwrapping...');
             patients = responseData.items;
+          } else if (responseData.id && responseData.nume) {
+            // Single patient object detected - wrap it in an array
+            if (DEBUG_MODE) alert('DEBUG 5: Single patient object detected, converting to array...');
+            patients = [responseData];
           } else {
             if (DEBUG_MODE) alert('DEBUG 5: No wrapper detected, using response as-is');
           }
