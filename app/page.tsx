@@ -973,6 +973,54 @@ const closeConsultationDialog = () => {
           </Card>
         )}
 
+        {/* Consultation Document Dialog */}
+        <Dialog open={consultationDialogOpen} onOpenChange={setConsultationDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <span className="capitalize">
+                  {selectedConsultation?.titlu?.replace('-', ' ') || 'Document Consultație'}
+                </span>
+              </DialogTitle>
+              <DialogDescription>
+                Data consultației: {selectedConsultation && new Date(selectedConsultation.data_consult).toLocaleDateString('ro-RO')}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-4">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-6 border dark:border-slate-700">
+                <pre className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300 font-mono leading-relaxed">
+                  {selectedConsultation?.continut_text || 'Nu există conținut disponibil pentru această consultație.'}
+                </pre>
+              </div>
+            </div>
+
+            <DialogFooter className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (selectedConsultation?.continut_text) {
+                    try {
+                      await navigator.clipboard.writeText(selectedConsultation.continut_text);
+                      // You could add a toast notification here
+                    } catch (error) {
+                      console.error('Failed to copy text:', error);
+                    }
+                  }
+                }}
+                className="flex items-center space-x-2"
+              >
+                <Copy className="w-4 h-4" />
+                <span>Copiază Document</span>
+              </Button>
+              <Button onClick={closeConsultationDialog}>
+                Închide
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Medical Information Section */}
         <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
