@@ -55,6 +55,7 @@ export default function PacientiPage() {
     observatii: ''
   });
   const [isAddingPatient, setIsAddingPatient] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Fetch patients from Supabase
   useEffect(() => {
@@ -265,6 +266,49 @@ export default function PacientiPage() {
     });
   };
 
+  const handleSearchPatient = async () => {
+    if (!searchQuery.trim()) {
+      alert('Vă rugăm să introduceți un nume sau CNP pentru căutare');
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch('https://n8n.voisero.info/webhook/search-patient-cnp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          searchQuery: searchQuery.trim(),
+          operation: "search-patient"
+        }),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Search response:', responseData);
+        
+        // Handle the response - you can modify this based on what the webhook returns
+        if (responseData.patients && Array.isArray(responseData.patients)) {
+          setPatients(responseData.patients);
+        } else {
+          // If no specific format, try to use the response as is or show a message
+          alert('Căutarea a fost efectuată cu succes!');
+        }
+      } else {
+        const errorText = await response.text();
+        console.error('Search webhook failed:', response.status, errorText);
+        alert(`Eroare la căutarea pacientului (${response.status}): ${errorText || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error sending search webhook:', error);
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const handleBack = () => {
     router.push('/');
   };
@@ -328,15 +372,39 @@ export default function PacientiPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Cauta pacienti"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-lg"
-              />
+            <div className="flex space-x-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Cauta pacienti"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearchPatient();
+                    }
+                  }}
+                  className="pl-10 h-12 text-lg"
+                />
+              </div>
+              <Button
+                onClick={handleSearchPatient}
+                disabled={isSearching || !searchQuery.trim()}
+                className="h-12 px-6 bg-blue-500 hover:bg-blue-600 text-white font-medium"
+              >
+                {isSearching ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Caută...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Search className="w-4 h-4" />
+                    <span>Caută Pacient</span>
+                  </div>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
