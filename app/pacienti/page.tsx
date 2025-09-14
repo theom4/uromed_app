@@ -76,8 +76,8 @@ export default function PacientiPage() {
       if (error) {
         console.error('Error deleting patient:', error);
       } else {
-        // Refresh the patients list
-        fetchPatients();
+        // Clear patients list after successful deletion
+        setPatients([]);
       }
     } catch (error) {
       console.error('Error:', error);
