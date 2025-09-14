@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   FileText, 
   Upload, 
@@ -25,7 +26,8 @@ import {
   Building2,
   Bot,
   Moon,
-  Sun
+  Sun,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +52,8 @@ export default function Home() {
   const [foundPatient, setFoundPatient] = useState<any>(null);
   const [patientSearchDragState, setPatientSearchDragState] = useState(false);
   const [settingsData, setSettingsData] = useState<any>(null);
+  const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
+  const [consultationDialogOpen, setConsultationDialogOpen] = useState(false);
 
   // Dark mode effect
   useEffect(() => {
@@ -408,6 +412,15 @@ const clearCurrentPatient = () => {
   console.log('Patient data cleared');
 };
 
+const handleConsultationClick = (consultation: any) => {
+  setSelectedConsultation(consultation);
+  setConsultationDialogOpen(true);
+};
+
+const closeConsultationDialog = () => {
+  setSelectedConsultation(null);
+  setConsultationDialogOpen(false);
+};
   const handleDragOver = (e: React.DragEvent, type: string) => {
     e.preventDefault();
     setDragStates(prev => ({ ...prev, [type]: true }));
@@ -909,23 +922,28 @@ const clearCurrentPatient = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-3">Istoric Consultații</h3>
                   {foundPatient.status && foundPatient.status.length > 0 ? (
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
                       {foundPatient.status.map((consultation: any, index: number) => (
-                        <div key={consultation.id || index} className="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg border dark:border-slate-600">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-sm font-medium text-blue-600 capitalize">
-                              {consultation.titlu?.replace('-', ' ') || 'Consultație'}
-                            </span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400">
-                              {new Date(consultation.data_consult).toLocaleDateString('ro-RO')}
-                            </span>
-                          </div>
-                          <div className="text-sm text-slate-700 dark:text-slate-300">
-                            <p className="line-clamp-4">
-                              {consultation.continut_text?.substring(0, 200)}
-                              {consultation.continut_text?.length > 200 ? '...' : ''}
-                            </p>
-                          </div>
+                        <div key={consultation.id || index} className="flex items-center justify-between">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleConsultationClick(consultation)}
+                            className="flex-1 justify-between bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border-slate-200 dark:border-slate-600"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize">
+                                {consultation.titlu?.replace('-', ' ') || 'Consultație'}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
+                                {new Date(consultation.data_consult).toLocaleDateString('ro-RO')}
+                              </span>
+                              <Eye className="w-4 h-4 text-slate-400" />
+                            </div>
+                          </Button>
                         </div>
                       ))}
                     </div>
