@@ -238,7 +238,13 @@ export default function PacientiPage() {
         console.log('Search response:', responseData);
         
         // The response is an array of patients - set it directly
-        setPatients(Array.isArray(responseData) ? responseData : []);
+        if (Array.isArray(responseData) && responseData.length > 0) {
+          setPatients(responseData);
+          setSearchError(false);
+        } else {
+          setPatients([]);
+          setSearchError(true);
+        }
       } else if (response.status === 404) {
         // No patient found
         setPatients([]);
