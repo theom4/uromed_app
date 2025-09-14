@@ -18,6 +18,7 @@ interface Patient {
   id: number;
   nume: string;
   prenume: string;
+  cnp?: string;
   email?: string;
   telefon?: string;
   created_at: string;
