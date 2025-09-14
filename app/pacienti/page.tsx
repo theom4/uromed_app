@@ -16,8 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface Patient {
   id: number;
-  nume: string;
-  prenume: string;
+  nume?: string;
+  prenume?: string;
   cnp?: string;
   email?: string;
   telefon?: string;
@@ -233,12 +233,8 @@ export default function PacientiPage() {
         const responseData = await response.json();
         console.log('Search response:', responseData);
         
-        // The response is an array of patients
-        if (Array.isArray(responseData)) {
-          setPatients(responseData);
-        } else {
-          setPatients([]);
-        }
+        // The response is an array of patients - set it directly
+        setPatients(Array.isArray(responseData) ? responseData : []);
       } else if (response.status === 404) {
         // No patient found
         setPatients([]);
@@ -388,12 +384,17 @@ export default function PacientiPage() {
                         <User className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-slate-800 dark:text-slate-200">{patient.nume} {patient.prenume}</h3>
+                        <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                          {patient.nume && patient.prenume ? `${patient.nume} ${patient.prenume}` : 'Pacient'}
+                        </h3>
                         {patient.cnp && (
                           <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
                         )}
                         {patient.telefon && (
                           <p className="text-sm text-slate-500 dark:text-slate-400">Tel: {patient.telefon}</p>
+                        )}
+                        {!patient.nume && !patient.prenume && patient.cnp && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
                         )}
                       </div>
                     </div>
