@@ -30,6 +30,8 @@ export default function PacientiPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoading, setPatientsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchError, setSearchError] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
   const [addPatientDialogOpen, setAddPatientDialogOpen] = useState(false);
@@ -215,6 +217,8 @@ export default function PacientiPage() {
 
     setIsSearching(true);
     setPatientsLoading(true);
+    setHasSearched(true);
+    setSearchError(false);
     try {
       const response = await fetch('https://n8n.voisero.info/webhook/search-patient-cnp', {
         method: 'POST',
@@ -238,17 +242,20 @@ export default function PacientiPage() {
       } else if (response.status === 404) {
         // No patient found
         setPatients([]);
+        setSearchError(true);
       } else {
         // Other errors
         const errorText = await response.text();
         console.error('Search webhook failed:', response.status, errorText);
         alert(`Eroare la căutarea pacientului (${response.status}): ${errorText || response.statusText}`);
         setPatients([]);
+        setSearchError(false);
       }
     } catch (error) {
       console.error('Error sending search webhook:', error);
       alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
       setPatients([]);
+      setSearchError(false);
     } finally {
       setIsSearching(false);
       setPatientsLoading(false);
@@ -420,7 +427,7 @@ export default function PacientiPage() {
             ) : (
               <div className="text-center py-8">
                 <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                {searchQuery.trim() ? (
+                {hasSearched && searchError ? (
                   <>
                     <p className="text-slate-600 dark:text-slate-400">
                       Niciun pacient găsit pentru "{searchQuery}"
@@ -429,7 +436,7 @@ export default function PacientiPage() {
                       Încercați să căutați cu alți termeni
                     </p>
                   </>
-                ) : (
+                ) : !hasSearched ? (
                   <>
                     <p className="text-slate-600 dark:text-slate-400">
                       Introduceți un nume sau CNP și apăsați "Caută Pacient" pentru a căuta pacienți
@@ -438,6 +445,7 @@ export default function PacientiPage() {
                       Rezultatele căutării vor apărea aici
                     </p>
                   </>
+                ) : null
                 )}
               </div>
             )}
