@@ -254,7 +254,7 @@ export default function PacientiPage() {
         responseData = JSON.parse(responseText);
       } catch (parseError) {
         if (DEBUG_MODE) {
-          alert(`DEBUG 3: JSON Parse Error!\nError: ${parseError.message}\nResponse Text: ${responseText.substring(0, 200)}`);
+          alert(`DEBUG 3: JSON Parse Error!\nError: ${parseError instanceof Error ? parseError.message : 'Unknown error'}\nResponse Text: ${responseText.substring(0, 200)}`);
         } else {
           alert('Eroare la procesarea răspunsului de la server');
         }
@@ -341,7 +341,7 @@ export default function PacientiPage() {
       }
     } catch (error) {
       if (DEBUG_MODE) {
-        alert(`DEBUG: Network/Fetch Error\nError: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        alert(`DEBUG: Network/Fetch Error\nError: ${error instanceof Error ? error.message : String(error)}`);
       } else {
         alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
       }
