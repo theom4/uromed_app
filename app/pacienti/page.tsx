@@ -214,6 +214,7 @@ export default function PacientiPage() {
     }
 
     setIsSearching(true);
+    setPatientsLoading(true);
     try {
       const response = await fetch('https://n8n.voisero.info/webhook/search-patient-cnp', {
         method: 'POST',
@@ -228,29 +229,34 @@ export default function PacientiPage() {
         mode: 'cors',
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
         const responseData = await response.json();
         console.log('Search response:', responseData);
         
-        // Handle the response - you can modify this based on what the webhook returns
-        if (responseData.patients && Array.isArray(responseData.patients)) {
-          setPatients(responseData.patients);
-          setPatientsLoading(false);
+        // The response is an array of patients
+        if (Array.isArray(responseData) && responseData.length > 0) {
+          setPatients(responseData);
         } else {
-          // If no specific format, try to use the response as is or show a message
-          alert('Căutarea a fost efectuată cu succes!');
-          setPatientsLoading(false);
+          // Empty array means no patients found
+          setPatients([]);
         }
+      } else if (response.status === 404) {
+        // No patient found
+        setPatients([]);
       } else {
+        // Other errors
         const errorText = await response.text();
         console.error('Search webhook failed:', response.status, errorText);
         alert(`Eroare la căutarea pacientului (${response.status}): ${errorText || response.statusText}`);
+        setPatients([]);
       }
     } catch (error) {
       console.error('Error sending search webhook:', error);
       alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+      setPatients([]);
     } finally {
       setIsSearching(false);
+      setPatientsLoading(false);
     }
   };
 
@@ -414,12 +420,25 @@ export default function PacientiPage() {
             ) : (
               <div className="text-center py-8">
                 <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-600 dark:text-slate-400">
-                  {patients.length === 0 && searchQuery.trim() ? `Nu au fost găsiți pacienți pentru "${searchQuery}"` : 'Introduceți un nume sau CNP și apăsați "Caută Pacient" pentru a căuta pacienți'}
-                </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  {patients.length === 0 && searchQuery.trim() ? 'Încercați să căutați cu alți termeni' : 'Rezultatele căutării vor apărea aici'}
-                </p>
+                {searchQuery.trim() ? (
+                  <>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Niciun pacient găsit pentru "{searchQuery}"
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Încercați să căutați cu alți termeni
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Introduceți un nume sau CNP și apăsați "Caută Pacient" pentru a căuta pacienți
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Rezultatele căutării vor apărea aici
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </CardContent>
