@@ -215,7 +215,7 @@ export default function PacientiPage() {
 
     setIsSearching(true);
     try {
-      const response = await fetch('https://n8n.voisero.info/webhook/search-patient-cnp', {
+      const response = await fetch('/api/webhook-search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
