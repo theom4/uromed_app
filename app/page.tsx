@@ -138,6 +138,11 @@ export default function Home() {
     router.push('/pacienti');
   };
 
+  const handleSetariClick = async () => {
+    await fetchSettingsData();
+    router.push('/settings');
+  };
+
   const handlePatientSearchUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -744,7 +749,7 @@ const clearCurrentPatient = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/settings')}
+                onClick={handleSetariClick}
                 className="flex items-center space-x-2"
               >
                 <Settings className="w-4 h-4" />
