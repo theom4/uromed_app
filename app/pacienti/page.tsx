@@ -29,7 +29,7 @@ export default function PacientiPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [patientsLoading, setPatientsLoading] = useState(true);
+  const [patientsLoading, setPatientsLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
   const [addPatientDialogOpen, setAddPatientDialogOpen] = useState(false);
@@ -58,65 +58,6 @@ export default function PacientiPage() {
   const [isSearching, setIsSearching] = useState(false);
 
   // Fetch patients from Supabase
-  useEffect(() => {
-    if (user) {
-      fetchPatients();
-    }
-  }, [user]);
-
-  const fetchPatients = async () => {
-    try {
-      console.log('Searching for:', searchQuery);
-      
-      let query = supabase
-        .from('patients')
-        .select('id, nume, prenume, email, telefon, cnp, created_at');
-      
-      if (searchQuery.trim()) {
-        // Check if query looks like a CNP (numeric and long)
-        if (/^\d+$/.test(searchQuery) && searchQuery.length >= 3) {
-          // Search CNP specifically - try both exact match and partial match
-          console.log('Searching CNP for:', searchQuery);
-          query = query.or(`cnp.eq.${searchQuery},cnp.ilike.%${searchQuery}%`);
-        } else {
-          // Search names
-          console.log('Searching names for:', searchQuery);
-          query = query.or(`nume.ilike.%${searchQuery}%,prenume.ilike.%${searchQuery}%`);
-        }
-        
-        const { data, error } = await query
-          .limit(20)
-          .order('created_at', { ascending: false });
-        
-        console.log('Search results:', data);
-        console.log('Search error:', error);
-        
-        if (error) {
-          console.error('Error searching patients:', error);
-          setPatients([]);
-        } else {
-          setPatients(data || []);
-        }
-      } else {
-        // No search query - fetch recent patients
-        const { data, error } = await query
-          .limit(10)
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          console.error('Error fetching recent patients:', error);
-          setPatients([]);
-        } else {
-          setPatients(data || []);
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setPatients([]);
-    } finally {
-      setPatientsLoading(false);
-    }
-  };
 
   const handleDeleteClick = (patient: Patient) => {
     setPatientToDelete(patient);
@@ -292,9 +233,11 @@ export default function PacientiPage() {
         // Handle the response - you can modify this based on what the webhook returns
         if (responseData.patients && Array.isArray(responseData.patients)) {
           setPatients(responseData.patients);
+          setPatientsLoading(false);
         } else {
           // If no specific format, try to use the response as is or show a message
           alert('Căutarea a fost efectuată cu succes!');
+          setPatientsLoading(false);
         }
       } else {
         const errorText = await response.text();
@@ -422,7 +365,7 @@ export default function PacientiPage() {
               <div className="flex items-center justify-center py-8">
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-slate-600 dark:text-slate-400">
-                  {searchQuery.trim() ? 'Se caută pacienții...' : 'Se încarcă pacienții...'}
+                  Se caută pacienții...
                 </span>
               </div>
             ) : patients.length > 0 ? (
@@ -470,10 +413,10 @@ export default function PacientiPage() {
               <div className="text-center py-8">
                 <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <p className="text-slate-600 dark:text-slate-400">
-                  {searchQuery.trim() ? `Nu au fost găsiți pacienți pentru "${searchQuery}"` : 'Nu au fost găsiți pacienți'}
+                  {patients.length === 0 && searchQuery.trim() ? `Nu au fost găsiți pacienți pentru "${searchQuery}"` : 'Introduceți un nume sau CNP și apăsați "Caută Pacient" pentru a căuta pacienți'}
                 </p>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  {searchQuery.trim() ? 'Încercați să căutați cu alți termeni' : 'Pacienții vor apărea aici când vor fi adăugați în baza de date'}
+                  {patients.length === 0 && searchQuery.trim() ? 'Încercați să căutați cu alți termeni' : 'Rezultatele căutării vor apărea aici'}
                 </p>
               </div>
             )}
