@@ -210,6 +210,9 @@ export default function PacientiPage() {
   };
 
   const handleSearchPatient = async () => {
+    // TOGGLE THIS TO false ONCE DEBUGGING IS COMPLETE
+    const DEBUG_MODE = true;
+    
     if (!searchQuery.trim()) {
       alert('Vă rugăm să introduceți un nume sau CNP pentru căutare');
       return;
@@ -219,7 +222,10 @@ export default function PacientiPage() {
     setPatientsLoading(true);
     setHasSearched(true);
     setSearchError(false);
+    
     try {
+      if (DEBUG_MODE) alert(`DEBUG: Starting search for: ${searchQuery}`);
+      
       const response = await fetch('https://n8n.voisero.info/webhook/search-patient-cnp', {
         method: 'POST',
         headers: {
@@ -233,33 +239,109 @@ export default function PacientiPage() {
         mode: 'cors',
       });
 
-      if (response.status === 200) {
-        const responseData = await response.json();
-        console.log('Search response:', responseData);
+      // Debug alert 1: Show response status
+      if (DEBUG_MODE) alert(`DEBUG 1: Response Status = ${response.status}`);
+
+      // Get the raw response text first
+      const responseText = await response.text();
+      
+      // Debug alert 2: Show raw response (first 500 chars)
+      if (DEBUG_MODE) alert(`DEBUG 2: Raw Response (first 500 chars):\n${responseText.substring(0, 500)}`);
+      
+      // Try to parse the JSON
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        if (DEBUG_MODE) {
+          alert(`DEBUG 3: JSON Parse Error!\nError: ${parseError.message}\nResponse Text: ${responseText.substring(0, 200)}`);
+        } else {
+          alert('Eroare la procesarea răspunsului de la server');
+        }
+        setPatients([]);
+        setSearchError(false);
+        return;
+      }
+      
+      // Debug alert 3: Show parsed data type and structure
+      if (DEBUG_MODE) {
+        alert(`DEBUG 3: Parsed Successfully!\nType: ${typeof responseData}\nIs Array: ${Array.isArray(responseData)}\nStringified (first 500 chars): ${JSON.stringify(responseData).substring(0, 500)}`);
+      }
+
+      if (response.status === 200 && responseData) {
+        // Debug alert 4: Check if response needs unwrapping
+        if (DEBUG_MODE) {
+          let debugInfo = `DEBUG 4: Checking response structure...\n`;
+          debugInfo += `Type: ${typeof responseData}\n`;
+          debugInfo += `Is Array: ${Array.isArray(responseData)}\n`;
+          
+          if (!Array.isArray(responseData) && typeof responseData === 'object') {
+            debugInfo += `Object Keys: ${Object.keys(responseData).join(', ')}\n`;
+          }
+          
+          alert(debugInfo);
+        }
+        
+        // Check if response is wrapped in an object
+        let patients = responseData;
+        
+        // If response is an object with a data property, use that
+        if (responseData && typeof responseData === 'object' && !Array.isArray(responseData)) {
+          // Check common wrapper properties
+          if (responseData.data) {
+            if (DEBUG_MODE) alert('DEBUG 5: Found data property, unwrapping...');
+            patients = responseData.data;
+          } else if (responseData.patients) {
+            if (DEBUG_MODE) alert('DEBUG 5: Found patients property, unwrapping...');
+            patients = responseData.patients;
+          } else if (responseData.result) {
+            if (DEBUG_MODE) alert('DEBUG 5: Found result property, unwrapping...');
+            patients = responseData.result;
+          } else if (responseData.items) {
+            if (DEBUG_MODE) alert('DEBUG 5: Found items property, unwrapping...');
+            patients = responseData.items;
+          } else {
+            if (DEBUG_MODE) alert('DEBUG 5: No wrapper detected, using response as-is');
+          }
+        }
+        
+        // Debug alert 5: Show final patients data
+        if (DEBUG_MODE) {
+          alert(`DEBUG 6: Final patients data:\nIs Array: ${Array.isArray(patients)}\nLength: ${Array.isArray(patients) ? patients.length : 'N/A'}\nData: ${JSON.stringify(patients).substring(0, 500)}`);
+        }
         
         // The response is an array of patients - set it directly
-        if (Array.isArray(responseData) && responseData.length > 0) {
-          setPatients(responseData);
+        if (Array.isArray(patients) && patients.length > 0) {
+          if (DEBUG_MODE) alert(`DEBUG 7: SUCCESS! Setting ${patients.length} patients`);
+          setPatients(patients);
           setSearchError(false);
         } else {
+          if (DEBUG_MODE) alert(`DEBUG 7: No patients found or invalid format`);
           setPatients([]);
           setSearchError(true);
         }
       } else if (response.status === 404) {
         // No patient found
+        if (DEBUG_MODE) alert('DEBUG: 404 - No patient found');
         setPatients([]);
         setSearchError(true);
       } else {
         // Other errors
-        const errorText = await response.text();
-        console.error('Search webhook failed:', response.status, errorText);
-        alert(`Eroare la căutarea pacientului (${response.status}): ${errorText || response.statusText}`);
+        if (DEBUG_MODE) {
+          alert(`DEBUG: Error ${response.status}\nError Text: ${responseText.substring(0, 200)}`);
+        } else {
+          alert(`Eroare la căutarea pacientului (${response.status})`);
+        }
         setPatients([]);
         setSearchError(false);
       }
     } catch (error) {
+      if (DEBUG_MODE) {
+        alert(`DEBUG: Network/Fetch Error\nError: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      } else {
+        alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+      }
       console.error('Error sending search webhook:', error);
-      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
       setPatients([]);
       setSearchError(false);
     } finally {
@@ -369,7 +451,7 @@ export default function PacientiPage() {
         </Card>
 
         {/* Patients List */}
-        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 mt-6">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
             <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
               <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
