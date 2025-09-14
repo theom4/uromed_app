@@ -26,6 +26,35 @@ export default function SettingsPage() {
 
   // Set default template text for exemplu
   useEffect(() => {
+    // Check if we have settings data from localStorage (from main page webhook call)
+    const storedSettings = localStorage.getItem('uromed_settings');
+    if (storedSettings) {
+      try {
+        const settings = JSON.parse(storedSettings);
+        console.log('Loading settings from localStorage:', settings);
+        
+        if (settings.prompt) {
+          setPromptText(settings.prompt);
+        }
+        if (settings.sumarizare) {
+          setSumarizareAI(settings.sumarizare);
+        }
+        if (settings.temperature !== undefined) {
+          setTemperature(parseFloat(settings.temperature));
+        }
+        if (settings.configurari) {
+          setExempluText(settings.configurari);
+        }
+        
+        // Clear the stored settings after loading
+        localStorage.removeItem('uromed_settings');
+        return;
+      } catch (error) {
+        console.error('Error parsing stored settings:', error);
+      }
+    }
+    
+    // Fallback to default template if no stored settings
     if (!exempluText) {
       setExempluText(`# Template de Prompt pentru Generare Documente
 

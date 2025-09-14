@@ -49,6 +49,7 @@ export default function Home() {
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
   const [foundPatient, setFoundPatient] = useState<any>(null);
   const [patientSearchDragState, setPatientSearchDragState] = useState(false);
+  const [settingsData, setSettingsData] = useState<any>(null);
 
   // Dark mode effect
   useEffect(() => {
@@ -77,6 +78,64 @@ export default function Home() {
   
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const fetchSettingsData = async () => {
+    try {
+      console.log('Fetching settings data from webhook...');
+      const response = await fetch('https://n8n.voisero.info/webhook/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          operation: "get-config-page"
+        }),
+      });
+
+      if (response.ok) {
+        let responseText = await response.text();
+        
+        // Handle iframe wrapped responses
+        if (responseText.includes('<iframe srcdoc="')) {
+          const match = responseText.match(/srcdoc="([^"]*(?:\\.[^"]*)*)"[^>]*>/);
+          if (match) {
+            responseText = match[1];
+            responseText = responseText.replace(/"/g, '"')
+                                     .replace(/&/g, '&')
+                                     .replace(/</g, '<')
+                                     .replace(/>/g, '>');
+          }
+        }
+        
+        // Try to parse as JSON
+        let settingsResponse;
+        try {
+          settingsResponse = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse settings response as JSON:', parseError);
+          console.log('Raw response:', responseText);
+          return;
+        }
+        
+        console.log('Settings data received:', settingsResponse);
+        setSettingsData(settingsResponse);
+        
+        // Store in localStorage to persist across page navigation
+        localStorage.setItem('uromed_settings', JSON.stringify(settingsResponse));
+        
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to fetch settings:', response.status, errorText);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
+  const handlePacientiClick = async () => {
+    await fetchSettingsData();
+    router.push('/pacienti');
   };
 
   const handlePatientSearchUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -649,7 +708,7 @@ const clearCurrentPatient = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/pacienti')}
+                onClick={handlePacientiClick}
                 className="flex items-center space-x-2"
               >
                 <User className="w-4 h-4" />
