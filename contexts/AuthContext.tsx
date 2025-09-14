@@ -55,6 +55,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    // Check for hardcoded admin credentials
+    if (email === 'admin@gmail.com' && password === 'admin1234') {
+      // Create a mock user object for the admin
+      const mockAdminUser = {
+        id: 'admin-user-id',
+        email: 'admin@gmail.com',
+        user_metadata: {},
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        role: 'admin'
+      } as User;
+      
+      // Set the user state directly without going through Supabase
+      setUser(mockAdminUser);
+      setSession({
+        access_token: 'mock-admin-token',
+        refresh_token: 'mock-admin-refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockAdminUser
+      } as Session);
+      
+      return { error: null };
+    }
+    
+    // Regular Supabase authentication for other users
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,

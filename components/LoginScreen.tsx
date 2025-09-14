@@ -21,6 +21,30 @@ export default function LoginScreen() {
     setIsLoading(true);
     setError('');
 
+    // Check for hardcoded admin credentials
+    if (email === 'admin@gmail.com' && password === 'admin1234') {
+      // Create a mock user object for the admin
+      const mockAdminUser = {
+        id: 'admin-user-id',
+        email: 'admin@gmail.com',
+        user_metadata: {},
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        role: 'admin'
+      };
+      
+      // Simulate successful login by calling the auth context
+      const { error } = await signIn(email, password);
+      
+      if (!error) {
+        // Login successful, user will be redirected by the auth context
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const { error } = await signIn(email, password);
 
     if (error) {
