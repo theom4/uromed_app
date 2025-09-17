@@ -42,22 +42,36 @@ export default function HomePage() {
     setIsSearching(true);
 
     try {
+      console.log('Starting patient search with files:', uploadedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+      
       const formData = new FormData();
+      
+      // Add each file with proper naming and validation
       uploadedFiles.forEach((file, index) => {
-        formData.append(`file${index}`, file);
+        console.log(`Adding file ${index}:`, file.name, file.type, file.size);
+        formData.append(`file`, file, file.name); // Use consistent 'file' key
       });
+      
       formData.append('operation', 'search-patient');
 
-      const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
+      console.log('Sending request to webhook...');
+      
+      const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
         method: 'POST',
         body: formData,
+        // Don't set Content-Type header - let browser set it with boundary for multipart/form-data
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      // Get response as text first to see raw content
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      
       if (response.ok) {
-        const responseText = await response.text();
-        console.log('Patient search response:', responseText);
-        
         try {
+          // Try to parse as JSON
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
@@ -75,7 +89,7 @@ export default function HomePage() {
               setUploadedFiles([]);
             } else {
               console.log('No patient data in response');
-              alert('Căutarea pacientului a fost trimisă cu succes, dar nu s-au găsit date de pacient!');
+              alert('Răspuns primit, dar structura datelor nu conține informații de pacient!');
             }
           } else if (responseData && responseData.patientData) {
             // Handle direct object response
@@ -87,20 +101,40 @@ export default function HomePage() {
             setUploadedFiles([]);
           } else {
             console.log('Unexpected response structure:', responseData);
-            alert('Căutarea pacientului a fost trimisă cu succes!');
+            alert('Răspuns primit cu structură neașteptată. Verificați consola pentru detalii.');
           }
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
-          alert('Răspuns primit, dar nu s-a putut procesa datele pacientului!');
+          console.error('Response text that failed to parse:', responseText);
+          
+          // Check if response might be HTML or other format
+          if (responseText.includes('<html') || responseText.includes('<!DOCTYPE')) {
+            alert('Serverul a returnat o pagină HTML în loc de date JSON. Verificați webhook-ul.');
+          } else if (responseText.trim() === '') {
+            alert('Serverul a returnat un răspuns gol.');
+          } else {
+            alert(`Răspuns primit, dar nu s-a putut procesa ca JSON. Tip răspuns: ${typeof responseText}`);
+          }
         }
       } else {
-        const errorText = await response.text();
-        console.error('Patient search failed:', response.status, errorText);
-        alert(`Eroare la căutarea pacientului (${response.status}): ${errorText || response.statusText}`);
+        console.error('Patient search failed:', response.status, responseText);
+        
+        // Try to parse error response
+        try {
+          const errorData = JSON.parse(responseText);
+          alert(`Eroare la căutarea pacientului (${response.status}): ${errorData.message || errorData.error || responseText}`);
+        } catch {
+          alert(`Eroare la căutarea pacientului (${response.status}): ${responseText || response.statusText}`);
+        }
       }
     } catch (error) {
       console.error('Error sending patient search:', error);
-      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        alert('Eroare de rețea: Nu se poate conecta la server. Verificați conexiunea la internet.');
+      } else {
+        alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+      }
     } finally {
       setIsSearching(false);
     }
@@ -296,7 +330,7 @@ export default function HomePage() {
                         <Input
                           type="file"
                           multiple
-                          accept="image/*,.pdf,.doc,.docx"
+                          accept="image/*,application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           onChange={(e) => handleFileUpload(e.target.files)}
                           className="hidden"
                           id="patient-search-files"
