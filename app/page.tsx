@@ -21,6 +21,7 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [foundPatient, setFoundPatient] = useState<any>(null);
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
