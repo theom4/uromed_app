@@ -424,9 +424,27 @@ export default function PacientiPage() {
             if (DEBUG_MODE) alert('DEBUG 5: Found items property, unwrapping...');
             patients = responseData.items;
           } else if (responseData.id && responseData.nume) {
+            // For patient creation operations, clear patients and don't show error
+            setPatients([]);
+            setSearchError(false);
+            localStorage.removeItem('uromed_patients');
+            return; // Exit early since this is a creation operation, not a search
             // Single patient object detected - wrap it in an array
             if (DEBUG_MODE) alert('DEBUG 5: Single patient object detected, converting to array...');
             patients = [responseData];
+            // For patient creation operations, clear patients and don't show error
+            setPatients([]);
+            setSearchError(false);
+            localStorage.removeItem('uromed_patients');
+            return; // Exit early since this is a creation operation, not a search
+          } else if (status.includes("pacient creat")) {
+            setStatusMessage(status);
+            setStatusType('success');
+            // For patient creation operations, clear patients and don't show error
+            setPatients([]);
+            setSearchError(false);
+            localStorage.removeItem('uromed_patients');
+            return; // Exit early since this is a creation operation, not a search
           } else {
             if (DEBUG_MODE) alert('DEBUG 5: No wrapper detected, using response as-is');
           }
