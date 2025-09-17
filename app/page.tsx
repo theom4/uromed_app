@@ -201,7 +201,7 @@ const handlePatientSearch = async () => {
     formData.append('mimeTypes', JSON.stringify(mimeTypes));
     formData.append('operation', 'search-patient');
 
-    const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
+    const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
       method: 'POST',
       body: formData,
       headers: {
