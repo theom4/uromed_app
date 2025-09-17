@@ -26,6 +26,25 @@ import {
   Building2,
   Bot,
   Moon,
+interface Patient {
+  id?: number;
+  nume?: string;
+  prenume?: string;
+  cnp?: string;
+  email?: string;
+  telefon?: string;
+  data_nasterii?: string;
+  sex?: string;
+  judet_domiciliu?: string;
+  localitate_domiciliu?: string;
+  adresa?: string;
+  medic_familie?: string;
+  greutate?: number;
+  inaltime?: number;
+  nr_card?: string;
+  created_at?: string;
+  istoric?: string;
+}
   Sun,
   Eye
 } from 'lucide-react';
@@ -40,10 +59,80 @@ export default function Home() {
   const [documentType, setDocumentType] = useState('');
   const [generatedDocument, setGeneratedDocument] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(false);
   const [activeTranscribe, setActiveTranscribe] = useState<string | null>(null);
+  // Load patient data on component mount and listen for updates
+  useEffect(() => {
+    const loadPatientData = () => {
+      const savedPatients = localStorage.getItem('uromed_patients');
+      if (savedPatients) {
+        try {
+          const parsedPatients = JSON.parse(savedPatients);
+          if (Array.isArray(parsedPatients) && parsedPatients.length > 0) {
+            setPatients(parsedPatients);
+            // Auto-select first patient if none selected
+            if (!selectedPatient) {
+              setSelectedPatient(parsedPatients[0]);
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing saved patients:', error);
+        }
+      }
+    };
+
+    // Load initially
+    loadPatientData();
+
+    // Listen for storage changes (when data is updated from other pages)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'uromed_patients') {
+        loadPatientData();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for updates (in case of same-tab updates)
+    const interval = setInterval(loadPatientData, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [selectedPatient]);
   const [dragStates, setDragStates] = useState({
+  const handlePatientSelect = (patient: Patient) => {
+    setSelectedPatient(patient);
+  };
     medical: false
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ro-RO');
+    } catch {
+      return dateString;
+    }
+  };
   });
+  const calculateAge = (birthDate?: string) => {
+    if (!birthDate) return 'N/A';
+    try {
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return `${age} ani`;
+    } catch {
+      return 'N/A';
+    }
+  };
   const [isCopied, setIsCopied] = useState(false);
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
@@ -246,60 +335,154 @@ const handlePatientSearch = async () => {
       }
     }
 
-    console.log('Parsed result:', result);
-    
-    // Handle the new response structure: array with patientData and output
-    let patientOutput: any = null;
-    
-    // The response is now an array with objects containing patientData and output
-    if (Array.isArray(result)) {
-      if (result.length > 0 && result[0].patientData) {
-        patientOutput = {
-          patientData: result[0].patientData,
-          status: result[0].output || [] // consultations are now in 'output' field
-        };
-        console.log('Found patient data in array[0]:', patientOutput);
-      }
-    }
-    // Fallback: check if result is a single object (not array)
-    else if (result && typeof result === 'object' && result.patientData) {
-      patientOutput = {
-        patientData: result.patientData,
-        status: result.output || []
-      };
-      console.log('Found patient data in single object:', patientOutput);
-    }
-    
-    // Additional validation for the expected structure
-    if (patientOutput && patientOutput.patientData) {
-      const { nume, prenume, cnp, telefon, data_nasterii, istoric } = patientOutput.patientData;
-      console.log('✅ Patient data extracted:', {
-        nume,
-        prenume, 
-        cnp,
-        telefon,
-        data_nasterii,
-        hasIstoric: !!istoric,
-        consultationsCount: patientOutput.status?.length || 0
-      });
-    }
-    
-    // Validate and use the patient data
-    if (patientOutput && patientOutput.patientData) {
-      console.log('✅ Successfully found patient data:', patientOutput.patientData);
-      
-      // Set the found patient
-      setFoundPatient(patientOutput);
-      
-      // Clear the files after successful search
-      setPatientSearchFiles([]);
-      
-    } else {
-      console.error('❌ No patient data found in response structure:', {
-        hasResult: !!result,
-        isArray: Array.isArray(result),
-        resultKeys: result ? Object.keys(result) : [],
-        firstItemKeys: Array.isArray(result) && result[0] ? Object.keys(result[0]) : [],
+            {/* Patient Information Card */}
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
+                  <div className="flex items-center space-x-2">
+                    <User className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span>Pacient Găsit</span>
+                  </div>
+                  {patients.length > 1 && (
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {patients.length} pacienți
+                    </span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {patients.length === 0 ? (
+                  <div className="text-center py-8">
+                    <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Nu există pacienți găsiți
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Căutați pacienți în secțiunea Pacienți
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Patient Selector */}
+                    {patients.length > 1 && (
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          Selectați pacientul:
+                        </Label>
+                        <Select 
+                          value={selectedPatient?.id?.toString() || selectedPatient?.cnp || '0'} 
+                          onValueChange={(value) => {
+                            const patient = patients.find(p => 
+                              p.id?.toString() === value || p.cnp === value
+                            );
+                            if (patient) handlePatientSelect(patient);
+                          }}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {patients.map((patient, index) => (
+                              <SelectItem 
+                                key={patient.id || patient.cnp || index} 
+                                value={patient.id?.toString() || patient.cnp || index.toString()}
+                              >
+                                {patient.nume && patient.prenume 
+                                  ? `${patient.nume} ${patient.prenume}` 
+                                  : patient.cnp || `Pacient ${index + 1}`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {/* Patient Information Display */}
+                    {selectedPatient && (
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Informații Personale</h3>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-400">Nume:</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">
+                                  {selectedPatient.nume || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-400">Prenume:</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">
+                                  {selectedPatient.prenume || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-400">CNP:</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">
+                                  {selectedPatient.cnp || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-400">Telefon:</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">
+                                  {selectedPatient.telefon || 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-400">Data nașterii:</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">
+                                  {formatDate(selectedPatient.data_nasterii)} 
+                                  {selectedPatient.data_nasterii && ` (${calculateAge(selectedPatient.data_nasterii)})`}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Istoric Consultații</h3>
+                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                              {selectedPatient.istoric ? (
+                                <div className="bg-slate-50 dark:bg-slate-700 rounded p-2 max-h-32 overflow-y-auto">
+                                  <pre className="whitespace-pre-wrap text-xs">{selectedPatient.istoric}</pre>
+                                </div>
+                              ) : (
+                                <div className="italic">Nu există consultații anterioare înregistrate.</div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2 pt-4 border-t border-slate-200 dark:border-slate-600">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => {
+                              setPatients([]);
+                              setSelectedPatient(null);
+                              localStorage.removeItem('uromed_patients');
+                            }}
+                          >
+                            Închide
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
+                            onClick={() => {
+                              if (selectedPatient?.id) {
+                                router.push(`/pacienti/${selectedPatient.id}`);
+                              } else {
+                                router.push('/pacienti');
+                              }
+                            }}
+                          >
+                            Vezi Detalii Complete
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
         patientOutput: patientOutput
       });
       
