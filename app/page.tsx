@@ -55,7 +55,28 @@ export default function HomePage() {
       if (response.ok) {
         const responseText = await response.text();
         console.log('Patient search response:', responseText);
-        alert('Căutarea pacientului a fost trimisă cu succes!');
+        
+        try {
+          const responseData = JSON.parse(responseText);
+          console.log('Parsed response data:', responseData);
+          
+          // Handle array response
+          if (Array.isArray(responseData) && responseData.length > 0) {
+            const firstResult = responseData[0];
+            if (firstResult.patientData) {
+              setFoundPatient(firstResult.patientData);
+              alert('Pacient găsit cu succes!');
+            } else {
+              alert('Căutarea pacientului a fost trimisă cu succes!');
+            }
+          } else {
+            alert('Căutarea pacientului a fost trimisă cu succes!');
+          }
+        } catch (parseError) {
+          console.error('Error parsing response:', parseError);
+          alert('Căutarea pacientului a fost trimisă cu succes!');
+        }
+        
         // Clear uploaded files after successful search
         setUploadedFiles([]);
       } else {
@@ -369,11 +390,11 @@ export default function HomePage() {
             {/* Right Side - Output */}
             <div className="space-y-6">
               {/* Patient Info Card - Placeholder */}
-              <Card className="shadow-lg border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-700">
+              <Card className={`shadow-lg ${foundPatient ? 'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-700' : 'border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600'}`}>
                 <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-800/30 dark:to-emerald-800/30 border-b border-green-200 dark:border-green-700">
                   <CardTitle className="flex items-center space-x-2 text-green-800 dark:text-green-200">
                     <User className="w-5 h-5" />
-                    <span>Pacient Găsit</span>
+                    <span>{foundPatient ? 'Pacient Găsit' : 'Căutare Pacient'}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -384,29 +405,30 @@ export default function HomePage() {
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">Nume:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">N/A</span>
+                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.nume || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">Prenume:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">N/A</span>
+                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.prenume || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">CNP:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">N/A</span>
+                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.cnp || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">Telefon:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">N/A</span>
+                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.telefon || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">Data nașterii:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">N/A</span>
+                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.data_nasterii || 'N/A'}</span>
                         </div>
                       </div>
                       <div className="flex space-x-2 pt-4">
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => setFoundPatient(null)}
                           className="bg-white dark:bg-green-800/20 border-green-300 dark:border-green-600 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-800/30"
                         >
                           Închide
@@ -423,9 +445,15 @@ export default function HomePage() {
                     <div className="space-y-4">
                       <h3 className="font-semibold text-green-800 dark:text-green-200 mb-3">Istoric Consultații</h3>
                       <div className="bg-white dark:bg-green-800/20 rounded-lg p-4 border border-green-200 dark:border-green-600 min-h-[200px]">
-                        <div className="text-sm text-green-600 dark:text-green-400 italic">
-                          Nu există consultații anterioare înregistrate.
-                        </div>
+                        {foundPatient?.istoric ? (
+                          <div className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
+                            {foundPatient.istoric}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-green-600 dark:text-green-400 italic">
+                            Nu există consultații anterioare înregistrate.
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
