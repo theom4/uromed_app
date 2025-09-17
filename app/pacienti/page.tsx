@@ -383,9 +383,28 @@ export default function PacientiPage() {
         } else if (status.includes("pacienti creati cu succes")) {
           setStatusMessage(status);
           setStatusType('success');
+          
+          // Check if this is a PDF upload response with patient data
+          if (responseData.patientData && Array.isArray(responseData.patientData)) {
+            if (DEBUG_MODE) alert(`DEBUG: PDF response with ${responseData.patientData.length} patients`);
+            setPatients(responseData.patientData);
+            setSearchError(false);
+            localStorage.setItem('uromed_patients', JSON.stringify(responseData.patientData));
+            return;
+          } else {
+            // No patient data, just creation confirmation
+            setPatients([]);
+            setSearchError(false);
+            localStorage.removeItem('uromed_patients');
+            return;
+          }
         } else if (status === "Pacient nou creat") {
           setStatusMessage(status);
           setStatusType('success');
+          setPatients([]);
+          setSearchError(false);
+          localStorage.removeItem('uromed_patients');
+          return;
         } else {
           setStatusMessage(status);
           setStatusType('info');
@@ -443,6 +462,10 @@ export default function PacientiPage() {
          } else if (status.includes("pacient creat")) {
            setStatusMessage(status);
            setStatusType('success');
+          setPatients([]);
+          setSearchError(false);
+          localStorage.removeItem('uromed_patients');
+          return;
            // For patient creation operations, clear patients and don't show error
            setPatients([]);
            setSearchError(false);
