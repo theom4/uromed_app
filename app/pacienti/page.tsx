@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, ArrowLeft, User, Plus } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Patient {
   id: number;
@@ -22,6 +24,7 @@ interface Patient {
   email?: string;
   telefon?: string;
   created_at: string;
+  istoric?: string;
 }
 
 export default function PacientiPage() {
@@ -58,6 +61,9 @@ export default function PacientiPage() {
   });
   const [isAddingPatient, setIsAddingPatient] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [editingHistoryId, setEditingHistoryId] = useState<number | null>(null);
+  const [editedHistory, setEditedHistory] = useState('');
+  const [isSavingHistory, setIsSavingHistory] = useState(false);
 
   // Fetch patients from Supabase
 
@@ -207,6 +213,55 @@ export default function PacientiPage() {
       tip_pacient: '',
       observatii: ''
     });
+  };
+
+  const handleEditHistory = (patient: Patient) => {
+    setEditingHistoryId(patient.id);
+    setEditedHistory(patient.istoric || '');
+  };
+
+  const handleSaveHistory = async (patientId: number) => {
+    setIsSavingHistory(true);
+    try {
+      const response = await fetch('https://n8n.voisero.info/webhook/patients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          operation: "update-history",
+          patientId: patientId,
+          istoric: editedHistory
+        }),
+      });
+
+      if (response.ok) {
+        // Update the local patient data
+        setPatients(prevPatients => 
+          prevPatients.map(patient => 
+            patient.id === patientId 
+              ? { ...patient, istoric: editedHistory }
+              : patient
+          )
+        );
+        setEditingHistoryId(null);
+        alert('Istoricul medical a fost salvat cu succes!');
+      } else {
+        const errorText = await response.text();
+        console.error('Error saving history:', response.status, errorText);
+        alert(`Eroare la salvarea istoricului (${response.status}): ${errorText || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error saving history:', error);
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsSavingHistory(false);
+    }
+  };
+
+  const handleCancelEditHistory = () => {
+    setEditingHistoryId(null);
+    setEditedHistory('');
   };
 
   const handleSearchPatient = async () => {
@@ -455,93 +510,181 @@ export default function PacientiPage() {
         </Card>
 
         {/* Patients List */}
-        <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 mt-6">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
-            <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-              <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span>{searchQuery.trim() ? `Rezultate căutare: "${searchQuery}"` : 'Pacienți Recenți'}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            {patientsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-3 text-slate-600 dark:text-slate-400">
-                  Se caută pacienții...
-                </span>
-              </div>
-            ) : patients.length > 0 ? (
-              <div className="space-y-3">
-                {patients.map((patient) => (
-                  <div
-                    key={patient.id}
-                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors cursor-pointer"
-                    onClick={() => router.push(`/pacienti/${patient.id}`)}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          {/* Medical History Section - Left Side */}
+          {patients.length > 0 && (
+            <div className="lg:col-span-1">
+              <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+                  <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                    <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span>Istoric Medical</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {patients.map((patient) => (
+                    <div key={patient.id} className="space-y-4">
+                      <div className="flex items-center justify-between">
                         <h3 className="font-medium text-slate-800 dark:text-slate-200">
                           {patient.nume && patient.prenume ? `${patient.nume} ${patient.prenume}` : 'Pacient'}
                         </h3>
-                        {patient.cnp && (
-                          <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
-                        )}
-                        {patient.telefon && (
-                          <p className="text-sm text-slate-500 dark:text-slate-400">Tel: {patient.telefon}</p>
-                        )}
-                        {!patient.nume && !patient.prenume && patient.cnp && (
-                          <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
+                        {editingHistoryId !== patient.id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditHistory(patient)}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            Editează
+                          </Button>
                         )}
                       </div>
+                      
+                      {editingHistoryId === patient.id ? (
+                        <div className="space-y-3">
+                          <Textarea
+                            value={editedHistory}
+                            onChange={(e) => setEditedHistory(e.target.value)}
+                            placeholder="Introduceți istoricul medical..."
+                            className="min-h-[300px] resize-y"
+                          />
+                          <div className="flex space-x-2">
+                            <Button
+                              onClick={() => handleSaveHistory(patient.id)}
+                              disabled={isSavingHistory}
+                              className="bg-green-500 hover:bg-green-600 text-white"
+                              size="sm"
+                            >
+                              {isSavingHistory ? (
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  <span>Salvează...</span>
+                                </div>
+                              ) : (
+                                'Salvează'
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleCancelEditHistory}
+                              disabled={isSavingHistory}
+                            >
+                              Anulează
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 min-h-[300px]">
+                          {patient.istoric ? (
+                            <div className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                              {patient.istoric}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-slate-500 dark:text-slate-400 italic">
+                              Nu există istoric medical disponibil. Faceți clic pe "Editează" pentru a adăuga informații.
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">
-                        {new Date(patient.created_at).toLocaleDateString('ro-RO')}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(patient);
-                        }}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          
+          {/* Patients List - Right Side */}
+          <div className={patients.length > 0 ? "lg:col-span-2" : "lg:col-span-3"}>
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <span>{searchQuery.trim() ? `Rezultate căutare: "${searchQuery}"` : 'Pacienți Recenți'}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {patientsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-3 text-slate-600 dark:text-slate-400">
+                      Se caută pacienții...
+                    </span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                {hasSearched && searchError ? (
-                  <>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      Niciun pacient găsit pentru "{searchQuery}"
-                    </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      Încercați să căutați cu alți termeni
-                    </p>
-                  </>
-                ) : !hasSearched ? (
-                  <>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      Introduceți un nume sau CNP și apăsați "Caută Pacient" pentru a căuta pacienți
-                    </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      Rezultatele căutării vor apărea aici
-                    </p>
-                  </>
-                ) : null}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                ) : patients.length > 0 ? (
+                  <div className="space-y-3">
+                    {patients.map((patient) => (
+                      <div
+                        key={patient.id}
+                        className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors cursor-pointer"
+                        onClick={() => router.push(`/pacienti/${patient.id}`)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                              {patient.nume && patient.prenume ? `${patient.nume} ${patient.prenume}` : 'Pacient'}
+                            </h3>
+                            {patient.cnp && (
+                              <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
+                            )}
+                            {patient.telefon && (
+                              <p className="text-sm text-slate-500 dark:text-slate-400">Tel: {patient.telefon}</p>
+                            )}
+                            {!patient.nume && !patient.prenume && patient.cnp && (
+                              <p className="text-sm text-slate-500 dark:text-slate-400">CNP: {patient.cnp}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="text-sm text-slate-500 dark:text-slate-400">
+                            {new Date(patient.created_at).toLocaleDateString('ro-RO')}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(patient);
+                            }}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <User className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                    {hasSearched && searchError ? (
+                      <>
+                        <p className="text-slate-600 dark:text-slate-400">
+                          Niciun pacient găsit pentru "{searchQuery}"
+                        </p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                          Încercați să căutați cu alți termeni
+                        </p>
+                      </>
+                    ) : !hasSearched ? (
+                      <>
+                        <p className="text-slate-600 dark:text-slate-400">
+                          Introduceți un nume sau CNP și apăsați "Caută Pacient" pentru a căuta pacienți
+                        </p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                          Rezultatele căutării vor apărea aici
+                        </p>
+                      </>
+                    ) : null}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}
