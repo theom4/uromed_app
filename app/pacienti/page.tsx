@@ -65,6 +65,49 @@ export default function PacientiPage() {
   const [editedHistory, setEditedHistory] = useState('');
   const [isSavingHistory, setIsSavingHistory] = useState(false);
 
+  // Load persisted data on component mount
+  useEffect(() => {
+    const savedPatients = localStorage.getItem('uromed_patients');
+    const savedSearchQuery = localStorage.getItem('uromed_search_query');
+    const savedHasSearched = localStorage.getItem('uromed_has_searched');
+    
+    if (savedPatients) {
+      try {
+        const parsedPatients = JSON.parse(savedPatients);
+        setPatients(parsedPatients);
+      } catch (error) {
+        console.error('Error parsing saved patients:', error);
+      }
+    }
+    
+    if (savedSearchQuery) {
+      setSearchQuery(savedSearchQuery);
+    }
+    
+    if (savedHasSearched === 'true') {
+      setHasSearched(true);
+    }
+  }, []);
+
+  // Save patients data whenever it changes
+  useEffect(() => {
+    if (patients.length > 0) {
+      localStorage.setItem('uromed_patients', JSON.stringify(patients));
+    }
+  }, [patients]);
+
+  // Save search query whenever it changes
+  useEffect(() => {
+    if (searchQuery) {
+      localStorage.setItem('uromed_search_query', searchQuery);
+    }
+  }, [searchQuery]);
+
+  // Save hasSearched state
+  useEffect(() => {
+    localStorage.setItem('uromed_has_searched', hasSearched.toString());
+  }, [hasSearched]);
+
   // Fetch patients from Supabase
 
   const handleDeleteClick = (patient: Patient) => {
@@ -86,6 +129,8 @@ export default function PacientiPage() {
       } else {
         // Clear patients list after successful deletion
         setPatients([]);
+        // Clear persisted data when patient is deleted
+        localStorage.removeItem('uromed_patients');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -181,6 +226,8 @@ export default function PacientiPage() {
         setAddPatientDialogOpen(false);
         // Clear the patients list after adding
         setPatients([]);
+        // Clear persisted data when new patient is added
+        localStorage.removeItem('uromed_patients');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -374,16 +421,22 @@ export default function PacientiPage() {
           if (DEBUG_MODE) alert(`DEBUG 7: SUCCESS! Setting ${patients.length} patients`);
           setPatients(patients);
           setSearchError(false);
+          // Save successful search results
+          localStorage.setItem('uromed_patients', JSON.stringify(patients));
         } else {
           if (DEBUG_MODE) alert(`DEBUG 7: No patients found or invalid format`);
           setPatients([]);
           setSearchError(true);
+          // Clear persisted data when no patients found
+          localStorage.removeItem('uromed_patients');
         }
       } else if (response.status === 404) {
         // No patient found
         if (DEBUG_MODE) alert('DEBUG: 404 - No patient found');
         setPatients([]);
         setSearchError(true);
+        // Clear persisted data when no patient found
+        localStorage.removeItem('uromed_patients');
       } else {
         // Other errors
         if (DEBUG_MODE) {
@@ -393,6 +446,8 @@ export default function PacientiPage() {
         }
         setPatients([]);
         setSearchError(false);
+        // Clear persisted data on error
+        localStorage.removeItem('uromed_patients');
       }
     } catch (error) {
       if (DEBUG_MODE) {
@@ -403,6 +458,8 @@ export default function PacientiPage() {
       console.error('Error sending search webhook:', error);
       setPatients([]);
       setSearchError(false);
+      // Clear persisted data on network error
+      localStorage.removeItem('uromed_patients');
     } finally {
       setIsSearching(false);
       setPatientsLoading(false);
@@ -460,15 +517,34 @@ export default function PacientiPage() {
                 <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <span className="dark:text-white">Căutare Pacienți</span>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddPatient}
-                className="flex items-center space-x-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Patients</span>
-              </Button>
+              <div className="flex items-center space-x-2">
+                {patients.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setPatients([]);
+                      setSearchQuery('');
+                      setHasSearched(false);
+                      localStorage.removeItem('uromed_patients');
+                      localStorage.removeItem('uromed_search_query');
+                      localStorage.removeItem('uromed_has_searched');
+                    }}
+                    className="flex items-center space-x-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                  >
+                    <span>Căutare nouă</span>
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddPatient}
+                  className="flex items-center space-x-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Patients</span>
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -668,6 +744,21 @@ export default function PacientiPage() {
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                           Încercați să căutați cu alți termeni
                         </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setPatients([]);
+                            setSearchQuery('');
+                            setHasSearched(false);
+                            localStorage.removeItem('uromed_patients');
+                            localStorage.removeItem('uromed_search_query');
+                            localStorage.removeItem('uromed_has_searched');
+                          }}
+                          className="mt-3"
+                        >
+                          Căutare nouă
+                        </Button>
                       </>
                     ) : !hasSearched ? (
                       <>
