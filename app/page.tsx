@@ -48,7 +48,7 @@ export default function HomePage() {
       });
       formData.append('operation', 'search-patient');
 
-      const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
+      const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
         method: 'POST',
         body: formData,
       });
@@ -61,25 +61,38 @@ export default function HomePage() {
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Handle array response
+          // Handle the response structure: [{ patientData: {...}, output: [...] }]
           if (Array.isArray(responseData) && responseData.length > 0) {
             const firstResult = responseData[0];
-            if (firstResult.patientData) {
+            console.log('First result:', firstResult);
+            
+            if (firstResult && firstResult.patientData) {
+              console.log('Patient data found:', firstResult.patientData);
               setFoundPatient(firstResult.patientData);
               alert('Pacient găsit cu succes!');
+              
+              // Clear uploaded files after successful search
+              setUploadedFiles([]);
             } else {
-              alert('Căutarea pacientului a fost trimisă cu succes!');
+              console.log('No patient data in response');
+              alert('Căutarea pacientului a fost trimisă cu succes, dar nu s-au găsit date de pacient!');
             }
+          } else if (responseData && responseData.patientData) {
+            // Handle direct object response
+            console.log('Direct patient data found:', responseData.patientData);
+            setFoundPatient(responseData.patientData);
+            alert('Pacient găsit cu succes!');
+            
+            // Clear uploaded files after successful search
+            setUploadedFiles([]);
           } else {
+            console.log('Unexpected response structure:', responseData);
             alert('Căutarea pacientului a fost trimisă cu succes!');
           }
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
-          alert('Căutarea pacientului a fost trimisă cu succes!');
+          alert('Răspuns primit, dar nu s-a putut procesa datele pacientului!');
         }
-        
-        // Clear uploaded files after successful search
-        setUploadedFiles([]);
       } else {
         const errorText = await response.text();
         console.error('Patient search failed:', response.status, errorText);
