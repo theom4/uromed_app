@@ -64,6 +64,8 @@ export default function PacientiPage() {
   const [editingHistoryId, setEditingHistoryId] = useState<number | null>(null);
   const [editedHistory, setEditedHistory] = useState('');
   const [isSavingHistory, setIsSavingHistory] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [statusType, setStatusType] = useState<'success' | 'info' | 'error' | ''>('');
 
   // Load persisted data on component mount
   useEffect(() => {
@@ -324,6 +326,8 @@ export default function PacientiPage() {
     setPatientsLoading(true);
     setHasSearched(true);
     setSearchError(false);
+    setStatusMessage('');
+    setStatusType('');
     
     try {
       if (DEBUG_MODE) alert(`DEBUG: Starting search for: ${searchQuery}`);
@@ -370,6 +374,23 @@ export default function PacientiPage() {
         alert(`DEBUG 3: Parsed Successfully!\nType: ${typeof responseData}\nIs Array: ${Array.isArray(responseData)}\nStringified (first 500 chars): ${JSON.stringify(responseData).substring(0, 500)}`);
       }
 
+      // Check for status message in response
+      if (responseData && typeof responseData === 'object' && responseData.status) {
+        const status = responseData.status;
+        if (status === "Pacient gasit!") {
+          setStatusMessage(status);
+          setStatusType('success');
+        } else if (status.includes("pacienti creati cu succes")) {
+          setStatusMessage(status);
+          setStatusType('success');
+        } else if (status === "Pacient nou creat") {
+          setStatusMessage(status);
+          setStatusType('success');
+        } else {
+          setStatusMessage(status);
+          setStatusType('info');
+        }
+      }
       if (response.status === 200 && responseData) {
         // Debug alert 4: Check if response needs unwrapping
         if (DEBUG_MODE) {
@@ -526,6 +547,8 @@ export default function PacientiPage() {
                       setPatients([]);
                       setSearchQuery('');
                       setHasSearched(false);
+                      setStatusMessage('');
+                      setStatusType('');
                       localStorage.removeItem('uromed_patients');
                       localStorage.removeItem('uromed_search_query');
                       localStorage.removeItem('uromed_has_searched');
@@ -582,6 +605,17 @@ export default function PacientiPage() {
                 )}
               </Button>
             </div>
+            
+            {/* Status Message */}
+            {statusMessage && (
+              <div className={`mt-4 p-3 rounded-lg text-center font-medium ${
+                statusType === 'success' ? 'bg-green-50 text-green-700 border border-green-200' :
+                statusType === 'error' ? 'bg-red-50 text-red-700 border border-red-200' :
+                'bg-blue-50 text-blue-700 border border-blue-200'
+              }`}>
+                {statusMessage}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -751,6 +785,8 @@ export default function PacientiPage() {
                             setPatients([]);
                             setSearchQuery('');
                             setHasSearched(false);
+                            setStatusMessage('');
+                            setStatusType('');
                             localStorage.removeItem('uromed_patients');
                             localStorage.removeItem('uromed_search_query');
                             localStorage.removeItem('uromed_has_searched');
