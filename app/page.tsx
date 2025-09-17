@@ -52,6 +52,10 @@ export default function HomePage() {
         formData.append(`file`, file, file.name); // Use consistent 'file' key
       });
       
+      // Add mime types array so webhook knows how to parse each file
+      const mimeTypes = uploadedFiles.map(file => file.type);
+      formData.append('mimeTypes', JSON.stringify(mimeTypes));
+      
       formData.append('operation', 'search-patient');
 
       console.log('Sending request to webhook...');
