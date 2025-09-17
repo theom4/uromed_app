@@ -440,6 +440,14 @@ export default function PacientiPage() {
           } else if (status.includes("pacient creat")) {
             setStatusMessage(status);
             setStatusType('success');
+         } else if (status.includes("pacient creat")) {
+           setStatusMessage(status);
+           setStatusType('success');
+           // For patient creation operations, clear patients and don't show error
+           setPatients([]);
+           setSearchError(false);
+           localStorage.removeItem('uromed_patients');
+           return; // Exit early since this is a creation operation, not a search
             // For patient creation operations, clear patients and don't show error
             setPatients([]);
             setSearchError(false);
