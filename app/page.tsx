@@ -49,7 +49,7 @@ export default function HomePage() {
       // Add each file with proper naming and validation
       uploadedFiles.forEach((file, index) => {
         console.log(`Adding file ${index}:`, file.name, file.type, file.size);
-        formData.append(`file`, file, file.name); // Use consistent 'file' key
+        formData.append(`file${index}`, file, file.name); // Use file0, file1, file2 format
       });
       
       // Add mime types array so webhook knows how to parse each file
