@@ -327,10 +327,10 @@ export default function HomePage() {
       if (response.ok) {
         alert('Istoricul medical a fost actualizat cu succes!');
         // Update the foundPatient with the new history to preserve the data
-        setFoundPatient(prevPatient => ({
-          ...prevPatient!,
-          istoric: editableHistory
-        }));
+     setFoundPatient((prevPatient: any) => ({
+  ...prevPatient!,
+  istoric: editableHistory
+}));
       } else {
         const errorText = await response.text();
         console.error('Update history failed:', response.status, errorText);
