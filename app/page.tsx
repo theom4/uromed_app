@@ -92,12 +92,6 @@ export default function HomePage() {
           console.log(`${key}: ${value}`);
         }
       });
-        if (value instanceof File) {
-          console.log(`${key}: File(${value.name}, ${value.type}, ${(value.size / 1024 / 1024).toFixed(2)}MB)`);
-        } else {
-          console.log(`${key}: ${value}`);
-        }
-      });
 
       console.log('Sending request to webhook...');
       
