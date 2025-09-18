@@ -59,6 +59,7 @@ export default function HomePage() {
       
       // Add metadata
       formData.append('fileCount', uploadedFiles.length.toString());
+      formData.append('mimeTypes', uploadedFiles.map(file => file.type).join(','));
       formData.append('operation', 'search-patient');
       
       // Log FormData contents for debugging
