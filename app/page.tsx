@@ -73,7 +73,7 @@ export default function HomePage() {
         controller.abort();
       }, 300000); // 5 minutes timeout
       
-      const response = await fetch('https://n8n.voisero.info/webhook-webhook/snippet', {
+      const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
         method: 'POST',
         body: formData,
         signal: controller.signal,
