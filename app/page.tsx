@@ -675,7 +675,8 @@ const handleSearchPatient = async () => {
           </Card>
 
           {/* Document Output Section - Below the generator */}
-          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+          {outputText && (
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
             <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
               <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
                 <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -683,56 +684,32 @@ const handleSearchPatient = async () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="p-4 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg min-h-[300px] max-h-[500px] overflow-y-auto">
-                {outputText ? (
-                  <div className="whitespace-pre-wrap text-slate-900 dark:text-white text-sm leading-relaxed">
-                    {outputText}
-                  </div>
-                ) : (
-                  <div className="text-slate-500 dark:text-slate-400 text-sm italic">
-                    Documentul generat va apărea aici...
-                  </div>
-                )}
+              <div className="space-y-4">
+                <Textarea
+                  value={editableDocument}
+                  onChange={(e) => setEditableDocument(e.target.value)}
+                  className="min-h-[400px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-mono text-sm"
+                  placeholder="Documentul generat va apărea aici..."
+                />
+                <Button
+                  onClick={handleUpdateDocument}
+                  disabled={isUpdatingDocument || !editableDocument.trim() || searchFoundPatients.length === 0}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3"
+                >
+                  {isUpdatingDocument ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Actualizează...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4" />
+                      <span>Actualizează Document</span>
+                    </div>
+                  )}
+                </Button>
               </div>
             </CardContent>
-          </Card>
-
-          {/* Editable Document Section */}
-          {outputText && (
-            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
-                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                  <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  <span>Document Editabil</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <Textarea
-                    value={editableDocument}
-                    onChange={(e) => setEditableDocument(e.target.value)}
-                    className="min-h-[400px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-mono text-sm"
-                    placeholder="Documentul editabil va apărea aici..."
-                  />
-                  <Button
-                    onClick={handleUpdateDocument}
-                    disabled={isUpdatingDocument || !editableDocument.trim() || searchFoundPatients.length === 0}
-                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-3"
-                  >
-                    {isUpdatingDocument ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Actualizează...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <FileText className="w-4 h-4" />
-                        <span>Actualizează Document</span>
-                      </div>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
             </Card>
           )}
         </div>
