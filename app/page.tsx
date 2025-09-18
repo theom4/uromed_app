@@ -129,7 +129,9 @@ export default function HomePage() {
             setMultiplePatients([]); // Clear multiple patients for snippet response
             
             if (firstResult && firstResult.patientData) {
+             console.log('Found patientData in snippet format:', firstResult.patientData);
               setFoundPatient(firstResult.patientData);
+             setEditableHistory(firstResult.patientData.istoric || '');
             }
           }
           // Format 4: Direct single object response - { patientData: {...} }
