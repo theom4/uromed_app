@@ -132,15 +132,26 @@ export default function HomePage() {
             return;
           }
           
-          // Case 2: Patient was found (array with patientData object - has patientData property)
+          // Case 2: Single patient found (array with patientData object - has patientData property)
           if (firstItem.patientData) {
-            console.log('Patient found in existing records');
-            setFoundPatient(firstItem.patientData);
-            setEditableHistory(firstItem.patientData.istoric || '');
-            setMultiplePatients([]);
-            setIsPdfResponse(false);
-            setUploadedFiles([]);
-            return;
+            // Check if patientData is an array (multiple patients from PDF)
+            if (Array.isArray(firstItem.patientData)) {
+              console.log('Multiple patients found from PDF:', firstItem.patientData.length);
+              setMultiplePatients(firstItem.patientData);
+              setFoundPatient(null);
+              setIsPdfResponse(true);
+              setUploadedFiles([]);
+              return;
+            } else {
+              // Single patient found
+              console.log('Single patient found in existing records');
+              setFoundPatient(firstItem.patientData);
+              setEditableHistory(firstItem.patientData.istoric || '');
+              setMultiplePatients([]);
+              setIsPdfResponse(false);
+              setUploadedFiles([]);
+              return;
+            }
           }
         }
         
