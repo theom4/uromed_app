@@ -50,24 +50,28 @@ export default function HomePage() {
       
       const formData = new FormData();
       
-      // Add each file with proper naming and validation
+      // Add each file with consistent naming
       uploadedFiles.forEach((file, index) => {
         console.log(`Adding file ${index}:`, file.name, file.type, file.size);
-        formData.append(`file${index}`, file, file.name); // Use file0, file1, file2 format
+        // Use consistent field name for all files
+        formData.append('files', file, file.name);
       });
       
-      // Add mime types array so webhook knows how to parse each file
-      const mimeTypes = uploadedFiles.map(file => file.type);
-      formData.append('mimeTypes', JSON.stringify(mimeTypes));
-      
+      // Add metadata
+      formData.append('fileCount', uploadedFiles.length.toString());
       formData.append('operation', 'search-patient');
+      
+      // Log FormData contents for debugging
+      console.log('FormData entries:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
 
       console.log('Sending request to webhook...');
       
       const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
         method: 'POST',
         body: formData,
-        // Don't set Content-Type header - let browser set it with boundary for multipart/form-data
       });
 
       console.log('Response status:', response.status);
@@ -84,7 +88,6 @@ export default function HomePage() {
           console.log('Parsed response data:', responseData);
           
           // Handle different response formats
-          let patientData = null;
           let patientsArray = [];
           
           // Format 1: Array response - [{ patientData: [...] }]
@@ -103,6 +106,10 @@ export default function HomePage() {
               setFoundPatient(patientsArray[0]);
               setMultiplePatients([]); // Clear multiple patients when we have single
             }
+            
+            // Clear uploaded files after successful processing
+            setUploadedFiles([]);
+            return;
           }
           // Format 2: Direct object response - { status: "...", patientData: [...] }
           else if (responseData.patientData && Array.isArray(responseData.patientData)) {
@@ -120,6 +127,10 @@ export default function HomePage() {
               setFoundPatient(patientsArray[0]);
               setMultiplePatients([]); // Clear multiple patients when we have single
             }
+            
+            // Clear uploaded files after successful processing
+            setUploadedFiles([]);
+            return;
           }
           // Format 3: Snippet response - [{ patientData: {...}, output: [...] }]
           else if (Array.isArray(responseData) && responseData.length > 0) {
@@ -149,6 +160,11 @@ export default function HomePage() {
             setUploadedFiles([]);
             return; // Exit here to prevent showing popup
           }
+          
+          // If we reach here, no valid patient data was found
+          console.log('No valid patient data found in response');
+          alert('Nu s-au găsit date de pacient în răspuns.');
+          
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
           console.error('Response text that failed to parse:', responseText);
