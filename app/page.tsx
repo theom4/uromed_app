@@ -297,83 +297,6 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Side - Input */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Patient Search Section */}
-              <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
-                  <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      <span>Căutare Pacient</span>
-                    </div>
-                    <Button
-                      onClick={handleSearchPatient}
-                      disabled={isSearching || uploadedFiles.length === 0}
-                      className="bg-green-500 hover:bg-green-600 text-white font-medium"
-                    >
-                      {isSearching ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Caută...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <Search className="w-4 h-4" />
-                          <span>Caută Pacient</span>
-                        </div>
-                      )}
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        Atașați screenshot sau imagine pentru căutarea pacientului
-                      </Label>
-                      <div className="mt-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 hover:border-green-400 dark:hover:border-green-500 transition-colors dark:bg-slate-700/50">
-                        <Input
-                          type="file"
-                          multiple
-                          accept="image/*,application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                          onChange={(e) => handleFileUpload(e.target.files)}
-                          className="hidden"
-                          id="patient-search-files"
-                        />
-                        <Label htmlFor="patient-search-files" className="cursor-pointer flex flex-col items-center justify-center space-y-2 text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400">
-                          <Upload className="w-8 h-8" />
-                          <span className="text-center">
-                            Încărcați fișiere (imagine, PDF, DOCX) pentru căutarea pacientului sau trage aici
-                          </span>
-                        </Label>
-                      </div>
-                      {uploadedFiles.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {uploadedFiles.map((file, index) => (
-                            <div key={index} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-700">
-                              <div className="flex items-center space-x-2">
-                                <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                <span className="text-sm text-green-700 dark:text-green-300 font-medium">{file.name}</span>
-                                <span className="text-xs text-green-600 dark:text-green-400">
-                                  ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                                </span>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeFile(index)}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1"
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Document Generation */}
               <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
                 <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
@@ -441,77 +364,6 @@ export default function HomePage() {
 
             {/* Right Side - Output */}
             <div className="space-y-6">
-              {/* Patient Info Card - Placeholder */}
-              <Card className={`shadow-lg ${foundPatient ? 'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-700' : 'border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600'}`}>
-                <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-800/30 dark:to-emerald-800/30 border-b border-green-200 dark:border-green-700">
-                  <CardTitle className="flex items-center space-x-2 text-green-800 dark:text-green-200">
-                    <User className="w-5 h-5" />
-                    <span>{foundPatient ? 'Pacient Găsit' : 'Căutare Pacient'}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left Column */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-green-800 dark:text-green-200 mb-3">Informații Personale</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-green-700 dark:text-green-300">Nume:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.nume || 'N/A'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-green-700 dark:text-green-300">Prenume:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.prenume || 'N/A'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-green-700 dark:text-green-300">CNP:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.cnp || 'N/A'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-green-700 dark:text-green-300">Telefon:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.telefon || 'N/A'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-green-700 dark:text-green-300">Data nașterii:</span>
-                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">{foundPatient?.data_nasterii || 'N/A'}</span>
-                        </div>
-                      </div>
-                      <div className="flex space-x-2 pt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setFoundPatient(null)}
-                          className="bg-white dark:bg-green-800/20 border-green-300 dark:border-green-600 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-800/30"
-                        >
-                          Închide
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          Vezi Detalii Complete
-                        </Button>
-                      </div>
-                    </div>
-                    {/* Right Column */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-green-800 dark:text-green-200 mb-3">Istoric Consultații</h3>
-                      <div className="bg-white dark:bg-green-800/20 rounded-lg p-4 border border-green-200 dark:border-green-600 min-h-[200px]">
-                        {foundPatient?.istoric ? (
-                          <div className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
-                            {foundPatient.istoric}
-                          </div>
-                        ) : (
-                          <div className="text-sm text-green-600 dark:text-green-400 italic">
-                            Nu există consultații anterioare înregistrate.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Generated Document */}
               <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
                 <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
@@ -562,6 +414,152 @@ export default function HomePage() {
               </Card>
             </div>
           </div>
+
+          {/* Patient Search Section - Between search and document generation */}
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
+                <div className="flex items-center space-x-2">
+                  <User className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <span>Căutare Pacient</span>
+                </div>
+                <Button
+                  onClick={handleSearchPatient}
+                  disabled={isSearching || uploadedFiles.length === 0}
+                  className="bg-green-500 hover:bg-green-600 text-white font-medium"
+                >
+                  {isSearching ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Caută...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <Search className="w-4 h-4" />
+                      <span>Caută Pacient</span>
+                    </div>
+                  )}
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Side - File Upload */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Atașați screenshot sau imagine pentru căutarea pacientului
+                    </Label>
+                    <div className="mt-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 hover:border-green-400 dark:hover:border-green-500 transition-colors dark:bg-slate-700/50">
+                      <Input
+                        type="file"
+                        multiple
+                        accept="image/*,application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={(e) => handleFileUpload(e.target.files)}
+                        className="hidden"
+                        id="patient-search-files"
+                      />
+                      <Label htmlFor="patient-search-files" className="cursor-pointer flex flex-col items-center justify-center space-y-2 text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400">
+                        <Upload className="w-8 h-8" />
+                        <span className="text-center">
+                          Încărcați fișiere (imagine, PDF, DOCX) pentru căutarea pacientului sau trage aici
+                        </span>
+                      </Label>
+                    </div>
+                    {uploadedFiles.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div key={index} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                            <div className="flex items-center space-x-2">
+                              <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />
+                              <span className="text-sm text-green-700 dark:text-green-300 font-medium">{file.name}</span>
+                              <span className="text-xs text-green-600 dark:text-green-400">
+                                ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                              </span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFile(index)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Side - Patient Info */}
+                <div className={`space-y-4 ${foundPatient ? 'border-l-4 border-green-400 pl-6' : ''}`}>
+                  <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
+                    {foundPatient ? 'Pacient Găsit' : 'Informații Personale'}
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume:</span>
+                      <span className={`text-sm font-medium ${foundPatient ? 'text-green-800 dark:text-green-200' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {foundPatient?.nume || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume:</span>
+                      <span className={`text-sm font-medium ${foundPatient ? 'text-green-800 dark:text-green-200' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {foundPatient?.prenume || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP:</span>
+                      <span className={`text-sm font-medium ${foundPatient ? 'text-green-800 dark:text-green-200' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {foundPatient?.cnp || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon:</span>
+                      <span className={`text-sm font-medium ${foundPatient ? 'text-green-800 dark:text-green-200' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {foundPatient?.telefon || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Data nașterii:</span>
+                      <span className={`text-sm font-medium ${foundPatient ? 'text-green-800 dark:text-green-200' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {foundPatient?.data_nasterii || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {foundPatient && (
+                    <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-700">
+                      <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">Istoric Consultații</h4>
+                      <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600 max-h-32 overflow-y-auto">
+                        <div className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
+                          {foundPatient.istoric || 'Nu există consultații anterioare înregistrate.'}
+                        </div>
+                      </div>
+                      <div className="flex space-x-2 mt-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFoundPatient(null)}
+                          className="bg-white dark:bg-green-800/20 border-green-300 dark:border-green-600 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-800/30"
+                        >
+                          Închide
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          Vezi Detalii Complete
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
