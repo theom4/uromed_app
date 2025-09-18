@@ -73,7 +73,7 @@ export default function HomePage() {
       controller.abort();
     }, 300000); // 5 minutes timeout for 15 PDFs
     
-    const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
+    const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
       method: 'POST',
       body: formData,
       signal: controller.signal,
@@ -83,18 +83,43 @@ export default function HomePage() {
 
     // Get response as text first to see raw content
     const responseText = await response.text();
+    console.log('Raw response:', responseText);
     
     if (response.ok) {
       try {
         // Try to parse as JSON
         const responseData = JSON.parse(responseText);
+        console.log('Parsed response data:', responseData);
         
-        // Handle response data
+        // Check if response is an array
         if (Array.isArray(responseData) && responseData.length > 0) {
           const firstItem = responseData[0];
+          console.log('First item:', firstItem);
           
-          // Case 1: Single patient created/found (direct patient object with id)
+          // Check if it has patientData
+          if (firstItem.patientData) {
+            console.log('Found patientData:', firstItem.patientData);
+            
+            // Check if patientData is an array (multiple patients)
+            if (Array.isArray(firstItem.patientData)) {
+              console.log('Multiple patients detected');
+              setMultiplePatients(firstItem.patientData);
+              setFoundPatient(null);
+              setIsPdfResponse(true);
+            } else if (typeof firstItem.patientData === 'object' && firstItem.patientData !== null) {
+              console.log('Single patient detected');
+              setFoundPatient(firstItem.patientData);
+              setEditableHistory(firstItem.patientData.istoric || '');
+              setMultiplePatients([]);
+              setIsPdfResponse(true);
+            }
+            setUploadedFiles([]);
+            return;
+          }
+          
+          // Direct patient object (for image responses)
           if (firstItem.id && firstItem.nume) {
+            console.log('Direct patient object detected');
             setFoundPatient(firstItem);
             setEditableHistory(firstItem.istoric || '');
             setMultiplePatients([]);
@@ -102,46 +127,42 @@ export default function HomePage() {
             setUploadedFiles([]);
             return;
           }
-          
-          // Case 2: Patient data wrapped in patientData property
-          if (firstItem.patientData) {
-            // Check if patientData is an array (multiple patients) or single object
-            if (Array.isArray(firstItem.patientData)) {
-              // Multiple patients from PDF
-              setMultiplePatients(firstItem.patientData);
-              setFoundPatient(null);
-              setIsPdfResponse(true);
-              setUploadedFiles([]);
-              return;
-            } else if (firstItem.patientData && typeof firstItem.patientData === 'object') {
-              // Single patient object in patientData
-              setFoundPatient(firstItem.patientData);
-              setEditableHistory(firstItem.patientData.istoric || '');
-              setMultiplePatients([]);
-              setIsPdfResponse(true);
-              setUploadedFiles([]);
-              return;
-            }
-          }
         }
         
-        // If no matching case, clear results
+        console.log('No matching case found, clearing results');
         setFoundPatient(null);
         setMultiplePatients([]);
         setUploadedFiles([]);
         
       } catch (parseError) {
+        console.error('JSON parse error:', parseError);
         // Try to extract JSON from response text
         try {
           const jsonMatch = responseText.match(/\[.*\]/s);
           if (jsonMatch) {
             const cleanJson = jsonMatch[0];
             const responseData = JSON.parse(cleanJson);
+            console.log('Extracted JSON:', responseData);
             
             if (Array.isArray(responseData) && responseData.length > 0) {
               const firstItem = responseData[0];
               
-              // Patient created case
+              if (firstItem.patientData) {
+                if (Array.isArray(firstItem.patientData)) {
+                  setMultiplePatients(firstItem.patientData);
+                  setFoundPatient(null);
+                  setIsPdfResponse(true);
+                } else if (typeof firstItem.patientData === 'object' && firstItem.patientData !== null) {
+                  setFoundPatient(firstItem.patientData);
+                  setEditableHistory(firstItem.patientData.istoric || '');
+                  setMultiplePatients([]);
+                  setIsPdfResponse(true);
+                }
+                setUploadedFiles([]);
+                return;
+              }
+              
+              // Direct patient object
               if (firstItem.id && firstItem.nume) {
                 setFoundPatient(firstItem);
                 setEditableHistory(firstItem.istoric || '');
@@ -150,28 +171,10 @@ export default function HomePage() {
                 setUploadedFiles([]);
                 return;
               }
-              
-              // Patient found case
-              if (firstItem.patientData) {
-                if (Array.isArray(firstItem.patientData)) {
-                  setMultiplePatients(firstItem.patientData);
-                  setFoundPatient(null);
-                  setIsPdfResponse(true);
-                  setUploadedFiles([]);
-                  return;
-                } else {
-                  setFoundPatient(firstItem.patientData);
-                  setEditableHistory(firstItem.patientData.istoric || '');
-                  setMultiplePatients([]);
-                  setIsPdfResponse(false);
-                  setUploadedFiles([]);
-                  return;
-                }
-              }
             }
           }
         } catch (extractError) {
-          console.error('Failed to parse response:', extractError);
+          console.error('Failed to extract JSON:', extractError);
         }
         
         // Clear results on parse error
@@ -181,13 +184,13 @@ export default function HomePage() {
         return;
       }
     } else {
-      console.error('Patient search failed:', response.status);
+      console.error('Patient search failed:', response.status, responseText);
       setFoundPatient(null);
       setMultiplePatients([]);
       setUploadedFiles([]);
     }
   } catch (error) {
-    console.error('Error sending patient search:', error);
+    console.error('Network error:', error);
     setFoundPatient(null);
     setMultiplePatients([]);
     setUploadedFiles([]);
