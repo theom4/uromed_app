@@ -27,6 +27,7 @@ export default function HomePage() {
   const [searchFoundPatients, setSearchFoundPatients] = useState<any[]>([]);
   const [editableHistories, setEditableHistories] = useState<{[key: number]: string}>({});
   const [uploadedFileTypes, setUploadedFileTypes] = useState<string[]>([]);
+  const [patientStatus, setPatientStatus] = useState<string>('');
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -107,6 +108,9 @@ export default function HomePage() {
           
           // Handle PDF response format: Array containing object with patientData
           if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData) {
+            const patients = responseData[0].patientData.map((patient: any, index: number) => ({
+              id: index,
+              nume: patient.nume || '',
               prenume: patient.prenume || '',
               cnp: patient.cnp || '',
               telefon: patient.telefon || '',
@@ -130,7 +134,8 @@ export default function HomePage() {
             return;
           }
           
-            
+          // Handle array of patients (image response)
+          if (Array.isArray(responseData)) {
             const patients = responseData.map((item, index) => ({
               id: index,
               nume: item.nume || '',
