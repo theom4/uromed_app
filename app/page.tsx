@@ -25,6 +25,7 @@ export default function HomePage() {
   const [editableHistory, setEditableHistory] = useState('');
   const [isUpdatingHistory, setIsUpdatingHistory] = useState(false);
   const [searchFoundPatient, setSearchFoundPatient] = useState<any>(null);
+  const [patientStatus, setPatientStatus] = useState<'found' | 'created' | null>(null);
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -52,7 +53,8 @@ export default function HomePage() {
     }
     
     setIsSearching(true);
-    setSearchFoundPatient(null); // Clear previous results
+    setSearchFoundPatient(null);
+    setPatientStatus(null); // Clear previous status
 
     try {
       const formData = new FormData();
@@ -90,51 +92,43 @@ export default function HomePage() {
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Handle different response formats based on status property
-          if (responseData.status && typeof responseData.status === 'string') {
-            // New format: flat object with status property
-            if (responseData.status.includes('Pacient') || responseData.nume) {
-              console.log('Found patient data in flat format:', responseData);
-              const patientData = {
-                nume: responseData.nume || '',
-                prenume: responseData.prenume || '',
-                cnp: responseData.cnp || '',
-                telefon: responseData.telefon || '',
-                data_nasterii: responseData.data_nasterii || '',
-                istoric: responseData.istoric || ''
-              };
-              setSearchFoundPatient(patientData);
-              setEditableHistory(patientData.istoric || '');
-              setUploadedFiles([]); // Clear uploaded files after successful search
-              return;
-            }
-          } else if (Array.isArray(responseData) && responseData.length > 0) {
-            // Original format: array with patientData object
-            const firstItem = responseData[0];
+          // Handle IMG FOUND and IMG NEW status cases
+          if (responseData.status === 'IMG FOUND' || responseData.status === 'IMG NEW') {
+            console.log('Patient search result:', responseData.status);
             
-            if (firstItem.patientData && typeof firstItem.patientData === 'object') {
-              console.log('Found patientData in array format:', firstItem.patientData);
-              setSearchFoundPatient(firstItem.patientData);
-              setEditableHistory(firstItem.patientData.istoric || '');
-              setUploadedFiles([]); // Clear uploaded files after successful search
-              return;
-            }
+            const patientData = {
+              nume: responseData.nume || '',
+              prenume: responseData.prenume || '',
+              cnp: responseData.cnp || '',
+              telefon: responseData.telefon || '',
+              data_nasterii: responseData.data_nasterii || '',
+              istoric: responseData.istoric || ''
+            };
+            
+            setSearchFoundPatient(patientData);
+            setPatientStatus(responseData.status === 'IMG FOUND' ? 'found' : 'created');
+            setEditableHistory(patientData.istoric || '');
+            setUploadedFiles([]); // Clear uploaded files after successful search
+            return;
           }
           
-          // If no patient data found, clear results
+          // If status is not recognized, clear results
           console.log('No patient data found in response');
           setSearchFoundPatient(null);
-          alert('Nu s-au găsit date de pacient în răspuns. Format răspuns nerecunoscut.');
+          setPatientStatus(null);
+          alert('Status nerecunoscut în răspuns. Se așteaptă "IMG FOUND" sau "IMG NEW".');
           
         } catch (parseError) {
           console.error('JSON parse error:', parseError);
           alert('Eroare la procesarea răspunsului de la server.');
           setSearchFoundPatient(null);
+          setPatientStatus(null);
         }
       } else {
         console.error('Patient search failed:', response.status);
         alert(`Eroare la căutarea pacientului (${response.status})`);
         setSearchFoundPatient(null);
+        setPatientStatus(null);
       }
     } catch (error) {
       console.error('Network error:', error);
@@ -144,6 +138,7 @@ export default function HomePage() {
         alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
       }
       setSearchFoundPatient(null);
+      setPatientStatus(null);
     } finally {
       setIsSearching(false);
     }
@@ -416,7 +411,7 @@ export default function HomePage() {
                 <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
                   <div className="flex items-center space-x-2">
                     <User className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span>Informații Pacient</span>
+                    <span>{patientStatus === 'found' ? 'Pacient Găsit' : 'Pacient Creat'}</span>
                   </div>
                   <Button
                     onClick={handleUpdateHistory}
