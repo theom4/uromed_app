@@ -43,10 +43,19 @@ export default function HomePage() {
       return;
     }
 
+    // Check total file size (limit to 50MB total)
+    const totalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    
+    if (totalSize > maxSize) {
+      alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 50MB total.`);
+      return;
+    }
     setIsSearching(true);
 
     try {
       console.log('Starting patient search with files:', uploadedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+      console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
       
       const formData = new FormData();
       
@@ -70,10 +79,17 @@ export default function HomePage() {
 
       console.log('Sending request to webhook...');
       
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+      
       const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers.entries()));
