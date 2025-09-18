@@ -29,6 +29,7 @@ export default function HomePage() {
   const [uploadedFileTypes, setUploadedFileTypes] = useState<string[]>([]);
   const [editableDocument, setEditableDocument] = useState('');
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
+  const [currentPatientCnp, setCurrentPatientCnp] = useState('');
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -160,6 +161,11 @@ const handleSearchPatient = async () => {
           });
           setEditableHistories(histories);
           
+          // Save the first patient's CNP for document generation
+          if (patients.length > 0 && patients[0].cnp) {
+            setCurrentPatientCnp(patients[0].cnp);
+          }
+          
           setUploadedFiles([]);
           setUploadedFileTypes([]);
           setIsSearching(false);
@@ -183,6 +189,12 @@ const handleSearchPatient = async () => {
           
           setSearchFoundPatients([patientData]);
           setEditableHistories({0: patientData.istoric || ''});
+          
+          // Save the patient's CNP for document generation
+          if (patientData.cnp) {
+            setCurrentPatientCnp(patientData.cnp);
+          }
+          
           setUploadedFiles([]);
           setUploadedFileTypes([]);
           setIsSearching(false);
@@ -239,6 +251,7 @@ const handleSearchPatient = async () => {
         body: JSON.stringify({
           medicalInfo: inputText,
           documentType: documentType,
+          cnp: currentPatientCnp,
           operation: "generate-document"
         }),
       });
