@@ -209,9 +209,9 @@ export default function HomePage() {
         alert('Istoricul medical a fost actualizat cu succes!');
         // Update the foundPatient with the new history to preserve the data
         setSearchFoundPatient((prevPatient: any) => ({
-  ...prevPatient!,
-  istoric: editableHistory
-}));
+          ...prevPatient!,
+          istoric: editableHistory
+        }));
       } else {
         const errorText = await response.text();
         console.error('Update history failed:', response.status, errorText);
@@ -394,4 +394,170 @@ export default function HomePage() {
           {/* Patient Information Section - Only show when patient is found */}
           {searchFoundPatient && (
             <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 border-l-4 border-green-400">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
+                  <div className="flex items-center space-x-2">
+                    <User className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span>Informații Pacient</span>
+                  </div>
+                  <Button
+                    onClick={handleUpdateHistory}
+                    disabled={isUpdatingHistory}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium"
+                  >
+                    {isUpdatingHistory ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Actualizează...</span>
+                      </div>
+                    ) : (
+                      <span>Actualizează Istoric</span>
+                    )}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.nume || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Vârsta</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.varsta || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.cnp || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.telefon || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Adresă</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.adresa || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.email || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Asigurare</Label>
+                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.asigurare || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Istoric Medical (Editabil)</Label>
+                  <Textarea
+                    value={editableHistory}
+                    onChange={(e) => setEditableHistory(e.target.value)}
+                    className="mt-2 min-h-[200px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white"
+                    placeholder="Istoricul medical al pacientului..."
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Document Generation Section */}
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span>Generator Documente Medicale</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="medical-info" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Informații Medicale
+                    </Label>
+                    <Textarea
+                      id="medical-info"
+                      placeholder="Introduceți informațiile medicale ale pacientului..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      className="mt-2 min-h-[200px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="document-type" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Tip Document
+                    </Label>
+                    <Select value={documentType} onValueChange={setDocumentType}>
+                      <SelectTrigger className="mt-2 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white">
+                        <SelectValue placeholder="Selectați tipul documentului" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
+                        <SelectItem value="consultatie" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Fișă de Consultație</SelectItem>
+                        <SelectItem value="bilet-trimitere" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Bilet de Trimitere</SelectItem>
+                        <SelectItem value="reteta" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Rețetă Medicală</SelectItem>
+                        <SelectItem value="scrisoare-medicala" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Scrisoare Medicală</SelectItem>
+                        <SelectItem value="certificat-medical" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Certificat Medical</SelectItem>
+                        <SelectItem value="raport-medical" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Raport Medical</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={handleGenerateDocument}
+                    disabled={isGenerating || !inputText.trim() || !documentType}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3"
+                  >
+                    {isGenerating ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Generez document...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <FileText className="w-4 h-4" />
+                        <span>Generează Document</span>
+                      </div>
+                    )}
+                  </Button>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Document Generat
+                  </Label>
+                  <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg min-h-[300px] max-h-[500px] overflow-y-auto">
+                    {outputText ? (
+                      <div className="whitespace-pre-wrap text-slate-900 dark:text-white text-sm leading-relaxed">
+                        {outputText}
+                      </div>
+                    ) : (
+                      <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                        Documentul generat va apărea aici...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
