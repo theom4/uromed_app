@@ -27,7 +27,6 @@ export default function HomePage() {
   const [searchFoundPatients, setSearchFoundPatients] = useState<any[]>([]);
   const [editableHistories, setEditableHistories] = useState<{[key: number]: string}>({});
   const [uploadedFileTypes, setUploadedFileTypes] = useState<string[]>([]);
-  const [uploadedFileTypes, setUploadedFileTypes] = useState<string[]>([]);
   const [patientStatus, setPatientStatus] = useState<string>('');
 
   const handleFileUpload = (files: FileList | null) => {
@@ -42,19 +41,10 @@ export default function HomePage() {
       return 'other';
     });
     setUploadedFileTypes((prev: string[]) => [...prev, ...newFileTypes]);
-    
-    // Track file types
-    const newFileTypes = fileArray.map(file => {
-      if (file.type.includes('pdf')) return 'pdf';
-      if (file.type.includes('image')) return 'image';
-      return 'other';
-    });
-    setUploadedFileTypes((prev: string[]) => [...prev, ...newFileTypes]);
   };
 
   const removeFile = (index: number) => {
     setUploadedFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
-    setUploadedFileTypes((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
     setUploadedFileTypes((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
   };
 
@@ -76,10 +66,6 @@ export default function HomePage() {
     setIsSearching(true);
     setSearchFoundPatients([]);
     setEditableHistories({});
-    
-    // Determine if we're dealing with PDFs or images
-    const hasPdfs = uploadedFileTypes.some(type => type === 'pdf');
-    const hasImages = uploadedFileTypes.some(type => type === 'image');
     
     // Determine if we're dealing with PDFs or images
     const hasPdfs = uploadedFileTypes.some(type => type === 'pdf');
@@ -122,6 +108,7 @@ export default function HomePage() {
           
           // Handle PDF response format: Array containing object with patientData
           if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData) {
+            const patients = responseData[0].patientData.map((patient: any, index: number) => ({
               id: index,
               nume: patient.nume || '',
               prenume: patient.prenume || '',
@@ -137,7 +124,7 @@ export default function HomePage() {
             
             // Initialize editable histories for all patients
             const histories: {[key: number]: string} = {};
-            patients.forEach((patient, index) => {
+            patients.forEach((patient: any, index: number) => {
               histories[index] = patient.istoric || '';
             });
             setEditableHistories(histories);
@@ -171,22 +158,6 @@ export default function HomePage() {
             
             setUploadedFiles([]); // Clear uploaded files after successful search
             return;
-          }
-                status: responseData.status === 'PDF FOUND' ? 'found' : 'created'
-              }));
-              
-              setSearchFoundPatients(patients);
-              
-              // Initialize editable histories for all patients
-              const histories: {[key: number]: string} = {};
-              patients.forEach((patient, index) => {
-                histories[index] = patient.istoric || '';
-              });
-              setEditableHistories(histories);
-              
-              setUploadedFiles([]); // Clear uploaded files after successful search
-              return;
-            }
           }
           
           // Handle single patient response (backward compatibility)
