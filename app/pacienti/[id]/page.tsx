@@ -1,5 +1,9 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import LoginScreen from '@/components/LoginScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,46 +31,6 @@ interface Patient {
   created_at: string;
 }
 
-export async function generateStaticParams() {
-  try {
-    const { data: patients, error } = await supabase
-      .from('patients')
-      .select('id');
-
-    if (error) {
-      console.error('Error fetching patient IDs:', error);
-      return [];
-    }
-
-    return patients.map((patient) => ({
-      id: patient.id.toString(),
-    }));
-  } catch (error) {
-    console.error('Error in generateStaticParams:', error);
-    return [];
-  }
-}
-
-async function getPatient(id: string): Promise<Patient | null> {
-  try {
-    const { data, error } = await supabase
-      .from('patients')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      console.error('Error fetching patient:', error);
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error:', error);
-    return null;
-  }
-}
-
 function calculateAge(birthDate: string) {
   if (!birthDate) return '';
   const today = new Date();
@@ -79,11 +43,80 @@ function calculateAge(birthDate: string) {
   return age;
 }
 
-export default async function PatientDetailPage({ params }: { params: { id: string } }) {
-  const patient = await getPatient(params.id);
+export default function PatientDetailPage() {
+  const { user, loading: authLoading } = useAuth();
+  const params = useParams();
+  const router = useRouter();
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!patient) {
-    notFound();
+  useEffect(() => {
+    const fetchPatient = async () => {
+      if (!params.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('patients')
+          .select('*')
+          .eq('id', params.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching patient:', error);
+          setError('Patient not found');
+        } else {
+          setPatient(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setError('Failed to fetch patient');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchPatient();
+    }
+  }, [params.id, user]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error || !patient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <Card className="w-full max-w-md shadow-xl">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-xl font-semibold text-red-700 mb-2">
+              Patient Not Found
+            </h2>
+            <p className="text-slate-600 mb-4">{error || 'The requested patient could not be found.'}</p>
+            <Button onClick={() => router.push('/pacienti')}>
+              Back to Patients
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -93,15 +126,14 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <Link href="/pacienti">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-2"
-                >
-                  <ArrowLeft className="w-5 h-5 text-slate-600" />
-                </Button>
-              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/pacienti')}
+                className="p-2"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-600" />
+              </Button>
               <h1 className="text-xl font-semibold text-slate-900">Date Pașaportale Pacient</h1>
             </div>
             <div className="flex items-center space-x-3">
