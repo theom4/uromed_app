@@ -456,7 +456,12 @@ export default function HomePage() {
                 <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
                   <div className="flex items-center space-x-2">
                     <User className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span>{multiplePatients.length > 0 ? `${multiplePatients.length} Pacienți Găsiți` : 'Pacient Găsit'}</span>
+                    <span>
+                      {multiplePatients.length > 0 
+                        ? `${multiplePatients.length} Pacienți ${isPdfResponse ? 'Creați' : 'Găsiți'}` 
+                        : `Pacient ${isPdfResponse ? 'Creat' : 'Găsit'}`
+                      }
+                    </span>
                   </div>
                   <Button
                     variant="outline"
