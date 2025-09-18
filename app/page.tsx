@@ -48,7 +48,7 @@ export default function HomePage() {
     setUploadedFileTypes((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
   };
 
-  const handleSearchPatient = async () => {
+const handleSearchPatient = async () => {
   if (uploadedFiles.length === 0) {
     alert('Vă rugăm să încărcați cel puțin un fișier pentru căutarea pacientului.');
     return;
@@ -132,6 +132,7 @@ export default function HomePage() {
           
           setUploadedFiles([]); // Clear uploaded files after successful search
           setUploadedFileTypes([]); // Clear file types too
+          setIsSearching(false); // Reset loading state immediately
           return;
         }
         
@@ -159,6 +160,7 @@ export default function HomePage() {
           
           setUploadedFiles([]);
           setUploadedFileTypes([]);
+          setIsSearching(false); // Reset loading state immediately
           return;
         }
         
@@ -181,6 +183,7 @@ export default function HomePage() {
           setEditableHistories({0: patientData.istoric || ''});
           setUploadedFiles([]);
           setUploadedFileTypes([]);
+          setIsSearching(false); // Reset loading state immediately
           return;
         }
         
@@ -213,8 +216,7 @@ export default function HomePage() {
   } finally {
     setIsSearching(false);
   }
-};
-  
+};  
   const handleGenerateDocument = async () => {
     if (!inputText.trim() || !documentType) {
       alert('Vă rugăm să completați toate câmpurile.');
