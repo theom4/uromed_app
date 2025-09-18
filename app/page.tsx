@@ -120,8 +120,31 @@ export default function HomePage() {
           // Handle different response formats
           let patientsArray = [];
           
+         // Format 0: Direct array response - [{ id: 170, nume: "...", ... }]
+         if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].id && responseData[0].nume) {
+           console.log('Direct array format response detected');
+           patientsArray = responseData;
+           setIsPdfResponse(false); // Mark as direct array response
+           
+           // Check if multiple patients or single patient
+           if (patientsArray.length > 1) {
+             console.log(`Multiple patients detected: ${patientsArray.length} patients`);
+             setMultiplePatients(patientsArray);
+             setFoundPatient(null); // Clear single patient when we have multiple
+           } else if (patientsArray.length === 1) {
+             console.log('Single patient detected in direct array format');
+             setFoundPatient(patientsArray[0]);
+             setEditableHistory(patientsArray[0].istoric || '');
+             setMultiplePatients([]); // Clear multiple patients when we have single
+           }
+           
+           // Clear uploaded files after successful processing
+           setUploadedFiles([]);
+           return;
+         }
+         
           // Format 1: Array response - [{ patientData: [...] }]
-          if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData && Array.isArray(responseData[0].patientData)) {
+         else if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData && Array.isArray(responseData[0].patientData)) {
             console.log('Array format response detected with patientData array');
             patientsArray = responseData[0].patientData;
             setIsPdfResponse(true);
