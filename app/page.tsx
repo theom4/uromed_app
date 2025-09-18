@@ -174,6 +174,10 @@ export default function HomePage() {
               setFoundPatient(firstResult.patientData);
              setEditableHistory(firstResult.patientData.istoric || '');
              
+             // Show success message for created patient as if found
+             setStatusMessage('Pacient gasit!');
+             setStatusType('success');
+             
              // Clear uploaded files after successful search
              setUploadedFiles([]);
              return; // Exit here to prevent showing popup
@@ -185,6 +189,10 @@ export default function HomePage() {
             setFoundPatient(responseData.patientData);
             setIsPdfResponse(false); // Mark as direct object response
             setMultiplePatients([]); // Clear multiple patients for direct object response
+            
+            // Show success message for found patient
+            setStatusMessage('Pacient gasit!');
+            setStatusType('success');
             
             // Clear uploaded files after successful search
             setUploadedFiles([]);
