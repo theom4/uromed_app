@@ -516,20 +516,20 @@ export default function HomePage() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="flex justify-between">
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume:</span>
-                            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            <span className="text-base font-bold text-slate-700 dark:text-slate-300">Nume:</span>
+                            <span className="text-base font-bold text-green-800 dark:text-green-200">
                               {patient?.nume || 'N/A'}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume:</span>
-                            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            <span className="text-base font-bold text-slate-700 dark:text-slate-300">Prenume:</span>
+                            <span className="text-base font-bold text-green-800 dark:text-green-200">
                               {patient?.prenume || 'N/A'}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP:</span>
-                            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            <span className="text-base font-bold text-slate-700 dark:text-slate-300">CNP:</span>
+                            <span className="text-base font-bold text-green-800 dark:text-green-200">
                               {patient?.cnp || 'N/A'}
                             </span>
                           </div>
@@ -547,34 +547,34 @@ export default function HomePage() {
                       <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Informații Personale</h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume:</span>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                          <span className="text-base font-bold text-slate-700 dark:text-slate-300">Nume:</span>
+                          <span className="text-base font-bold text-green-800 dark:text-green-200">
                             {foundPatient?.nume || 'N/A'}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume:</span>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                          <span className="text-base font-bold text-slate-700 dark:text-slate-300">Prenume:</span>
+                          <span className="text-base font-bold text-green-800 dark:text-green-200">
                             {foundPatient?.prenume || 'N/A'}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP:</span>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                          <span className="text-base font-bold text-slate-700 dark:text-slate-300">CNP:</span>
+                          <span className="text-base font-bold text-green-800 dark:text-green-200">
                             {foundPatient?.cnp || 'N/A'}
                           </span>
                         </div>
                         {!isPdfResponse && (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon:</span>
-                              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                              <span className="text-base font-bold text-slate-700 dark:text-slate-300">Telefon:</span>
+                              <span className="text-base font-bold text-green-800 dark:text-green-200">
                                 {foundPatient?.telefon || 'N/A'}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Data nașterii:</span>
-                              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                              <span className="text-base font-bold text-slate-700 dark:text-slate-300">Data nașterii:</span>
+                              <span className="text-base font-bold text-green-800 dark:text-green-200">
                                 {foundPatient?.data_nasterii || 'N/A'}
                               </span>
                             </div>
