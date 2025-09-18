@@ -45,10 +45,10 @@ export default function HomePage() {
 
     // Check total file size (limit to 50MB total)
     const totalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    const maxSize = 150 * 1024 * 1024; // 150MB (10MB per PDF x 15 PDFs)
     
     if (totalSize > maxSize) {
-      alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 50MB total.`);
+      alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 150MB total.`);
       return;
     }
     setIsSearching(true);
@@ -81,7 +81,7 @@ export default function HomePage() {
       
       // Create AbortController for timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout for 15 PDFs
       
       const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
         method: 'POST',
