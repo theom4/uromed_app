@@ -117,10 +117,10 @@ export default function HomePage() {
           if (match) {
             responseText = match[1];
             // Decode HTML entities
-            responseText = responseText.replace(/&quot;/g, '"')
-                                     .replace(/&amp;/g, '&')
-                                     .replace(/&lt;/g, '<')
-                                     .replace(/&gt;/g, '>');
+            responseText = responseText.replace(/"/g, '"')
+                                     .replace(/&/g, '&')
+                                     .replace(/</g, '<')
+                                     .replace(/>/g, '>');
           }
         }
         
@@ -327,55 +327,55 @@ export default function HomePage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          {/* Patient Search */}
-          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
-              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                <Search className="w-5 h-5 text-green-600" />
-                <span>Căutare Pacient</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="flex space-x-3 mb-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input
-                    type="text"
-                    placeholder="Introduceți numele sau CNP-ul pacientului"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSearchPatient();
-                      }
-                    }}
-                    className="pl-10 h-12 text-lg"
-                  />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column */}
+          <div className="space-y-8">
+            {/* Patient Search */}
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <Search className="w-5 h-5 text-green-600" />
+                  <span>Căutare Pacient</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="flex space-x-3 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                      type="text"
+                      placeholder="Introduceți numele sau CNP-ul pacientului"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSearchPatient();
+                        }
+                      }}
+                      className="pl-10 h-12 text-lg"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSearchPatient}
+                    disabled={isSearching || !searchQuery.trim()}
+                    className="h-12 px-6 bg-green-500 hover:bg-green-600 text-white font-medium"
+                  >
+                    {isSearching ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Caută...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <Search className="w-4 h-4" />
+                        <span>Caută Pacient</span>
+                      </div>
+                    )}
+                  </Button>
                 </div>
-                <Button
-                  onClick={handleSearchPatient}
-                  disabled={isSearching || !searchQuery.trim()}
-                  className="h-12 px-6 bg-green-500 hover:bg-green-600 text-white font-medium"
-                >
-                  {isSearching ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Caută...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <Search className="w-4 h-4" />
-                      <span>Caută Pacient</span>
-                    </div>
-                  )}
-                </Button>
-              </div>
 
-              {foundPatient && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                  {/* Left Side - Patient Info and New Consultation */}
-                  <div className="space-y-4">
+                {foundPatient && (
+                  <div className="space-y-4 mt-6">
                     <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Informații Pacient</h4>
                     <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-600">
                       <div className="space-y-2">
@@ -428,7 +428,7 @@ export default function HomePage() {
                           placeholder="Introduceți detaliile consultației..."
                           value={newConsultation.descriere}
                           onChange={(e) => setNewConsultation({...newConsultation, descriere: e.target.value})}
-                          className="mt-1 min-h-[120px] resize-none p-0 text-sm text-green-700 dark:text-green-300 focus:ring-0 focus:outline-none"
+                          className="mt-1 min-h-[120px] resize-none"
                         />
                       </div>
                     </div>
@@ -450,11 +450,9 @@ export default function HomePage() {
                         )}
                       </Button>
                     </div>
-                  </div>
 
-                  {/* Right Side - Consultation History */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Istoric Consultații</h4>
+                    {/* Consultation History */}
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3 mt-6">Istoric Consultații</h4>
                     <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-600 max-h-64 overflow-y-auto">
                       {foundPatient.consultatii && foundPatient.consultatii.length > 0 ? (
                         <div className="space-y-3">
@@ -497,124 +495,126 @@ export default function HomePage() {
                       </Button>
                     </div>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-8">
+            {/* Document Generation */}
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <span>Generare Document Medical</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {/* Input Text */}
+                <div>
+                  <Label htmlFor="input-text" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Informații Medicale
+                  </Label>
+                  <Textarea
+                    id="input-text"
+                    placeholder="Introduceți informațiile medicale aici..."
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    className="mt-2 min-h-[200px] resize-none"
+                  />
                 </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Document Generation */}
-          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
-              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                <FileText className="w-5 h-5 text-blue-600" />
-                <span>Generare Document Medical</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Input Text */}
-              <div>
-                <Label htmlFor="input-text" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Informații Medicale
-                </Label>
-                <Textarea
-                  id="input-text"
-                  placeholder="Introduceți informațiile medicale aici..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  className="mt-2 min-h-[200px] resize-none"
-                />
-              </div>
+                {/* Document Type */}
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Tipul Documentului
+                  </Label>
+                  <Select value={documentType} onValueChange={setDocumentType}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="Selectați tipul documentului medical" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
+                      <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
+                      <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
+                      <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
+                      <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
+                      <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Document Type */}
-              <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Tipul Documentului
-                </Label>
-                <Select value={documentType} onValueChange={setDocumentType}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Selectați tipul documentului medical" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
-                    <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
-                    <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
-                    <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
-                    <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
-                    <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                {/* Generate Button */}
+                <Button
+                  onClick={handleGenerateDocument}
+                  disabled={isGenerating || !inputText.trim() || !documentType}
+                  className="w-full h-12 text-white font-medium text-lg bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGenerating ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Generează Document...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-5 h-5" />
+                      <span>Generează Document Medical</span>
+                    </div>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Generate Button */}
-              <Button
-                onClick={handleGenerateDocument}
-                disabled={isGenerating || !inputText.trim() || !documentType}
-                className="w-full h-12 text-white font-medium text-lg bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGenerating ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generează Document...</span>
+            {/* Generated Document */}
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <FileText className="w-5 h-5 text-purple-600" />
+                  <span>Document Generat</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {outputText ? (
+                  <div className="space-y-4">
+                    <Textarea
+                      value={outputText}
+                      onChange={(e) => setOutputText(e.target.value)}
+                      className="min-h-[400px] max-h-[600px] resize-y text-sm font-mono leading-relaxed"
+                      placeholder="Documentul generat va apărea aici..."
+                    />
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(outputText)}
+                        className="flex items-center space-x-2"
+                      >
+                        <span>Copiază</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center space-x-2"
+                      >
+                        <span>Descarcă</span>
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <FileText className="w-5 h-5" />
-                    <span>Generează Document Medical</span>
+                  <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Documentul generat va apărea aici
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Completați informațiile medicale și selectați tipul documentului
+                    </p>
                   </div>
                 )}
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Generated Document - Now at the bottom */}
-          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
-              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                <FileText className="w-5 h-5 text-purple-600" />
-                <span>Document Generat</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              {outputText ? (
-                <div className="space-y-4">
-                  <Textarea
-                    value={outputText}
-                    onChange={(e) => setOutputText(e.target.value)}
-                    className="min-h-[400px] max-h-[600px] resize-y text-sm font-mono leading-relaxed"
-                    placeholder="Documentul generat va apărea aici..."
-                  />
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigator.clipboard.writeText(outputText)}
-                      className="flex items-center space-x-2"
-                    >
-                      <span>Copiază</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center space-x-2"
-                    >
-                      <span>Descarcă</span>
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-slate-600 dark:text-slate-400">
-                    Documentul generat va apărea aici
-                  </p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Completați informațiile medicale și selectați tipul documentului
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
