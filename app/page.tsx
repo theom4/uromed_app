@@ -90,12 +90,30 @@ export default function HomePage() {
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Check if response matches the expected structure: [{ "patientData": {...}, "output": [...] }]
-          if (Array.isArray(responseData) && responseData.length > 0) {
+          // Handle different response formats based on status property
+          if (responseData.status && typeof responseData.status === 'string') {
+            // New format: flat object with status property
+            if (responseData.status.includes('Pacient') || responseData.nume) {
+              console.log('Found patient data in flat format:', responseData);
+              const patientData = {
+                nume: responseData.nume || '',
+                prenume: responseData.prenume || '',
+                cnp: responseData.cnp || '',
+                telefon: responseData.telefon || '',
+                data_nasterii: responseData.data_nasterii || '',
+                istoric: responseData.istoric || ''
+              };
+              setSearchFoundPatient(patientData);
+              setEditableHistory(patientData.istoric || '');
+              setUploadedFiles([]); // Clear uploaded files after successful search
+              return;
+            }
+          } else if (Array.isArray(responseData) && responseData.length > 0) {
+            // Original format: array with patientData object
             const firstItem = responseData[0];
             
             if (firstItem.patientData && typeof firstItem.patientData === 'object') {
-              console.log('Found patientData:', firstItem.patientData);
+              console.log('Found patientData in array format:', firstItem.patientData);
               setSearchFoundPatient(firstItem.patientData);
               setEditableHistory(firstItem.patientData.istoric || '');
               setUploadedFiles([]); // Clear uploaded files after successful search
@@ -106,7 +124,7 @@ export default function HomePage() {
           // If no patient data found, clear results
           console.log('No patient data found in response');
           setSearchFoundPatient(null);
-          alert('Nu s-au găsit date de pacient în răspuns.');
+          alert('Nu s-au găsit date de pacient în răspuns. Format răspuns nerecunoscut.');
           
         } catch (parseError) {
           console.error('JSON parse error:', parseError);
