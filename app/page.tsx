@@ -439,9 +439,9 @@ export default function HomePage() {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Vârsta</Label>
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume</Label>
                       <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.varsta || 'N/A'}</span>
+                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.prenume || 'N/A'}</span>
                       </div>
                     </div>
                     <div>
@@ -450,33 +450,8 @@ export default function HomePage() {
                         <span className="text-slate-900 dark:text-white">{searchFoundPatient.cnp || 'N/A'}</span>
                       </div>
                     </div>
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.telefon || 'N/A'}</span>
-                      </div>
-                    </div>
                   </div>
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Adresă</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.adresa || 'N/A'}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.email || 'N/A'}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Asigurare</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.asigurare || 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
+                  <div className="space-y-4"></div>
                 </div>
                 <div className="mt-6">
                   <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Istoric Medical (Editabil)</Label>
