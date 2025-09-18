@@ -24,8 +24,8 @@ export default function HomePage() {
   const [foundPatient, setFoundPatient] = useState<any>(null);
   const [editableHistory, setEditableHistory] = useState('');
   const [isUpdatingHistory, setIsUpdatingHistory] = useState(false);
-  const [searchFoundPatient, setSearchFoundPatient] = useState<any>(null);
-  const [patientStatus, setPatientStatus] = useState<'found' | 'created' | null>(null);
+  const [searchFoundPatients, setSearchFoundPatients] = useState<any[]>([]);
+  const [editableHistories, setEditableHistories] = useState<{[key: number]: string}>({});
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -53,15 +53,15 @@ export default function HomePage() {
     }
     
     setIsSearching(true);
-    setSearchFoundPatient(null);
-    setPatientStatus(null); // Clear previous status
+    setSearchFoundPatients([]);
+    setEditableHistories({});
 
     try {
       const formData = new FormData();
       
-      // Add each file with consistent naming
+      // Add each file with consistent naming (file0, file1, etc.)
       uploadedFiles.forEach((file, index) => {
-        formData.append(`file${index}`, file, file.name);
+        formData.append(`file${index}`, file);
       });
       
       // Add metadata
@@ -88,47 +88,74 @@ export default function HomePage() {
         console.log('Raw response:', responseText);
         
         try {
-          // Parse the JSON response
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Handle IMG FOUND and IMG NEW status cases
+          // Handle array response for multiple patients
+          if (Array.isArray(responseData) && responseData.length > 0) {
+            console.log('Multiple patients found:', responseData.length);
+            
+            const patients = responseData.map((item, index) => ({
+              id: index,
+              nume: item.nume || '',
+              prenume: item.prenume || '',
+              cnp: item.cnp || '',
+              telefon: item.telefon || '',
+              data_nasterii: item.data_nasterii || '',
+              istoric: item.istoric || '',
+              status: item.status || 'IMG FOUND'
+            }));
+            
+            setSearchFoundPatients(patients);
+            
+            // Initialize editable histories for all patients
+            const histories: {[key: number]: string} = {};
+            patients.forEach((patient, index) => {
+              histories[index] = patient.istoric || '';
+            });
+            setEditableHistories(histories);
+            
+            setUploadedFiles([]); // Clear uploaded files after successful search
+            return;
+          }
+          
+          // Handle single patient response (backward compatibility)
           if (responseData.status === 'IMG FOUND' || responseData.status === 'IMG NEW') {
-            console.log('Patient search result:', responseData.status);
+            console.log('Single patient search result:', responseData.status);
             
             const patientData = {
+              id: 0,
               nume: responseData.nume || '',
               prenume: responseData.prenume || '',
               cnp: responseData.cnp || '',
               telefon: responseData.telefon || '',
               data_nasterii: responseData.data_nasterii || '',
-              istoric: responseData.istoric || ''
+              istoric: responseData.istoric || '',
+              status: responseData.status
             };
             
-            setSearchFoundPatient(patientData);
-            setPatientStatus(responseData.status === 'IMG FOUND' ? 'found' : 'created');
-            setEditableHistory(patientData.istoric || '');
-            setUploadedFiles([]); // Clear uploaded files after successful search
+            setSearchFoundPatients([patientData]);
+            setEditableHistories({0: patientData.istoric || ''});
+            setUploadedFiles([]);
             return;
           }
           
-          // If status is not recognized, clear results
-          console.log('No patient data found in response');
-          setSearchFoundPatient(null);
-          setPatientStatus(null);
-          alert('Status nerecunoscut în răspuns. Se așteaptă "IMG FOUND" sau "IMG NEW".');
+          console.log('No valid patient data found in response');
+          setSearchFoundPatients([]);
+          setEditableHistories({});
+          alert('Nu s-au găsit date valide de pacient în răspuns.');
           
         } catch (parseError) {
           console.error('JSON parse error:', parseError);
           alert('Eroare la procesarea răspunsului de la server.');
-          setSearchFoundPatient(null);
-          setPatientStatus(null);
+          setSearchFoundPatients([]);
+          setEditableHistories({});
         }
       } else {
         console.error('Patient search failed:', response.status);
         alert(`Eroare la căutarea pacientului (${response.status})`);
-        setSearchFoundPatient(null);
-        setPatientStatus(null);
+        setSearchFoundPatients([]);
+        setEditableHistories({});
       }
     } catch (error) {
       console.error('Network error:', error);
@@ -137,8 +164,8 @@ export default function HomePage() {
       } else {
         alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
       }
-      setSearchFoundPatient(null);
-      setPatientStatus(null);
+      setSearchFoundPatients([]);
+      setEditableHistories({});
     } finally {
       setIsSearching(false);
     }
@@ -197,8 +224,8 @@ export default function HomePage() {
     }
   };
 
-  const handleUpdateHistory = async () => {
-    if (!searchFoundPatient) {
+  const handleUpdateHistory = async (patientIndex: number) => {
+    if (!searchFoundPatients[patientIndex]) {
       alert('Nu există pacient selectat pentru actualizare.');
       return;
     }
@@ -206,25 +233,31 @@ export default function HomePage() {
     setIsUpdatingHistory(true);
 
     try {
+      const patient = searchFoundPatients[patientIndex];
+      const updatedHistory = editableHistories[patientIndex] || '';
+      
       const response = await fetch('https://n8n.voisero.info/webhook-test/update-document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...searchFoundPatient,
-          istoric: editableHistory,
+          ...patient,
+          istoric: updatedHistory,
           operation: 'update-history'
         }),
       });
 
       if (response.ok) {
         alert('Istoricul medical a fost actualizat cu succes!');
-        // Update the foundPatient with the new history to preserve the data
-        setSearchFoundPatient((prevPatient: any) => ({
-          ...prevPatient!,
-          istoric: editableHistory
-        }));
+        // Update the patient with the new history
+        setSearchFoundPatients(prevPatients => 
+          prevPatients.map((patient, index) => 
+            index === patientIndex 
+              ? { ...patient, istoric: updatedHistory }
+              : patient
+          )
+        );
       } else {
         const errorText = await response.text();
         console.error('Update history failed:', response.status, errorText);
@@ -236,6 +269,13 @@ export default function HomePage() {
     } finally {
       setIsUpdatingHistory(false);
     }
+  };
+
+  const handleHistoryChange = (patientIndex: number, newHistory: string) => {
+    setEditableHistories(prev => ({
+      ...prev,
+      [patientIndex]: newHistory
+    }));
   };
 
   if (loading) {
@@ -405,36 +445,55 @@ export default function HomePage() {
           </Card>
 
           {/* Patient Information Section - Only show when patient is found */}
-          {searchFoundPatient && (
-            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 border-l-4 border-green-400">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
-                <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
-                  <div className="flex items-center space-x-2">
-                    <User className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span>{patientStatus === 'found' ? 'Pacient Găsit' : 'Pacient Creat'}</span>
-                  </div>
-                  <Button
-                    onClick={handleUpdateHistory}
-                    disabled={isUpdatingHistory}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium"
-                  >
-                    {isUpdatingHistory ? (
+          {searchFoundPatients.length > 0 && (
+            <div className="space-y-6">
+              {searchFoundPatients.map((patient, index) => (
+                <Card key={index} className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 border-l-4 border-green-400">
+                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+                    <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
                       <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Actualizează...</span>
+                        <User className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <span>
+                          {patient.status === 'IMG FOUND' ? 'Pacient Găsit' : 'Pacient Creat'}
+                          {searchFoundPatients.length > 1 && ` (${index + 1}/${searchFoundPatients.length})`}
+                        </span>
                       </div>
-                    ) : (
-                      <span>Actualizează Istoric</span>
-                    )}
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                      <Button
+                        onClick={() => handleUpdateHistory(index)}
+                        disabled={isUpdatingHistory}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium"
+                      >
+                        {isUpdatingHistory ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Actualizează...</span>
+                          </div>
+                        ) : (
+                          <span>Actualizează Istoric</span>
+                        )}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.nume || 'N/A'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.prenume || 'N/A'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.cnp || 'N/A'}</span>
+                        </div>
+                      </div>
                         <span className="text-slate-900 dark:text-white">{searchFoundPatient.nume || 'N/A'}</span>
                       </div>
                     </div>
@@ -448,22 +507,10 @@ export default function HomePage() {
                       <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP</Label>
                       <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
                         <span className="text-slate-900 dark:text-white">{searchFoundPatient.cnp || 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-4"></div>
-                </div>
-                <div className="mt-6">
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Istoric Medical (Editabil)</Label>
-                  <Textarea
-                    value={editableHistory}
-                    onChange={(e) => setEditableHistory(e.target.value)}
-                    className="mt-2 min-h-[200px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white"
-                    placeholder="Istoricul medical al pacientului..."
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
 
           {/* Document Generation Section */}
