@@ -25,6 +25,7 @@ export default function HomePage() {
   const [editableHistory, setEditableHistory] = useState('');
   const [isUpdatingHistory, setIsUpdatingHistory] = useState(false);
   const [isPdfResponse, setIsPdfResponse] = useState(false);
+  const [multiplePatients, setMultiplePatients] = useState<any[]>([]);
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -84,36 +85,52 @@ export default function HomePage() {
           
           // Handle different response formats
           let patientData = null;
+          let patientsArray = [];
           
-          // Format 1: PDF response - { status: "...", patientData: [{ patient object }] }
-          if (responseData.patientData && Array.isArray(responseData.patientData) && responseData.patientData.length > 0) {
-            console.log('PDF format response detected');
+          // Format 1: Multiple PDFs response - [{ patientData: [{ patient1 }, { patient2 }] }]
+          if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData && Array.isArray(responseData[0].patientData)) {
+            console.log('Multiple PDFs format response detected');
+            patientsArray = responseData[0].patientData;
+            setIsPdfResponse(true);
+            setMultiplePatients(patientsArray);
+            setFoundPatient(null); // Clear single patient when we have multiple
+          }
+          // Format 2: Single PDF response - { status: "...", patientData: [{ patient object }] }
+          else if (responseData.patientData && Array.isArray(responseData.patientData) && responseData.patientData.length > 0) {
+            console.log('Single PDF format response detected');
             patientData = responseData.patientData[0]; // Take the first patient from the array
             setIsPdfResponse(true); // Mark as PDF response
+            setMultiplePatients([]); // Clear multiple patients when we have single
           }
-          // Format 2: Snippet response - [{ patientData: {...}, output: [...] }]
+          // Format 3: Snippet response - [{ patientData: {...}, output: [...] }]
           else if (Array.isArray(responseData) && responseData.length > 0) {
             const firstResult = responseData[0];
             console.log('Snippet format response detected');
             setIsPdfResponse(false); // Mark as snippet response
+            setMultiplePatients([]); // Clear multiple patients for snippet response
             
             if (firstResult && firstResult.patientData) {
               patientData = firstResult.patientData;
             }
           }
-          // Format 3: Direct object response - { patientData: {...} }
+          // Format 4: Direct object response - { patientData: {...} }
           else if (responseData && responseData.patientData && !Array.isArray(responseData.patientData)) {
             console.log('Direct object format response detected');
             patientData = responseData.patientData;
             setIsPdfResponse(false); // Mark as direct object response
+            setMultiplePatients([]); // Clear multiple patients for direct object response
           }
           
           // Set patient data if found
-          if (patientData) {
+          if (patientData && patientsArray.length === 0) {
             console.log('Patient data found:', patientData);
             setFoundPatient(patientData);
             setEditableHistory(patientData.istoric || '');
             
+            // Clear uploaded files after successful search
+            setUploadedFiles([]);
+          } else if (patientsArray.length > 0) {
+            console.log('Multiple patients found:', patientsArray);
             // Clear uploaded files after successful search
             setUploadedFiles([]);
           } else {
@@ -417,18 +434,21 @@ export default function HomePage() {
           </Card>
 
           {/* Patient Information Section - Only show when patient is found */}
-          {foundPatient && (
+          {(foundPatient || multiplePatients.length > 0) && (
             <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 border-l-4 border-green-400">
               <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
                 <CardTitle className="flex items-center justify-between text-slate-800 dark:text-white">
                   <div className="flex items-center space-x-2">
                     <User className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span>Pacient Găsit</span>
+                    <span>{multiplePatients.length > 0 ? `${multiplePatients.length} Pacienți Găsiți` : 'Pacient Găsit'}</span>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setFoundPatient(null)}
+                    onClick={() => {
+                      setFoundPatient(null);
+                      setMultiplePatients([]);
+                    }}
                     className="bg-white dark:bg-green-800/20 border-green-300 dark:border-green-600 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-800/30"
                   >
                     Închide
@@ -436,7 +456,40 @@ export default function HomePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {multiplePatients.length > 0 ? (
+                  // Multiple patients view
+                  <div className="space-y-6">
+                    {multiplePatients.map((patient, index) => (
+                      <div key={index} className="border border-green-200 dark:border-green-600 rounded-lg p-4 bg-green-50/50 dark:bg-green-900/10">
+                        <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
+                          Pacient #{index + 1}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume:</span>
+                            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                              {patient?.nume || 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume:</span>
+                            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                              {patient?.prenume || 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP:</span>
+                            <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                              {patient?.cnp || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // Single patient view
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left Side - Patient Info */}
                   <div className="space-y-4">
                     {/* Personal Information */}
@@ -562,6 +615,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
+                )}
               </CardContent>
             </Card>
           )}
