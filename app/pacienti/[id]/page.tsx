@@ -332,27 +332,6 @@ export default function PatientDetailPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="observatii-pacient" className="text-sm font-medium text-slate-700">
-                    Observații pacient:
-                  </Label>
-                  <Input
-                    id="observatii-pacient"
-                    placeholder="Introduceți observațiile pentru pacient"
-                    className="mt-1 bg-slate-50 border-slate-200"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex justify-center space-x-4">
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-2">
-            Salvează Modificările
-          </Button>
-          <Button variant="outline" className="px-8 py-2">
-            Anulează
           </Button>
         </div>
       </div>
