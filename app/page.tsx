@@ -132,6 +132,10 @@ export default function HomePage() {
              console.log('Found patientData in snippet format:', firstResult.patientData);
               setFoundPatient(firstResult.patientData);
              setEditableHistory(firstResult.patientData.istoric || '');
+             
+             // Clear uploaded files after successful search
+             setUploadedFiles([]);
+             return; // Exit here to prevent showing popup
             }
           }
           // Format 4: Direct single object response - { patientData: {...} }
@@ -140,20 +144,10 @@ export default function HomePage() {
             setFoundPatient(responseData.patientData);
             setIsPdfResponse(false); // Mark as direct object response
             setMultiplePatients([]); // Clear multiple patients for direct object response
-          }
-          
-          // Clear uploaded files after successful search (for any valid response)
-          if (patientsArray.length > 0) {
-            console.log(`Successfully processed ${patientsArray.length} patients`);
-            setUploadedFiles([]);
             
-            // Set editable history for single patient (non-PDF responses)
-            if (patientsArray.length === 1 && !isPdfResponse) {
-              setEditableHistory(patientsArray[0].istoric || '');
-            }
-          } else {
-            console.log('No patient data found in response structure:', responseData);
-            alert('Răspuns primit, dar nu s-au găsit date de pacient în structura răspunsului!');
+            // Clear uploaded files after successful search
+            setUploadedFiles([]);
+            return; // Exit here to prevent showing popup
           }
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
