@@ -519,52 +519,31 @@ export default function HomePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
-              // Replace the patient information grid section with this:
-
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div>
-    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume</Label>
-    <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-      <span className="text-slate-900 dark:text-white">{patient.nume || 'N/A'}</span>
-    </div>
-  </div>
-  <div>
-    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume</Label>
-    <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-      <span className="text-slate-900 dark:text-white">{patient.prenume || 'N/A'}</span>
-    </div>
-  </div>
-  <div>
-    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP</Label>
-    <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-      <span className="text-slate-900 dark:text-white">{patient.cnp || 'N/A'}</span>
-    </div>
-  </div>
-  
-  {/* Conditionally show phone number - only for non-PDF responses */}
-  {!patient.status?.includes('PDF') && (
-    <div>
-      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon</Label>
-      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-        <span className="text-slate-900 dark:text-white">{patient.telefon || 'N/A'}</span>
-      </div>
-    </div>
-  )}
-  
-  {/* Conditionally show birth date - only for non-PDF responses */}
-  {!patient.status?.includes('PDF') && (
-    <div>
-      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Data Nașterii</Label>
-      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-        <span className="text-slate-900 dark:text-white">{patient.data_nasterii || 'N/A'}</span>
-      </div>
-    </div>
-  )}
-</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.nume || 'N/A'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.prenume || 'N/A'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.cnp || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
