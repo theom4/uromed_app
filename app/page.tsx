@@ -12,27 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-// Generate static params for all patients at build time
-export async function generateStaticParams() {
-  try {
-    const { data: patients, error } = await supabase
-      .from('patients')
-      .select('id');
-    
-    if (error) {
-      console.error('Error fetching patients for static generation:', error);
-      return [];
-    }
-    
-    return patients.map((patient) => ({
-      id: patient.id.toString(),
-    }));
-  } catch (error) {
-    console.error('Error in generateStaticParams:', error);
-    return [];
-  }
-}
-
 interface Patient {
   id: number;
   nume: string;
