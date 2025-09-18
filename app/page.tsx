@@ -494,19 +494,28 @@ export default function HomePage() {
                           <span className="text-slate-900 dark:text-white">{patient.cnp || 'N/A'}</span>
                         </div>
                       </div>
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.nume || 'N/A'}</span>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.telefon || 'N/A'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Data Nașterii</Label>
+                        <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <span className="text-slate-900 dark:text-white">{patient.data_nasterii || 'N/A'}</span>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.prenume || 'N/A'}</span>
-                      </div>
+                    <div className="mt-6">
+                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Istoric Medical</Label>
+                      <Textarea
+                        value={editableHistories[index] || ''}
+                        onChange={(e) => handleHistoryChange(index, e.target.value)}
+                        className="mt-2 min-h-[150px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white"
+                        placeholder="Istoricul medical al pacientului..."
+                      />
                     </div>
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP</Label>
-                      <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <span className="text-slate-900 dark:text-white">{searchFoundPatient.cnp || 'N/A'}</span>
                   </CardContent>
                 </Card>
               ))}
