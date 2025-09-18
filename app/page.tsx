@@ -602,12 +602,12 @@ const handleSearchPatient = async () => {
                         <SelectValue placeholder="Selectați tipul documentului" />
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                        <SelectItem value="consultatie" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Fișă de Consultație</SelectItem>
-                        <SelectItem value="bilet-trimitere" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Bilet de Trimitere</SelectItem>
-                        <SelectItem value="reteta" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Rețetă Medicală</SelectItem>
+                        <SelectItem value="spitalizare-zi" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Spitalizare de Zi</SelectItem>
+                        <SelectItem value="examen-clinic" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Examen Clinic</SelectItem>
+                        <SelectItem value="recomandari-medicale" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Recomandări Medicale</SelectItem>
+                        <SelectItem value="consultatie-urologica" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Consultația Urologică</SelectItem>
                         <SelectItem value="scrisoare-medicala" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Scrisoare Medicală</SelectItem>
-                        <SelectItem value="certificat-medical" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Certificat Medical</SelectItem>
-                        <SelectItem value="raport-medical" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Raport Medical</SelectItem>
+                        <SelectItem value="interpretare-analiza" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600">Interpretare Analiză</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -629,22 +629,29 @@ const handleSearchPatient = async () => {
                     )}
                   </Button>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Document Generat
-                  </Label>
-                  <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg min-h-[300px] max-h-[500px] overflow-y-auto">
-                    {outputText ? (
-                      <div className="whitespace-pre-wrap text-slate-900 dark:text-white text-sm leading-relaxed">
-                        {outputText}
-                      </div>
-                    ) : (
-                      <div className="text-slate-500 dark:text-slate-400 text-sm italic">
-                        Documentul generat va apărea aici...
-                      </div>
-                    )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Document Output Section - Below the generator */}
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <span>Document Generat</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="p-4 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg min-h-[300px] max-h-[500px] overflow-y-auto">
+                {outputText ? (
+                  <div className="whitespace-pre-wrap text-slate-900 dark:text-white text-sm leading-relaxed">
+                    {outputText}
                   </div>
-                </div>
+                ) : (
+                  <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                    Documentul generat va apărea aici...
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
