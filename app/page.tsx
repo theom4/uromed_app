@@ -83,13 +83,15 @@ export default function HomePage() {
       
       // Log FormData contents for debugging
       console.log('FormData entries:');
-      for (let pair of formData.entries()) {
-        if (pair[1] instanceof File) {
-          console.log(`${pair[0]}: File(${pair[1].name}, ${pair[1].type}, ${(pair[1].size / 1024 / 1024).toFixed(2)}MB)`);
+      // Convert FormData entries to array to avoid TypeScript iteration issues
+      const formDataEntries = Array.from(formData.entries());
+      formDataEntries.forEach(([key, value]) => {
+        if (value instanceof File) {
+          console.log(`${key}: File(${value.name}, ${value.type}, ${(value.size / 1024 / 1024).toFixed(2)}MB)`);
         } else {
-          console.log(`${pair[0]}: ${pair[1]}`);
+          console.log(`${key}: ${value}`);
         }
-      }
+      });
 
       console.log('Sending request to webhook...');
       
