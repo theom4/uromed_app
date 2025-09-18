@@ -37,207 +37,207 @@ export default function HomePage() {
     setUploadedFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
   };
 
-  const handleSearchPatient = async () => {
-    if (uploadedFiles.length === 0) {
-      alert('Vă rugăm să încărcați cel puțin un fișier pentru căutarea pacientului.');
-      return;
-    }
+ const handleSearchPatient = async () => {
+  if (uploadedFiles.length === 0) {
+    alert('Vă rugăm să încărcați cel puțin un fișier pentru căutarea pacientului.');
+    return;
+  }
 
-    // Check total file size (limit to 50MB total)
-    const totalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
-    const maxSize = 150 * 1024 * 1024; // 150MB (10MB per PDF x 15 PDFs)
+  // Check total file size (limit to 50MB total)
+  const totalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
+  const maxSize = 150 * 1024 * 1024; // 150MB (10MB per PDF x 15 PDFs)
+  
+  if (totalSize > maxSize) {
+    alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 150MB total.`);
+    return;
+  }
+  setIsSearching(true);
+
+  try {
+    // Debug: Log file details
+    console.log('=== UPLOAD DEBUG INFO ===');
+    console.log(`Number of files: ${uploadedFiles.length}`);
+    console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
+    console.log('File details:');
+    uploadedFiles.forEach((file, index) => {
+      console.log(`  File ${index}: ${file.name} (${file.type}) - ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+    });
+    console.log('========================');
     
-    if (totalSize > maxSize) {
-      alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 150MB total.`);
-      return;
-    }
-    setIsSearching(true);
+    console.log('Starting patient search with files:', uploadedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+    console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
+    
+    const formData = new FormData();
+    
+    // Add each file with consistent naming
+    uploadedFiles.forEach((file, index) => {
+      console.log(`Adding file ${index}:`, file.name, file.type, file.size);
+      // Use file0, file1, file2, etc. naming
+      formData.append(`file${index}`, file, file.name);
+    });
+    
+    // Add metadata
+    formData.append('fileCount', uploadedFiles.length.toString());
+    formData.append('mimeTypes', uploadedFiles.map(file => file.type).join(','));
+    formData.append('operation', 'search-patient');
+    
+    // Log FormData contents for debugging
+    console.log('FormData entries:');
+    console.log('FormData created with files and metadata');
 
-    try {
-      // Debug: Log file details
-      console.log('=== UPLOAD DEBUG INFO ===');
-      console.log(`Number of files: ${uploadedFiles.length}`);
-      console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
-      console.log('File details:');
-      uploadedFiles.forEach((file, index) => {
-        console.log(`  File ${index}: ${file.name} (${file.type}) - ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-      });
-      console.log('========================');
-      
-      console.log('Starting patient search with files:', uploadedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
-      console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
-      
-      const formData = new FormData();
-      
-      // Add each file with consistent naming
-      uploadedFiles.forEach((file, index) => {
-        console.log(`Adding file ${index}:`, file.name, file.type, file.size);
-        // Use file0, file1, file2, etc. naming
-        formData.append(`file${index}`, file, file.name);
-      });
-      
-      // Add metadata
-      formData.append('fileCount', uploadedFiles.length.toString());
-      formData.append('mimeTypes', uploadedFiles.map(file => file.type).join(','));
-      formData.append('operation', 'search-patient');
-      
-      // Log FormData contents for debugging
-      console.log('FormData entries:');
-      console.log('FormData created with files and metadata');
+    console.log('Sending request to webhook...');
+    
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log('Request timed out after 5 minutes');
+      controller.abort();
+    }, 300000); // 5 minutes timeout for 15 PDFs
+    
+    console.log('Making fetch request...');
+    const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
 
-      console.log('Sending request to webhook...');
-      
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        console.log('Request timed out after 5 minutes');
-        controller.abort();
-      }, 300000); // 5 minutes timeout for 15 PDFs
-      
-      console.log('Making fetch request...');
-      const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal,
-      });
+    clearTimeout(timeoutId);
+    console.log('Fetch completed successfully');
 
-      clearTimeout(timeoutId);
-      console.log('Fetch completed successfully');
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-      
-      // Get response as text first to see raw content
-      const responseText = await response.text();
-      console.log('Raw response text:', responseText);
-      
-      if (response.ok) {
-        try {
-          // Try to parse as JSON
-          const responseData = JSON.parse(responseText);
-          console.log('Parsed response data:', responseData);
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    // Get response as text first to see raw content
+    const responseText = await response.text();
+    console.log('Raw response text:', responseText);
+    
+    if (response.ok) {
+      try {
+        // Try to parse as JSON
+        const responseData = JSON.parse(responseText);
+        console.log('Parsed response data:', responseData);
+        
+        // Handle both image and PDF responses
+        if (Array.isArray(responseData) && responseData.length > 0) {
+          const firstItem = responseData[0];
           
-          // Handle image upload responses - only 2 cases for images
-          if (Array.isArray(responseData) && responseData.length > 0) {
-            const firstItem = responseData[0];
-            
-            // Case 1: Patient was created - Direct array with patient object (has id and nume)
-            if (firstItem.id && firstItem.nume) {
-              console.log('Patient created - showing as found');
-              setFoundPatient(firstItem);
-              setEditableHistory(firstItem.istoric || '');
-              setMultiplePatients([]);
-              setIsPdfResponse(false);
-              setUploadedFiles([]);
-              return;
-            }
-            
-            // Case 2: Patient was found - Array with patientData object (has patientData property)
-            if (firstItem.patientData) {
-              console.log('Patient found in existing records');
-              setFoundPatient(firstItem.patientData);
-              setEditableHistory(firstItem.patientData.istoric || '');
-              setMultiplePatients([]);
-              setIsPdfResponse(false);
-              setUploadedFiles([]);
-              return;
-            }
+          // Case 1: Patient was created (direct array with patient object - has id and nume)
+          if (firstItem.id && firstItem.nume) {
+            console.log('Patient created - showing as found');
+            setFoundPatient(firstItem);
+            setEditableHistory(firstItem.istoric || '');
+            setMultiplePatients([]);
+            setIsPdfResponse(false);
+            setUploadedFiles([]);
+            return;
           }
           
-          // If neither case matches, clear results and log for debugging
-          console.log('No matching case found for response:', responseData);
-          setFoundPatient(null);
-          setMultiplePatients([]);
-          setUploadedFiles([]);
-          
-        } catch (parseError) {
-          console.error('JSON Parse Error:', parseError);
-          console.error('Response Text (first 500 chars):', responseText.substring(0, 500));
-          // Try to handle as plain text response that might be JSON
-          try {
-            // Sometimes the response might have extra characters, try to extract JSON
-            const jsonMatch = responseText.match(/\[.*\]/s);
-            if (jsonMatch) {
-              const cleanJson = jsonMatch[0];
-              const responseData = JSON.parse(cleanJson);
-              console.log('Extracted and parsed JSON:', responseData);
+          // Case 2: Patient was found (array with patientData object - has patientData property)
+          if (firstItem.patientData) {
+            console.log('Patient found in existing records');
+            setFoundPatient(firstItem.patientData);
+            setEditableHistory(firstItem.patientData.istoric || '');
+            setMultiplePatients([]);
+            setIsPdfResponse(false);
+            setUploadedFiles([]);
+            return;
+          }
+        }
+        
+        // If neither case matches, clear results and log for debugging
+        console.log('No matching case found for response:', responseData);
+        setFoundPatient(null);
+        setMultiplePatients([]);
+        setUploadedFiles([]);
+        
+      } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
+        console.error('Response Text (first 500 chars):', responseText.substring(0, 500));
+        // Try to handle as plain text response that might be JSON
+        try {
+          // Sometimes the response might have extra characters, try to extract JSON
+          const jsonMatch = responseText.match(/\[.*\]/s);
+          if (jsonMatch) {
+            const cleanJson = jsonMatch[0];
+            const responseData = JSON.parse(cleanJson);
+            console.log('Extracted and parsed JSON:', responseData);
+            
+            if (Array.isArray(responseData) && responseData.length > 0) {
+              const firstItem = responseData[0];
               
-              if (Array.isArray(responseData) && responseData.length > 0) {
-                const firstItem = responseData[0];
-                
-                if (firstItem.id && firstItem.nume) {
-                  console.log('Patient created from extracted JSON');
-                  setFoundPatient(firstItem);
-                  setEditableHistory(firstItem.istoric || '');
-                  setMultiplePatients([]);
-                  setIsPdfResponse(false);
-                  setUploadedFiles([]);
-                  return;
-                }
-                
-                if (firstItem.patientData) {
-                  console.log('Patient found from extracted JSON');
-                  setFoundPatient(firstItem.patientData);
-                  setEditableHistory(firstItem.patientData.istoric || '');
-                  setMultiplePatients([]);
-                  setIsPdfResponse(false);
-                  setUploadedFiles([]);
-                  return;
-                }
+              if (firstItem.id && firstItem.nume) {
+                console.log('Patient created from extracted JSON');
+                setFoundPatient(firstItem);
+                setEditableHistory(firstItem.istoric || '');
+                setMultiplePatients([]);
+                setIsPdfResponse(false);
+                setUploadedFiles([]);
+                return;
+              }
+              
+              if (firstItem.patientData) {
+                console.log('Patient found from extracted JSON');
+                setFoundPatient(firstItem.patientData);
+                setEditableHistory(firstItem.patientData.istoric || '');
+                setMultiplePatients([]);
+                setIsPdfResponse(false);
+                setUploadedFiles([]);
+                return;
               }
             }
-          } catch (extractError) {
-            console.error('Failed to extract JSON from response:', extractError);
           }
-          
-          alert('Eroare la procesarea răspunsului de la server');
-          setFoundPatient(null);
-          setMultiplePatients([]);
-          setUploadedFiles([]);
-          return;
+        } catch (extractError) {
+          console.error('Failed to extract JSON from response:', extractError);
         }
-      } else {
-        console.error('Patient search failed:', response.status, responseText);
         
-        // Try to parse error response
-        try {
-          const errorData = JSON.parse(responseText);
-          alert(`Eroare la căutarea pacientului (${response.status}): ${errorData.message || errorData.error || responseText}`);
-        } catch {
-          alert(`Eroare la căutarea pacientului (${response.status}): ${responseText || response.statusText}`);
-        }
+        alert('Eroare la procesarea răspunsului de la server');
+        setFoundPatient(null);
+        setMultiplePatients([]);
+        setUploadedFiles([]);
+        return;
       }
-    } catch (error) {
-  console.error('Error sending patient search:', error);
-  
-  // Type guard to safely access error properties
-  if (error instanceof Error) {
-    if (error.name === 'AbortError') {
-      alert('Cererea a expirat după 5 minute. Încercați cu mai puține fișiere sau fișiere mai mici.');
-    } else if (error instanceof TypeError && error.message.includes('fetch')) {
-      alert('Eroare de rețea: Nu se poate conecta la server. Verificați conexiunea la internet.');
-    } else if (error.message.includes('Failed to fetch')) {
-      alert(`Eroare de conectare la server. Posibil limită de fișiere pe server. Încercați cu ${uploadedFiles.length - 1} fișiere.`);
     } else {
-      alert(`Eroare la conectarea la server: ${error.message}`);
+      console.error('Patient search failed:', response.status, responseText);
+      
+      // Try to parse error response
+      try {
+        const errorData = JSON.parse(responseText);
+        alert(`Eroare la căutarea pacientului (${response.status}): ${errorData.message || errorData.error || responseText}`);
+      } catch {
+        alert(`Eroare la căutarea pacientului (${response.status}): ${responseText || response.statusText}`);
+      }
     }
+  } catch (error) {
+    console.error('Error sending patient search:', error);
     
-    // Log detailed error info
-    console.error('=== ERROR DETAILS ===');
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    console.error('Number of files when error occurred:', uploadedFiles.length);
-    console.error('====================');
-  } else {
-    // Handle non-Error objects
-    alert('Eroare necunoscută la conectarea la server');
-    console.error('Non-Error object caught:', error);
-  }
-} finally {
-      setIsSearching(false);
+    // Type guard to safely access error properties
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        alert('Cererea a expirat după 5 minute. Încercați cu mai puține fișiere sau fișiere mai mici.');
+      } else if (error instanceof TypeError && error.message.includes('fetch')) {
+        alert('Eroare de rețea: Nu se poate conecta la server. Verificați conexiunea la internet.');
+      } else if (error.message.includes('Failed to fetch')) {
+        alert(`Eroare de conectare la server. Posibil limită de fișiere pe server. Încercați cu ${uploadedFiles.length - 1} fișiere.`);
+      } else {
+        alert(`Eroare la conectarea la server: ${error.message}`);
+      }
+      
+      // Log detailed error info
+      console.error('=== ERROR DETAILS ===');
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('Number of files when error occurred:', uploadedFiles.length);
+      console.error('====================');
+    } else {
+      // Handle non-Error objects
+      alert('Eroare necunoscută la conectarea la server');
+      console.error('Non-Error object caught:', error);
     }
-  };
+  } finally {
+    setIsSearching(false);
+  }
+};
   
   const handleGenerateDocument = async () => {
     if (!inputText.trim() || !documentType) {
