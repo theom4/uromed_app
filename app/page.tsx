@@ -54,6 +54,16 @@ export default function HomePage() {
     setIsSearching(true);
 
     try {
+      // Debug: Log file details
+      console.log('=== UPLOAD DEBUG INFO ===');
+      console.log(`Number of files: ${uploadedFiles.length}`);
+      console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
+      console.log('File details:');
+      uploadedFiles.forEach((file, index) => {
+        console.log(`  File ${index}: ${file.name} (${file.type}) - ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      });
+      console.log('========================');
+      
       console.log('Starting patient search with files:', uploadedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
       console.log(`Total upload size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
       
@@ -74,15 +84,23 @@ export default function HomePage() {
       // Log FormData contents for debugging
       console.log('FormData entries:');
       for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
+        if (pair[1] instanceof File) {
+          console.log(`${pair[0]}: File(${pair[1].name}, ${pair[1].type}, ${(pair[1].size / 1024 / 1024).toFixed(2)}MB)`);
+        } else {
+          console.log(`${pair[0]}: ${pair[1]}`);
+        }
       }
 
       console.log('Sending request to webhook...');
       
       // Create AbortController for timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout for 15 PDFs
+      const timeoutId = setTimeout(() => {
+        console.log('Request timed out after 5 minutes');
+        controller.abort();
+      }, 300000); // 5 minutes timeout for 15 PDFs
       
+      console.log('Making fetch request...');
       const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
         method: 'POST',
         body: formData,
@@ -90,6 +108,7 @@ export default function HomePage() {
       });
 
       clearTimeout(timeoutId);
+      console.log('Fetch completed successfully');
 
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers.entries()));
@@ -209,11 +228,23 @@ export default function HomePage() {
     } catch (error) {
       console.error('Error sending patient search:', error);
       
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      if (error.name === 'AbortError') {
+        alert('Cererea a expirat după 5 minute. Încercați cu mai puține fișiere sau fișiere mai mici.');
+      } else if (error instanceof TypeError && error.message.includes('fetch')) {
         alert('Eroare de rețea: Nu se poate conecta la server. Verificați conexiunea la internet.');
+      } else if (error.message.includes('Failed to fetch')) {
+        alert(`Eroare de conectare la server. Posibil limită de fișiere pe server. Încercați cu ${uploadedFiles.length - 1} fișiere.`);
       } else {
         alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
       }
+      
+      // Log detailed error info
+      console.error('=== ERROR DETAILS ===');
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('Number of files when error occurred:', uploadedFiles.length);
+      console.error('====================');
     } finally {
       setIsSearching(false);
     }
