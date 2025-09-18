@@ -461,18 +461,22 @@ export default function HomePage() {
                             {foundPatient?.cnp || 'N/A'}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon:</span>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                            {foundPatient?.telefon || 'N/A'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Data nașterii:</span>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                            {foundPatient?.data_nasterii || 'N/A'}
-                          </span>
-                        </div>
+                        {!isPdfResponse && (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon:</span>
+                              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                                {foundPatient?.telefon || 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Data nașterii:</span>
+                              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                                {foundPatient?.data_nasterii || 'N/A'}
+                              </span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 
