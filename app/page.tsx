@@ -27,7 +27,6 @@ export default function HomePage() {
   const [searchFoundPatients, setSearchFoundPatients] = useState<any[]>([]);
   const [editableHistories, setEditableHistories] = useState<{[key: number]: string}>({});
   const [uploadedFileTypes, setUploadedFileTypes] = useState<string[]>([]);
-  const [patientStatus, setPatientStatus] = useState<string>('');
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -46,171 +45,175 @@ export default function HomePage() {
   const removeFile = (index: number) => {
     setUploadedFiles((prev: File[]) => prev.filter((_: File, i: number) => i !== index));
     setUploadedFileTypes((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
+    setUploadedFileTypes((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
   };
 
   const handleSearchPatient = async () => {
-    if (uploadedFiles.length === 0) {
-      alert('Vă rugăm să încărcați cel puțin un fișier pentru căutarea pacientului.');
-      return;
-    }
+  if (uploadedFiles.length === 0) {
+    alert('Vă rugăm să încărcați cel puțin un fișier pentru căutarea pacientului.');
+    return;
+  }
 
-    // Check total file size (limit to 50MB total)
-    const totalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
-    const maxSize = 150 * 1024 * 1024; // 150MB
+  // Check total file size (limit to 150MB total)
+  const totalSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
+  const maxSize = 150 * 1024 * 1024; // 150MB
+  
+  if (totalSize > maxSize) {
+    alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 150MB total.`);
+    return;
+  }
+  
+  setIsSearching(true);
+  setSearchFoundPatients([]);
+  setEditableHistories({});
+  
+  // Determine if we're dealing with PDFs or images
+  const hasPdfs = uploadedFileTypes.some(type => type === 'pdf');
+  const hasImages = uploadedFileTypes.some(type => type === 'image');
+
+  try {
+    const formData = new FormData();
     
-    if (totalSize > maxSize) {
-      alert(`Fișierele sunt prea mari (${(totalSize / 1024 / 1024).toFixed(1)}MB). Limita este 150MB total.`);
-      return;
-    }
+    // Add each file with consistent naming (file0, file1, etc.)
+    uploadedFiles.forEach((file, index) => {
+      formData.append(`file${index}`, file);
+    });
     
-    setIsSearching(true);
-    setSearchFoundPatients([]);
-    setEditableHistories({});
+    // Add metadata
+    formData.append('fileCount', uploadedFiles.length.toString());
+    formData.append('mimeTypes', uploadedFiles.map(file => file.type).join(','));
+    formData.append('operation', 'search-patient');
     
-    // Determine if we're dealing with PDFs or images
-    const hasPdfs = uploadedFileTypes.some(type => type === 'pdf');
-    const hasImages = uploadedFileTypes.some(type => type === 'image');
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 300000); // 5 minutes timeout
+    
+    const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
 
-    try {
-      const formData = new FormData();
-      
-      // Add each file with consistent naming (file0, file1, etc.)
-      uploadedFiles.forEach((file, index) => {
-        formData.append(`file${index}`, file);
-      });
-      
-      // Add metadata
-      formData.append('fileCount', uploadedFiles.length.toString());
-      formData.append('mimeTypes', uploadedFiles.map(file => file.type).join(','));
-      formData.append('operation', 'search-patient');
-      
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 300000); // 5 minutes timeout
-      
-      const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal,
-      });
+    clearTimeout(timeoutId);
 
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const responseText = await response.text();
-        console.log('Raw response:', responseText);
+    if (response.ok) {
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      try {
+        const responseData = JSON.parse(responseText);
+        console.log('Parsed response data:', responseData);
         
-        try {
-          const responseData = JSON.parse(responseText);
-          console.log('Parsed response data:', responseData);
+        // Handle PDF response format: Object with patientData array and status
+        if (responseData.patientData && Array.isArray(responseData.patientData) && responseData.patientData.length > 0) {
+          console.log('PDF response detected with patientData array');
           
-          // Handle PDF response format: Array containing object with patientData
-          if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData) {
-            const patients = responseData[0].patientData.map((patient: any, index: number) => ({
-              id: index,
-              nume: patient.nume || '',
-              prenume: patient.prenume || '',
-              cnp: patient.cnp || '',
-              telefon: patient.telefon || '',
-              data_nasterii: patient.data_nasterii || '',
-              istoric: patient.istoric || '',
-              status: responseData.status === 'PDF FOUND' ? 'PDF FOUND' : 'PDF NEW'
-            }));
-            
-            setSearchFoundPatients(patients);
-            setPatientStatus(responseData.status === 'PDF FOUND' ? 'found' : 'created');
-            
-            // Initialize editable histories for all patients
-            const histories: {[key: number]: string} = {};
-            patients.forEach((patient: any, index: number) => {
-              histories[index] = patient.istoric || '';
-            });
-            setEditableHistories(histories);
-            
-            setUploadedFiles([]);
-            setUploadedFileTypes([]);
-            return;
-          }
+          const patients = responseData.patientData.map((patient, index) => ({
+            id: index,
+            nume: patient.nume || '',
+            prenume: patient.prenume || '',
+            cnp: patient.cnp || '',
+            telefon: patient.telefon || '',
+            data_nasterii: patient.data_nasterii || '',
+            istoric: patient.istoric || '',
+            status: responseData.status || 'PDF FOUND'
+          }));
           
-          // Handle array of patients (image response)
-          if (Array.isArray(responseData)) {
-            const patients = responseData.map((item, index) => ({
-              id: index,
-              nume: item.nume || '',
-              prenume: item.prenume || '',
-              cnp: item.cnp || '',
-              telefon: item.telefon || '',
-              data_nasterii: item.data_nasterii || '',
-              istoric: item.istoric || '',
-              status: item.status || 'IMG FOUND'
-            }));
-            
-            setSearchFoundPatients(patients);
-            
-            // Initialize editable histories for all patients
-            const histories: {[key: number]: string} = {};
-            patients.forEach((patient, index) => {
-              histories[index] = patient.istoric || '';
-            });
-            setEditableHistories(histories);
-            
-            setUploadedFiles([]); // Clear uploaded files after successful search
-            return;
-          }
+          setSearchFoundPatients(patients);
           
-          // Handle single patient response (backward compatibility)
-          if (responseData.status === 'IMG FOUND' || responseData.status === 'IMG NEW') {
-            console.log('Single patient search result:', responseData.status);
-            
-            const patientData = {
-              id: 0,
-              nume: responseData.nume || '',
-              prenume: responseData.prenume || '',
-              cnp: responseData.cnp || '',
-              telefon: responseData.telefon || '',
-              data_nasterii: responseData.data_nasterii || '',
-              istoric: responseData.istoric || '',
-              status: responseData.status
-            };
-            
-            setSearchFoundPatients([patientData]);
-            setEditableHistories({0: patientData.istoric || ''});
-            setUploadedFiles([]);
-            return;
-          }
+          // Initialize editable histories for all patients
+          const histories = {};
+          patients.forEach((patient, index) => {
+            histories[index] = patient.istoric || '';
+          });
+          setEditableHistories(histories);
           
-          console.log('No valid patient data found in response');
-          setSearchFoundPatients([]);
-          setEditableHistories({});
-          alert('Nu s-au găsit date valide de pacient în răspuns.');
-          
-        } catch (parseError) {
-          console.error('JSON parse error:', parseError);
-          alert('Eroare la procesarea răspunsului de la server.');
-          setSearchFoundPatients([]);
-          setEditableHistories({});
+          setUploadedFiles([]); // Clear uploaded files after successful search
+          setUploadedFileTypes([]); // Clear file types too
+          return;
         }
-      } else {
-        console.error('Patient search failed:', response.status);
-        alert(`Eroare la căutarea pacientului (${response.status})`);
+        
+        // Handle legacy array response format (backward compatibility)
+        if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData) {
+          const patients = responseData.map((item, index) => ({
+            id: index,
+            nume: item.nume || '',
+            prenume: item.prenume || '',
+            cnp: item.cnp || '',
+            telefon: item.telefon || '',
+            data_nasterii: item.data_nasterii || '',
+            istoric: item.istoric || '',
+            status: item.status || 'IMG FOUND'
+          }));
+          
+          setSearchFoundPatients(patients);
+          
+          // Initialize editable histories for all patients
+          const histories = {};
+          patients.forEach((patient, index) => {
+            histories[index] = patient.istoric || '';
+          });
+          setEditableHistories(histories);
+          
+          setUploadedFiles([]);
+          setUploadedFileTypes([]);
+          return;
+        }
+        
+        // Handle single patient response (for images)
+        if (responseData.status === 'IMG FOUND' || responseData.status === 'IMG NEW') {
+          console.log('Single patient search result:', responseData.status);
+          
+          const patientData = {
+            id: 0,
+            nume: responseData.nume || '',
+            prenume: responseData.prenume || '',
+            cnp: responseData.cnp || '',
+            telefon: responseData.telefon || '',
+            data_nasterii: responseData.data_nasterii || '',
+            istoric: responseData.istoric || '',
+            status: responseData.status
+          };
+          
+          setSearchFoundPatients([patientData]);
+          setEditableHistories({0: patientData.istoric || ''});
+          setUploadedFiles([]);
+          setUploadedFileTypes([]);
+          return;
+        }
+        
+        console.log('No valid patient data found in response');
+        setSearchFoundPatients([]);
+        setEditableHistories({});
+        alert('Nu s-au găsit date valide de pacient în răspuns.');
+        
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        alert('Eroare la procesarea răspunsului de la server.');
         setSearchFoundPatients([]);
         setEditableHistories({});
       }
-    } catch (error) {
-      console.error('Network error:', error);
-      if (error instanceof Error && error.name === 'AbortError') {
-        alert('Căutarea a fost întreruptă din cauza timeout-ului.');
-      } else {
-        alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
-      }
+    } else {
+      console.error('Patient search failed:', response.status);
+      alert(`Eroare la căutarea pacientului (${response.status})`);
       setSearchFoundPatients([]);
       setEditableHistories({});
-    } finally {
-      setIsSearching(false);
     }
-  };
+  } catch (error) {
+    console.error('Network error:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      alert('Căutarea a fost întreruptă din cauza timeout-ului.');
+    } else {
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    }
+    setSearchFoundPatients([]);
+    setEditableHistories({});
+  } finally {
+    setIsSearching(false);
+  }
+};
   
   const handleGenerateDocument = async () => {
     if (!inputText.trim() || !documentType) {
