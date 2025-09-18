@@ -22,6 +22,7 @@ export default function HomePage() {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [foundPatient, setFoundPatient] = useState<any>(null);
+  const [editableHistory, setEditableHistory] = useState('');
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -87,6 +88,7 @@ export default function HomePage() {
             if (firstResult && firstResult.patientData) {
               console.log('Patient data found:', firstResult.patientData);
               setFoundPatient(firstResult.patientData);
+              setEditableHistory(firstResult.patientData.istoric || '');
               
               // Clear uploaded files after successful search
               setUploadedFiles([]);
@@ -98,6 +100,7 @@ export default function HomePage() {
             // Handle direct object response
             console.log('Direct patient data found:', responseData.patientData);
             setFoundPatient(responseData.patientData);
+            setEditableHistory(responseData.patientData.istoric || '');
             
             // Clear uploaded files after successful search
             setUploadedFiles([]);
@@ -424,9 +427,12 @@ export default function HomePage() {
                     <div>
                       <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Istoric Medical</h4>
                       <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600 max-h-32 overflow-y-auto">
-                        <div className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
-                          {foundPatient.istoric || 'Nu există istoric medical disponibil.'}
-                        </div>
+                       <Textarea
+                         value={editableHistory}
+                         onChange={(e) => setEditableHistory(e.target.value)}
+                         placeholder="Nu există istoric medical disponibil."
+                         className="min-h-[80px] max-h-[120px] resize-none bg-transparent border-none p-0 text-sm text-green-700 dark:text-green-300 focus:ring-0 focus:outline-none"
+                       />
                       </div>
                     </div>
                   </div>
