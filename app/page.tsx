@@ -100,7 +100,7 @@ export default function HomePage() {
               setFoundPatient(null); // Clear single patient when we have multiple
             } else if (patientsArray.length === 1) {
               console.log('Single patient detected in array format');
-              patientData = patientsArray[0];
+              setFoundPatient(patientsArray[0]);
               setMultiplePatients([]); // Clear multiple patients when we have single
             }
           }
@@ -117,7 +117,7 @@ export default function HomePage() {
               setFoundPatient(null); // Clear single patient when we have multiple
             } else if (patientsArray.length === 1) {
               console.log('Single patient detected in direct object format');
-              patientData = patientsArray[0];
+              setFoundPatient(patientsArray[0]);
               setMultiplePatients([]); // Clear multiple patients when we have single
             }
           }
@@ -129,29 +129,26 @@ export default function HomePage() {
             setMultiplePatients([]); // Clear multiple patients for snippet response
             
             if (firstResult && firstResult.patientData) {
-              patientData = firstResult.patientData;
+              setFoundPatient(firstResult.patientData);
             }
           }
           // Format 4: Direct single object response - { patientData: {...} }
           else if (responseData && responseData.patientData && !Array.isArray(responseData.patientData)) {
             console.log('Direct object format response detected');
-            patientData = responseData.patientData;
+            setFoundPatient(responseData.patientData);
             setIsPdfResponse(false); // Mark as direct object response
             setMultiplePatients([]); // Clear multiple patients for direct object response
           }
           
-          // Set patient data if found
-          if (patientData && multiplePatients.length === 0) {
-            console.log('Patient data found:', patientData);
-            setFoundPatient(patientData);
-            setEditableHistory(patientData.istoric || '');
+          // Clear uploaded files after successful search (for any valid response)
+          if (patientsArray.length > 0) {
+            console.log(`Successfully processed ${patientsArray.length} patients`);
+            setUploadedFiles([]);
             
-            // Clear uploaded files after successful search
-            setUploadedFiles([]);
-          } else if (multiplePatients.length > 0) {
-            console.log('Multiple patients found:', multiplePatients);
-            // Clear uploaded files after successful search
-            setUploadedFiles([]);
+            // Set editable history for single patient (non-PDF responses)
+            if (patientsArray.length === 1 && !isPdfResponse) {
+              setEditableHistory(patientsArray[0].istoric || '');
+            }
           } else {
             console.log('No patient data found in response structure:', responseData);
             alert('Răspuns primit, dar nu s-au găsit date de pacient în structura răspunsului!');
