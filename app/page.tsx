@@ -259,6 +259,7 @@ const handleSearchPatient = async () => {
         responseText = responseText.replace(/\\n/g, '\n');
         
         setOutputText(responseText || 'Document generat cu succes!');
+        setEditableDocument(responseText || 'Document generat cu succes!');
       } else {
         const errorText = await response.text();
         console.error('Webhook request failed:', response.status, errorText);
