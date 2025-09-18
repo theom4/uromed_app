@@ -385,47 +385,88 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left Side - Patient Info */}
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Informații Personale</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume:</span>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                          {foundPatient?.nume || 'N/A'}
-                        </span>
+                    {/* Personal Information */}
+                    <div>
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Informații Personale</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Nume:</span>
+                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            {foundPatient?.nume || 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume:</span>
+                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            {foundPatient?.prenume || 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP:</span>
+                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            {foundPatient?.cnp || 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon:</span>
+                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            {foundPatient?.telefon || 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Data nașterii:</span>
+                          <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                            {foundPatient?.data_nasterii || 'N/A'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Prenume:</span>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                          {foundPatient?.prenume || 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CNP:</span>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                          {foundPatient?.cnp || 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefon:</span>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                          {foundPatient?.telefon || 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Data nașterii:</span>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                          {foundPatient?.data_nasterii || 'N/A'}
-                        </span>
+                    </div>
+
+                    {/* Medical History */}
+                    <div>
+                      <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Istoric Medical</h4>
+                      <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600 max-h-32 overflow-y-auto">
+                        <div className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
+                          {foundPatient.istoric || 'Nu există istoric medical disponibil.'}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Side - Medical History */}
+                  {/* Right Side - Consultation History */}
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">Istoric Consultații</h4>
-                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600 max-h-40 overflow-y-auto">
-                      <div className="text-sm text-green-700 dark:text-green-300 whitespace-pre-wrap">
-                        {foundPatient.istoric || 'Nu există consultații anterioare înregistrate.'}
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-3">Istoric Consultații</h4>
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-600 max-h-64 overflow-y-auto">
+                      {foundPatient.consultatii && foundPatient.consultatii.length > 0 ? (
+                        <div className="space-y-3">
+                          {foundPatient.consultatii.map((consultatie: any, index: number) => (
+                            <div key={index} className="bg-white dark:bg-green-800/20 rounded-lg p-3 border border-green-200 dark:border-green-600">
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                                  Consultația #{index + 1}
+                                </span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  {consultatie.data || 'Data necunoscută'}
+                                </span>
+                              </div>
+                              <div className="text-sm text-green-700 dark:text-green-300">
+                                {consultatie.descriere || consultatie.diagnostic || 'Fără descriere disponibilă'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-4">
+                          <Calendar className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                          <div className="text-sm text-green-600 dark:text-green-400">
+                            Nu există consultații anterioare înregistrate
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600">
+                      <div className="text-sm text-green-700 dark:text-green-300">
+                        <strong>Ultima evaluare:</strong> Pacient evaluat pentru suspiciune proces proliferativ prostatic, cu aspecte sugestive imagistice și PSA. Plan: tuseu rectal, PSA total/free, RMN multiparametric, biopsie prostatică ghidată.
                       </div>
                     </div>
                     <div className="flex space-x-2">
