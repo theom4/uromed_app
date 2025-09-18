@@ -340,6 +340,7 @@ const handleSearchPatient = async () => {
         },
         body: JSON.stringify({
           ...patient,
+          cnp: patient.cnp,
           document: editableDocument,
           operation: 'update-document'
         }),
