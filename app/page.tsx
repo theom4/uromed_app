@@ -322,38 +322,25 @@ const handleSearchPatient = async () => {
     }
   };
 
-  const handleHistoryChange = (patientIndex: number, newHistory: string) => {
-    setEditableHistories(prev => ({
-      ...prev,
-      [patientIndex]: newHistory
-    }));
-  };
-
   const handleUpdateDocument = async () => {
-    if (!editableDocument.trim()) {
-      alert('Nu există document pentru actualizare.');
-      return;
-    }
-
-    if (searchFoundPatients.length === 0) {
-      alert('Nu există date de pacient pentru actualizare.');
+    if (!editableDocument.trim() || searchFoundPatients.length === 0) {
+      alert('Nu există document sau pacient pentru actualizare.');
       return;
     }
 
     setIsUpdatingDocument(true);
 
     try {
-      // Use the first patient if multiple patients exist
-      const patientData = searchFoundPatients[0];
+      const patient = searchFoundPatients[0]; // Use first patient for now
       
-      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
+      const response = await fetch('https://n8n.voisero.info/webhook-test/update-document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          ...patient,
           document: editableDocument,
-          patientData: patientData,
           operation: 'update-document'
         }),
       });
@@ -371,6 +358,13 @@ const handleSearchPatient = async () => {
     } finally {
       setIsUpdatingDocument(false);
     }
+  };
+
+  const handleHistoryChange = (patientIndex: number, newHistory: string) => {
+    setEditableHistories(prev => ({
+      ...prev,
+      [patientIndex]: newHistory
+    }));
   };
 
   if (loading) {
@@ -702,6 +696,45 @@ const handleSearchPatient = async () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Editable Document Section */}
+          {outputText && (
+            <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
+                <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                  <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <span>Document Editabil</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <Textarea
+                    value={editableDocument}
+                    onChange={(e) => setEditableDocument(e.target.value)}
+                    className="min-h-[400px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-mono text-sm"
+                    placeholder="Documentul editabil va apărea aici..."
+                  />
+                  <Button
+                    onClick={handleUpdateDocument}
+                    disabled={isUpdatingDocument || !editableDocument.trim() || searchFoundPatients.length === 0}
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-3"
+                  >
+                    {isUpdatingDocument ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Actualizează...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <FileText className="w-4 h-4" />
+                        <span>Actualizează Document</span>
+                      </div>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
