@@ -12,13 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-// Required for static export
-export async function generateStaticParams() {
-  // Return empty array since we can't pre-generate patient IDs at build time
-  // This allows the route to exist but be rendered client-side
-  return [];
-}
-
 interface Patient {
   id: number;
   nume: string;
