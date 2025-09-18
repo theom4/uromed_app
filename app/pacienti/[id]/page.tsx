@@ -331,14 +331,16 @@ export default function PatientDetailPage() {
                   </div>
                 </div>
 
-                <div>
-          </Button>
-        </div>
+                <div className="mt-6">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    Salvează Modificările
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
-}
-  )
-}
-  )
 }
