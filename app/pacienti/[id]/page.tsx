@@ -12,6 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
+export async function generateStaticParams() {
+  // Return empty array to allow dynamic generation
+  return [];
+}
+
 interface Patient {
   id: number;
   nume: string;
