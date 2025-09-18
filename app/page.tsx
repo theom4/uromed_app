@@ -132,7 +132,7 @@ const handleSearchPatient = async () => {
           
           setUploadedFiles([]); // Clear uploaded files after successful search
           setUploadedFileTypes([]); // Clear file types too
-          setIsSearching(false); // Reset loading state immediately
+          setIsSearching(false);
           return;
         }
         
@@ -160,7 +160,7 @@ const handleSearchPatient = async () => {
           
           setUploadedFiles([]);
           setUploadedFileTypes([]);
-          setIsSearching(false); // Reset loading state immediately
+          setIsSearching(false);
           return;
         }
         
@@ -183,29 +183,33 @@ const handleSearchPatient = async () => {
           setEditableHistories({0: patientData.istoric || ''});
           setUploadedFiles([]);
           setUploadedFileTypes([]);
-          setIsSearching(false); // Reset loading state immediately
+          setIsSearching(false);
           return;
         }
         
         console.log('No valid patient data found in response');
         setSearchFoundPatients([]);
         setEditableHistories({});
+        setIsSearching(false);
         alert('Nu s-au găsit date valide de pacient în răspuns.');
         
       } catch (parseError) {
         console.error('JSON parse error:', parseError);
+        setIsSearching(false);
         alert('Eroare la procesarea răspunsului de la server.');
         setSearchFoundPatients([]);
         setEditableHistories({});
       }
     } else {
       console.error('Patient search failed:', response.status);
+      setIsSearching(false);
       alert(`Eroare la căutarea pacientului (${response.status})`);
       setSearchFoundPatients([]);
       setEditableHistories({});
     }
   } catch (error) {
     console.error('Network error:', error);
+    setIsSearching(false);
     if (error instanceof Error && error.name === 'AbortError') {
       alert('Căutarea a fost întreruptă din cauza timeout-ului.');
     } else {
@@ -213,8 +217,6 @@ const handleSearchPatient = async () => {
     }
     setSearchFoundPatients([]);
     setEditableHistories({});
-  } finally {
-    setIsSearching(false);
   }
 };  
   const handleGenerateDocument = async () => {
