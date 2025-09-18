@@ -105,20 +105,20 @@ export default function HomePage() {
           
           // Case 2: Patient data wrapped in patientData property
           if (firstItem.patientData) {
-            // Multiple patients from PDF
+            // Check if patientData is an array (multiple patients) or single object
             if (Array.isArray(firstItem.patientData)) {
+              // Multiple patients from PDF
               setMultiplePatients(firstItem.patientData);
               setFoundPatient(null);
               setIsPdfResponse(true);
               setUploadedFiles([]);
               return;
-            } 
-            // Single patient found in existing records
-            else {
+            } else if (firstItem.patientData && typeof firstItem.patientData === 'object') {
+              // Single patient object in patientData
               setFoundPatient(firstItem.patientData);
               setEditableHistory(firstItem.patientData.istoric || '');
               setMultiplePatients([]);
-              setIsPdfResponse(false);
+              setIsPdfResponse(true);
               setUploadedFiles([]);
               return;
             }
