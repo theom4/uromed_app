@@ -23,6 +23,7 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false);
   const [foundPatient, setFoundPatient] = useState<any>(null);
   const [editableHistory, setEditableHistory] = useState('');
+  const [isUpdatingHistory, setIsUpdatingHistory] = useState(false);
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -194,6 +195,47 @@ export default function HomePage() {
       alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleUpdateHistory = async () => {
+    if (!foundPatient) {
+      alert('Nu există pacient selectat pentru actualizare.');
+      return;
+    }
+
+    setIsUpdatingHistory(true);
+
+    try {
+      const response = await fetch('https://n8n.voisero.info/webhook-test/update-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...foundPatient,
+          istoric: editableHistory,
+          operation: 'update-history'
+        }),
+      });
+
+      if (response.ok) {
+        alert('Istoricul medical a fost actualizat cu succes!');
+        // Update the foundPatient with the new history
+        setFoundPatient({
+          ...foundPatient,
+          istoric: editableHistory
+        });
+      } else {
+        const errorText = await response.text();
+        console.error('Update history failed:', response.status, errorText);
+        alert(`Eroare la actualizarea istoricului (${response.status}): ${errorText || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error updating history:', error);
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsUpdatingHistory(false);
     }
   };
 
@@ -434,6 +476,24 @@ export default function HomePage() {
                          className="min-h-[80px] max-h-[120px] resize-none bg-transparent border-none p-0 text-sm text-green-700 dark:text-green-300 focus:ring-0 focus:outline-none"
                        />
                       </div>
+                    </div>
+                    
+                    {/* Update History Button */}
+                    <div className="flex justify-center mt-4">
+                      <Button
+                        onClick={handleUpdateHistory}
+                        disabled={isUpdatingHistory}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                      >
+                        {isUpdatingHistory ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Actualizează...</span>
+                          </div>
+                        ) : (
+                          'Actualizează istoric'
+                        )}
+                      </Button>
                     </div>
                   </div>
 
