@@ -657,4 +657,100 @@ export default function HomePage() {
           <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
               <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                <FileText className="w-5 h
+                <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span>Generare Document Medical</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Input Section */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="medical-info" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Informații medicale
+                    </Label>
+                    <Textarea
+                      id="medical-info"
+                      placeholder="Introduceți informațiile medicale pentru generarea documentului..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      className="mt-1 min-h-[120px] resize-none"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="document-type" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Tipul documentului
+                    </Label>
+                    <Select value={documentType} onValueChange={setDocumentType}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Selectați tipul documentului" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fisa-consultatie">Fișă de consultație</SelectItem>
+                        <SelectItem value="bilet-iesire">Bilet de ieșire</SelectItem>
+                        <SelectItem value="scrisoare-medicala">Scrisoare medicală</SelectItem>
+                        <SelectItem value="recomandari">Recomandări medicale</SelectItem>
+                        <SelectItem value="diagnostic">Diagnostic medical</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    onClick={handleGenerateDocument}
+                    disabled={isGenerating || !inputText.trim() || !documentType}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                  >
+                    {isGenerating ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Generez...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <Bot className="w-4 h-4" />
+                        <span>Generează Document</span>
+                      </div>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Output Section */}
+                <div className="space-y-4">
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Document generat
+                  </Label>
+                  <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 min-h-[200px] max-h-[400px] overflow-y-auto border border-slate-200 dark:border-slate-600">
+                    {outputText ? (
+                      <div className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+                        {outputText}
+                      </div>
+                    ) : (
+                      <div className="text-slate-500 dark:text-slate-400 text-sm italic">
+                        Documentul generat va apărea aici...
+                      </div>
+                    )}
+                  </div>
+                  
+                  {outputText && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(outputText);
+                        alert('Document copiat în clipboard!');
+                      }}
+                      className="w-full"
+                    >
+                      Copiază în clipboard
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
