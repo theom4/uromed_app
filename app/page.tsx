@@ -81,33 +81,40 @@ export default function HomePage() {
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Handle the response structure: [{ patientData: {...}, output: [...] }]
-          if (Array.isArray(responseData) && responseData.length > 0) {
+          // Handle different response formats
+          let patientData = null;
+          
+          // Format 1: PDF response - { status: "...", patientData: [{ patient object }] }
+          if (responseData.patientData && Array.isArray(responseData.patientData) && responseData.patientData.length > 0) {
+            console.log('PDF format response detected');
+            patientData = responseData.patientData[0]; // Take the first patient from the array
+          }
+          // Format 2: Snippet response - [{ patientData: {...}, output: [...] }]
+          else if (Array.isArray(responseData) && responseData.length > 0) {
             const firstResult = responseData[0];
-            console.log('First result:', firstResult);
+            console.log('Snippet format response detected');
             
             if (firstResult && firstResult.patientData) {
-              console.log('Patient data found:', firstResult.patientData);
-              setFoundPatient(firstResult.patientData);
-              setEditableHistory(firstResult.patientData.istoric || '');
-              
-              // Clear uploaded files after successful search
-              setUploadedFiles([]);
-            } else {
-              console.log('No patient data in response');
-              alert('Răspuns primit, dar structura datelor nu conține informații de pacient!');
+              patientData = firstResult.patientData;
             }
-          } else if (responseData && responseData.patientData) {
-            // Handle direct object response
-            console.log('Direct patient data found:', responseData.patientData);
-            setFoundPatient(responseData.patientData);
-            setEditableHistory(responseData.patientData.istoric || '');
+          }
+          // Format 3: Direct object response - { patientData: {...} }
+          else if (responseData && responseData.patientData && !Array.isArray(responseData.patientData)) {
+            console.log('Direct object format response detected');
+            patientData = responseData.patientData;
+          }
+          
+          // Set patient data if found
+          if (patientData) {
+            console.log('Patient data found:', patientData);
+            setFoundPatient(patientData);
+            setEditableHistory(patientData.istoric || '');
             
             // Clear uploaded files after successful search
             setUploadedFiles([]);
           } else {
-            console.log('Unexpected response structure:', responseData);
-            alert('Răspuns primit cu structură neașteptată. Verificați consola pentru detalii.');
+            console.log('No patient data found in response structure:', responseData);
+            alert('Răspuns primit, dar nu s-au găsit date de pacient în structura răspunsului!');
           }
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
