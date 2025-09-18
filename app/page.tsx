@@ -24,6 +24,7 @@ export default function HomePage() {
   const [foundPatient, setFoundPatient] = useState<any>(null);
   const [editableHistory, setEditableHistory] = useState('');
   const [isUpdatingHistory, setIsUpdatingHistory] = useState(false);
+  const [isPdfResponse, setIsPdfResponse] = useState(false);
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -88,11 +89,13 @@ export default function HomePage() {
           if (responseData.patientData && Array.isArray(responseData.patientData) && responseData.patientData.length > 0) {
             console.log('PDF format response detected');
             patientData = responseData.patientData[0]; // Take the first patient from the array
+            setIsPdfResponse(true); // Mark as PDF response
           }
           // Format 2: Snippet response - [{ patientData: {...}, output: [...] }]
           else if (Array.isArray(responseData) && responseData.length > 0) {
             const firstResult = responseData[0];
             console.log('Snippet format response detected');
+            setIsPdfResponse(false); // Mark as snippet response
             
             if (firstResult && firstResult.patientData) {
               patientData = firstResult.patientData;
@@ -102,6 +105,7 @@ export default function HomePage() {
           else if (responseData && responseData.patientData && !Array.isArray(responseData.patientData)) {
             console.log('Direct object format response detected');
             patientData = responseData.patientData;
+            setIsPdfResponse(false); // Mark as direct object response
           }
           
           // Set patient data if found
@@ -472,36 +476,40 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* Medical History */}
-                    <div>
-                      <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Istoric Medical</h4>
-                      <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600 max-h-32 overflow-y-auto">
-                       <Textarea
-                         value={editableHistory}
-                         onChange={(e) => setEditableHistory(e.target.value)}
-                         placeholder="Nu există istoric medical disponibil."
-                         className="min-h-[80px] max-h-[120px] resize-none bg-transparent border-none p-0 text-sm text-green-700 dark:text-green-300 focus:ring-0 focus:outline-none"
-                       />
-                      </div>
-                    </div>
-                    
-                    {/* Update History Button */}
-                    <div className="flex justify-center mt-4">
-                      <Button
-                        onClick={handleUpdateHistory}
-                        disabled={isUpdatingHistory}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
-                      >
-                        {isUpdatingHistory ? (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Actualizează...</span>
+                    {/* Medical History - Only show for non-PDF responses */}
+                    {!isPdfResponse && (
+                      <>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Istoric Medical</h4>
+                          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-600 max-h-32 overflow-y-auto">
+                           <Textarea
+                             value={editableHistory}
+                             onChange={(e) => setEditableHistory(e.target.value)}
+                             placeholder="Nu există istoric medical disponibil."
+                             className="min-h-[80px] max-h-[120px] resize-none bg-transparent border-none p-0 text-sm text-green-700 dark:text-green-300 focus:ring-0 focus:outline-none"
+                           />
                           </div>
-                        ) : (
-                          'Actualizează istoric'
-                        )}
-                      </Button>
-                    </div>
+                        </div>
+                        
+                        {/* Update History Button */}
+                        <div className="flex justify-center mt-4">
+                          <Button
+                            onClick={handleUpdateHistory}
+                            disabled={isUpdatingHistory}
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                          >
+                            {isUpdatingHistory ? (
+                              <div className="flex items-center space-x-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <span>Actualizează...</span>
+                              </div>
+                            ) : (
+                              'Actualizează istoric'
+                            )}
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Right Side - Consultation History */}
