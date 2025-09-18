@@ -87,7 +87,6 @@ export default function HomePage() {
             if (firstResult && firstResult.patientData) {
               console.log('Patient data found:', firstResult.patientData);
               setFoundPatient(firstResult.patientData);
-              alert('Pacient găsit cu succes!');
               
               // Clear uploaded files after successful search
               setUploadedFiles([]);
@@ -99,7 +98,6 @@ export default function HomePage() {
             // Handle direct object response
             console.log('Direct patient data found:', responseData.patientData);
             setFoundPatient(responseData.patientData);
-            alert('Pacient găsit cu succes!');
             
             // Clear uploaded files after successful search
             setUploadedFiles([]);
