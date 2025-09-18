@@ -431,126 +431,118 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Side - Input */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Document Generation */}
-              <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
-                  <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    <span>Generare Document Medical</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  {/* Input Text */}
-                  <div>
-                    <Label htmlFor="input-text" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Informații Medicale
-                    </Label>
-                    <Textarea
-                      id="input-text"
-                      placeholder="Introduceți informațiile medicale aici..."
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      className="mt-2 min-h-[200px] resize-none"
-                    />
+          {/* Document Generation */}
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <span>Generare Document Medical</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Input Text */}
+              <div>
+                <Label htmlFor="input-text" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Informații Medicale
+                </Label>
+                <Textarea
+                  id="input-text"
+                  placeholder="Introduceți informațiile medicale aici..."
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="mt-2 min-h-[200px] resize-none"
+                />
+              </div>
+
+              {/* Document Type */}
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Tipul Documentului
+                </Label>
+                <Select value={documentType} onValueChange={setDocumentType}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Selectați tipul documentului medical" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
+                    <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
+                    <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
+                    <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
+                    <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
+                    <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Generate Button */}
+              <Button
+                onClick={handleGenerateDocument}
+                disabled={isGenerating || !inputText.trim() || !documentType}
+                className="w-full h-12 text-white font-medium text-lg bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGenerating ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generează Document...</span>
                   </div>
-
-                  {/* Document Type */}
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Tipul Documentului
-                    </Label>
-                    <Select value={documentType} onValueChange={setDocumentType}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Selectați tipul documentului medical" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="spitalizare-zi">Spitalizare de Zi</SelectItem>
-                        <SelectItem value="examen-clinic">Examen Clinic</SelectItem>
-                        <SelectItem value="recomandari-medicale">Recomandări Medicale</SelectItem>
-                        <SelectItem value="consultatie-urologica">Consultația Urologică</SelectItem>
-                        <SelectItem value="scrisoare-medicala">Scrisoare Medicală</SelectItem>
-                        <SelectItem value="interpretare-analiza">Interpretare Analiză</SelectItem>
-                      </SelectContent>
-                    </Select>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-5 h-5" />
+                    <span>Generează Document Medical</span>
                   </div>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
 
-                  {/* Generate Button */}
-                  <Button
-                    onClick={handleGenerateDocument}
-                    disabled={isGenerating || !inputText.trim() || !documentType}
-                    className="w-full h-12 text-white font-medium text-lg bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGenerating ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Generează Document...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <FileText className="w-5 h-5" />
-                        <span>Generează Document Medical</span>
-                      </div>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Side - Output */}
-            <div className="space-y-6">
-              {/* Generated Document */}
-              <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
-                  <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
-                    <FileText className="w-5 h-5 text-purple-600" />
-                    <span>Document Generat</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {outputText ? (
-                    <div className="space-y-4">
-                      <Textarea
-                        value={outputText}
-                        onChange={(e) => setOutputText(e.target.value)}
-                        className="min-h-[400px] max-h-[600px] resize-y text-sm font-mono leading-relaxed"
-                        placeholder="Documentul generat va apărea aici..."
-                      />
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigator.clipboard.writeText(outputText)}
-                          className="flex items-center space-x-2"
-                        >
-                          <span>Copiază</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center space-x-2"
-                        >
-                          <span>Descarcă</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                      <p className="text-slate-600 dark:text-slate-400">
-                        Documentul generat va apărea aici
-                      </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                        Completați informațiile medicale și selectați tipul documentului
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          {/* Generated Document - Now at the bottom */}
+          <Card className="shadow-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b border-slate-200 dark:border-slate-700">
+              <CardTitle className="flex items-center space-x-2 text-slate-800 dark:text-white">
+                <FileText className="w-5 h-5 text-purple-600" />
+                <span>Document Generat</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {outputText ? (
+                <div className="space-y-4">
+                  <Textarea
+                    value={outputText}
+                    onChange={(e) => setOutputText(e.target.value)}
+                    className="min-h-[400px] max-h-[600px] resize-y text-sm font-mono leading-relaxed"
+                    placeholder="Documentul generat va apărea aici..."
+                  />
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigator.clipboard.writeText(outputText)}
+                      className="flex items-center space-x-2"
+                    >
+                      <span>Copiază</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center space-x-2"
+                    >
+                      <span>Descarcă</span>
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                  <p className="text-slate-600 dark:text-slate-400">
+                    Documentul generat va apărea aici
+                  </p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    Completați informațiile medicale și selectați tipul documentului
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
         </div>
       </div>
