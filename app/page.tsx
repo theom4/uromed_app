@@ -53,8 +53,8 @@ export default function HomePage() {
       // Add each file with consistent naming
       uploadedFiles.forEach((file, index) => {
         console.log(`Adding file ${index}:`, file.name, file.type, file.size);
-        // Use consistent field name for all files
-        formData.append('files', file, file.name);
+        // Use file0, file1, file2, etc. naming
+        formData.append(`file${index}`, file, file.name);
       });
       
       // Add metadata
