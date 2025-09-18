@@ -27,6 +27,8 @@ export default function HomePage() {
   const [searchFoundPatients, setSearchFoundPatients] = useState<any[]>([]);
   const [editableHistories, setEditableHistories] = useState<{[key: number]: string}>({});
   const [uploadedFileTypes, setUploadedFileTypes] = useState<string[]>([]);
+  const [editableDocument, setEditableDocument] = useState('');
+  const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
@@ -325,6 +327,50 @@ const handleSearchPatient = async () => {
       ...prev,
       [patientIndex]: newHistory
     }));
+  };
+
+  const handleUpdateDocument = async () => {
+    if (!editableDocument.trim()) {
+      alert('Nu există document pentru actualizare.');
+      return;
+    }
+
+    if (searchFoundPatients.length === 0) {
+      alert('Nu există date de pacient pentru actualizare.');
+      return;
+    }
+
+    setIsUpdatingDocument(true);
+
+    try {
+      // Use the first patient if multiple patients exist
+      const patientData = searchFoundPatients[0];
+      
+      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          document: editableDocument,
+          patientData: patientData,
+          operation: 'update-document'
+        }),
+      });
+
+      if (response.ok) {
+        alert('Documentul a fost actualizat cu succes!');
+      } else {
+        const errorText = await response.text();
+        console.error('Update document failed:', response.status, errorText);
+        alert(`Eroare la actualizarea documentului (${response.status}): ${errorText || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error updating document:', error);
+      alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare de rețea'}`);
+    } finally {
+      setIsUpdatingDocument(false);
+    }
   };
 
   if (loading) {
