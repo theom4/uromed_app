@@ -117,114 +117,38 @@ export default function HomePage() {
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Handle different response formats
-          let patientsArray = [];
-          
-         // Format 0: Direct array response - [{ id: 170, nume: "...", ... }]
-         if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].id && responseData[0].nume) {
-           console.log('Direct array format response detected');
-           patientsArray = responseData;
-           setIsPdfResponse(false); // Mark as direct array response
-           
-           // Check if multiple patients or single patient
-           if (patientsArray.length > 1) {
-             console.log(`Multiple patients detected: ${patientsArray.length} patients`);
-             setMultiplePatients(patientsArray);
-             setFoundPatient(null); // Clear single patient when we have multiple
-           } else if (patientsArray.length === 1) {
-             console.log('Single patient detected in direct array format');
-             setFoundPatient(patientsArray[0]);
-             setEditableHistory(patientsArray[0].istoric || '');
-             setMultiplePatients([]); // Clear multiple patients when we have single
-           }
-           
-           // Clear uploaded files after successful processing
-           setUploadedFiles([]);
-           return;
-         }
-         
-          // Format 1: Array response - [{ patientData: [...] }]
-         else if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData && Array.isArray(responseData[0].patientData)) {
-            console.log('Array format response detected with patientData array');
-            patientsArray = responseData[0].patientData;
-            setIsPdfResponse(true);
+          // Handle image upload responses - only 2 cases
+          if (Array.isArray(responseData) && responseData.length > 0) {
+            const firstItem = responseData[0];
             
-            // Check if multiple patients or single patient
-            if (patientsArray.length > 1) {
-              console.log(`Multiple patients detected: ${patientsArray.length} patients`);
-              setMultiplePatients(patientsArray);
-              setFoundPatient(null); // Clear single patient when we have multiple
-            } else if (patientsArray.length === 1) {
-              console.log('Single patient detected in array format');
-              setFoundPatient(patientsArray[0]);
-              setMultiplePatients([]); // Clear multiple patients when we have single
+            // Case 1: Patient was created - Direct array with patient object
+            if (firstItem.id && firstItem.nume) {
+              console.log('Patient created - showing as found');
+              setFoundPatient(firstItem);
+              setEditableHistory(firstItem.istoric || '');
+              setMultiplePatients([]);
+              setIsPdfResponse(false);
+              setUploadedFiles([]);
+              return;
             }
             
-            // Clear uploaded files after successful processing
-            setUploadedFiles([]);
-            return;
-          }
-          // Format 2: Direct object response - { status: "...", patientData: [...] }
-          else if (responseData.patientData && Array.isArray(responseData.patientData)) {
-            console.log('Direct object format response detected with patientData array');
-            patientsArray = responseData.patientData;
-            setIsPdfResponse(true);
-            
-            // Check if multiple patients or single patient
-            if (patientsArray.length > 1) {
-              console.log(`Multiple patients detected: ${patientsArray.length} patients`);
-              setMultiplePatients(patientsArray);
-              setFoundPatient(null); // Clear single patient when we have multiple
-            } else if (patientsArray.length === 1) {
-              console.log('Single patient detected in direct object format');
-              setFoundPatient(patientsArray[0]);
-              setMultiplePatients([]); // Clear multiple patients when we have single
+            // Case 2: Patient was found - Array with patientData object
+            if (firstItem.patientData) {
+              console.log('Patient found in existing records');
+              setFoundPatient(firstItem.patientData);
+              setEditableHistory(firstItem.patientData.istoric || '');
+              setMultiplePatients([]);
+              setIsPdfResponse(false);
+              setUploadedFiles([]);
+              return;
             }
-            
-            // Clear uploaded files after successful processing
-            setUploadedFiles([]);
-            return;
-          }
-          // Format 3: Snippet response - [{ patientData: {...}, output: [...] }]
-          else if (Array.isArray(responseData) && responseData.length > 0) {
-            const firstResult = responseData[0];
-            console.log('Snippet format response detected');
-            setIsPdfResponse(false); // Mark as snippet response
-            setMultiplePatients([]); // Clear multiple patients for snippet response
-            
-            if (firstResult && firstResult.patientData) {
-             console.log('Found patientData in snippet format:', firstResult.patientData);
-              setFoundPatient(firstResult.patientData);
-             setEditableHistory(firstResult.patientData.istoric || '');
-             
-             // Show success message for created patient as if found
-             setStatusMessage('Pacient gasit!');
-             setStatusType('success');
-             
-             // Clear uploaded files after successful search
-             setUploadedFiles([]);
-             return; // Exit here to prevent showing popup
-            }
-          }
-          // Format 4: Direct single object response - { patientData: {...} }
-          else if (responseData && responseData.patientData && !Array.isArray(responseData.patientData)) {
-            console.log('Direct object format response detected');
-            setFoundPatient(responseData.patientData);
-            setIsPdfResponse(false); // Mark as direct object response
-            setMultiplePatients([]); // Clear multiple patients for direct object response
-            
-            // Show success message for found patient
-            setStatusMessage('Pacient gasit!');
-            setStatusType('success');
-            
-            // Clear uploaded files after successful search
-            setUploadedFiles([]);
-            return; // Exit here to prevent showing popup
           }
           
-          // If we reach here, no valid patient data was found
-          console.log('No valid patient data found in response');
-          alert('Nu s-au găsit date de pacient în răspuns.');
+          // If neither case matches, clear results
+          setPatients([]);
+          setFoundPatient(null);
+          setMultiplePatients([]);
+          setUploadedFiles([]);
           
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
