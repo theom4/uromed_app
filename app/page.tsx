@@ -73,7 +73,7 @@ export default function HomePage() {
       controller.abort();
     }, 300000); // 5 minutes timeout for 15 PDFs
     
-    const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
+    const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
       method: 'POST',
       body: formData,
       signal: controller.signal,
