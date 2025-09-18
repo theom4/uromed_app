@@ -220,26 +220,33 @@ export default function HomePage() {
         }
       }
     } catch (error) {
-      console.error('Error sending patient search:', error);
-      
-      if (error.name === 'AbortError') {
-        alert('Cererea a expirat după 5 minute. Încercați cu mai puține fișiere sau fișiere mai mici.');
-      } else if (error instanceof TypeError && error.message.includes('fetch')) {
-        alert('Eroare de rețea: Nu se poate conecta la server. Verificați conexiunea la internet.');
-      } else if (error.message.includes('Failed to fetch')) {
-        alert(`Eroare de conectare la server. Posibil limită de fișiere pe server. Încercați cu ${uploadedFiles.length - 1} fișiere.`);
-      } else {
-        alert(`Eroare la conectarea la server: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
-      }
-      
-      // Log detailed error info
-      console.error('=== ERROR DETAILS ===');
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      console.error('Number of files when error occurred:', uploadedFiles.length);
-      console.error('====================');
-    } finally {
+  console.error('Error sending patient search:', error);
+  
+  // Type guard to safely access error properties
+  if (error instanceof Error) {
+    if (error.name === 'AbortError') {
+      alert('Cererea a expirat după 5 minute. Încercați cu mai puține fișiere sau fișiere mai mici.');
+    } else if (error instanceof TypeError && error.message.includes('fetch')) {
+      alert('Eroare de rețea: Nu se poate conecta la server. Verificați conexiunea la internet.');
+    } else if (error.message.includes('Failed to fetch')) {
+      alert(`Eroare de conectare la server. Posibil limită de fișiere pe server. Încercați cu ${uploadedFiles.length - 1} fișiere.`);
+    } else {
+      alert(`Eroare la conectarea la server: ${error.message}`);
+    }
+    
+    // Log detailed error info
+    console.error('=== ERROR DETAILS ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Number of files when error occurred:', uploadedFiles.length);
+    console.error('====================');
+  } else {
+    // Handle non-Error objects
+    alert('Eroare necunoscută la conectarea la server');
+    console.error('Non-Error object caught:', error);
+  }
+} finally {
       setIsSearching(false);
     }
   };
