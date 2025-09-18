@@ -117,11 +117,11 @@ export default function HomePage() {
           const responseData = JSON.parse(responseText);
           console.log('Parsed response data:', responseData);
           
-          // Handle image upload responses - only 2 cases
+          // Handle image upload responses - only 2 cases for images
           if (Array.isArray(responseData) && responseData.length > 0) {
             const firstItem = responseData[0];
             
-            // Case 1: Patient was created - Direct array with patient object
+            // Case 1: Patient was created - Direct array with patient object (has id and nume)
             if (firstItem.id && firstItem.nume) {
               console.log('Patient created - showing as found');
               setFoundPatient(firstItem);
@@ -132,7 +132,7 @@ export default function HomePage() {
               return;
             }
             
-            // Case 2: Patient was found - Array with patientData object
+            // Case 2: Patient was found - Array with patientData object (has patientData property)
             if (firstItem.patientData) {
               console.log('Patient found in existing records');
               setFoundPatient(firstItem.patientData);
@@ -144,14 +144,52 @@ export default function HomePage() {
             }
           }
           
-          // If neither case matches, clear results
+          // If neither case matches, clear results and log for debugging
+          console.log('No matching case found for response:', responseData);
           setFoundPatient(null);
           setMultiplePatients([]);
           setUploadedFiles([]);
           
         } catch (parseError) {
           console.error('JSON Parse Error:', parseError);
-          console.error('Response Text:', responseText);
+          console.error('Response Text (first 500 chars):', responseText.substring(0, 500));
+          // Try to handle as plain text response that might be JSON
+          try {
+            // Sometimes the response might have extra characters, try to extract JSON
+            const jsonMatch = responseText.match(/\[.*\]/s);
+            if (jsonMatch) {
+              const cleanJson = jsonMatch[0];
+              const responseData = JSON.parse(cleanJson);
+              console.log('Extracted and parsed JSON:', responseData);
+              
+              if (Array.isArray(responseData) && responseData.length > 0) {
+                const firstItem = responseData[0];
+                
+                if (firstItem.id && firstItem.nume) {
+                  console.log('Patient created from extracted JSON');
+                  setFoundPatient(firstItem);
+                  setEditableHistory(firstItem.istoric || '');
+                  setMultiplePatients([]);
+                  setIsPdfResponse(false);
+                  setUploadedFiles([]);
+                  return;
+                }
+                
+                if (firstItem.patientData) {
+                  console.log('Patient found from extracted JSON');
+                  setFoundPatient(firstItem.patientData);
+                  setEditableHistory(firstItem.patientData.istoric || '');
+                  setMultiplePatients([]);
+                  setIsPdfResponse(false);
+                  setUploadedFiles([]);
+                  return;
+                }
+              }
+            }
+          } catch (extractError) {
+            console.error('Failed to extract JSON from response:', extractError);
+          }
+          
           alert('Eroare la procesarea răspunsului de la server');
           setFoundPatient(null);
           setMultiplePatients([]);
