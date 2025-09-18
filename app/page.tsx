@@ -200,6 +200,7 @@ export default function HomePage() {
       setIsSearching(false);
     }
   };
+  
   const handleGenerateDocument = async () => {
     if (!inputText.trim() || !documentType) {
       alert('Vă rugăm să completați toate câmpurile.');
