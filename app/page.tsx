@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bot, FileText, Users, Calendar, Building2, Settings, User, Upload, Search, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function HomePage() {
   const { user, loading, signOut } = useAuth();
@@ -30,6 +31,8 @@ export default function HomePage() {
   const [editableDocument, setEditableDocument] = useState('');
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
   const [currentPatientCnp, setCurrentPatientCnp] = useState('');
+  const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
+  const [consultationDialogOpen, setConsultationDialogOpen] = useState(false);
 
   // Set default document type to 'spitalizare-zi'
   useEffect(() => {
