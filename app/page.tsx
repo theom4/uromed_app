@@ -770,6 +770,34 @@ const handleSearchPatient = async () => {
           )}
         </div>
       </div>
+
+      {/* Consultation Document Dialog */}
+      <Dialog open={consultationDialogOpen} onOpenChange={setConsultationDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              <span>{selectedConsultation?.titlu || 'Document Medical'}</span>
+            </DialogTitle>
+            <DialogDescription>
+              Data consultației: {selectedConsultation?.data_consult ? new Date(selectedConsultation.data_consult).toLocaleDateString('ro-RO', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              }) : 'N/A'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg border border-slate-200 dark:border-slate-600 max-h-[60vh] overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm text-slate-900 dark:text-white font-mono">
+                {selectedConsultation?.continut_text || 'Nu există conținut disponibil pentru acest document.'}
+              </pre>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
