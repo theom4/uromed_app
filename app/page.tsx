@@ -613,7 +613,7 @@ const handleSearchPatient = async () => {
                       <div className="mt-6">
                         <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Consultații Anterioare</Label>
                         <div className="mt-2 space-y-2">
-                          {patient.output.map((consultation, consultIndex) => (
+                          {patient.output.map((consultation : any, consultIndex : number) => (
                             <div key={consultIndex} className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
                               onClick={() => {
                                 setSelectedConsultation(consultation);
