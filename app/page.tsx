@@ -568,20 +568,6 @@ const handleSearchPatient = async () => {
                           {searchFoundPatients.length > 1 && ` (${index + 1}/${searchFoundPatients.length})`}
                         </span>
                       </div>
-                      <Button
-                        onClick={() => handleUpdateHistory(index)}
-                        disabled={isUpdatingHistory}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium"
-                      >
-                        {isUpdatingHistory ? (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Actualizează...</span>
-                          </div>
-                        ) : (
-                          <span>Actualizează Istoric</span>
-                        )}
-                      </Button>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
@@ -625,6 +611,22 @@ const handleSearchPatient = async () => {
                         className="mt-2 min-h-[150px] bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white"
                         placeholder="Istoricul medical al pacientului..."
                       />
+                    </div>
+                    <div className="mt-4">
+                      <Button
+                        onClick={() => handleUpdateHistory(index)}
+                        disabled={isUpdatingHistory}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium"
+                      >
+                        {isUpdatingHistory ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Actualizează...</span>
+                          </div>
+                        ) : (
+                          <span>Actualizează Istoric</span>
+                        )}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
