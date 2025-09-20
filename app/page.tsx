@@ -313,8 +313,8 @@ const handleSearchPatient = async () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...patient,
-          istoric: updatedHistory,
+          cnp: patient.cnp,
+          istoric_medical: updatedHistory,
           operation: 'update-history'
         }),
       });
