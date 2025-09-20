@@ -620,7 +620,7 @@ const handleSearchPatient = async () => {
                               onClick={() => {
                                 setSelectedConsultation(consultation);
                                 setConsultationDialogOpen(true);
-                              }}
+                                <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                                 <div>
                                   <span className="text-sm font-medium text-slate-900 dark:text-white">
                                     {consultation.titlu || 'Document Medical'}
