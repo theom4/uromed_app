@@ -137,7 +137,7 @@ const handleSearchPatient = async () => {
           setSearchFoundPatients(patients);
           
           // Initialize editable histories for all patients
-          const histories = {};
+          const histories: {[key: number]: string} = {};
           patients.forEach((patient : any, index: number) => {
             histories[index] = patient.istoric || '';
           });
@@ -165,7 +165,7 @@ const handleSearchPatient = async () => {
           setSearchFoundPatients(patients);
           
           // Initialize editable histories for all patients
-          const histories = {};
+          const histories: {[key: number]: string} = {};
           patients.forEach((patient : any , index : number) => {
             histories[index] = patient.istoric || '';
           });
