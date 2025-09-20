@@ -103,7 +103,7 @@ const handleSearchPatient = async () => {
       controller.abort();
     }, 300000); // 5 minutes timeout
     
-    const response = await fetch('https://n8n.voisero.info/webhook-test/snippet', {
+    const response = await fetch('https://n8n.voisero.info/webhook/snippet', {
       method: 'POST',
       body: formData,
       signal: controller.signal,
@@ -254,7 +254,7 @@ const handleSearchPatient = async () => {
     setOutputText('');
 
     try {
-      const response = await fetch('https://n8n.voisero.info/webhook-test/uromed-app', {
+      const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ const handleSearchPatient = async () => {
       const patient = searchFoundPatients[patientIndex];
       const updatedHistory = editableHistories[patientIndex] || '';
       
-      const response = await fetch('https://n8n.voisero.info/webhook-test/update-document', {
+      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -357,7 +357,7 @@ const handleSearchPatient = async () => {
     try {
       const patient = searchFoundPatients[0]; // Use first patient for now
       
-      const response = await fetch('https://n8n.voisero.info/webhook-test/update-document', {
+      const response = await fetch('https://n8n.voisero.info/webhook/update-document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
