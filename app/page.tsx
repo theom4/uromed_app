@@ -31,6 +31,13 @@ export default function HomePage() {
   const [isUpdatingDocument, setIsUpdatingDocument] = useState(false);
   const [currentPatientCnp, setCurrentPatientCnp] = useState('');
 
+  // Set default document type to 'spitalizare-zi'
+  useEffect(() => {
+    if (!documentType) {
+      setDocumentType('spitalizare-zi');
+    }
+  }, []);
+
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
     const fileArray = Array.from(files);
