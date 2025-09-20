@@ -616,7 +616,11 @@ const handleSearchPatient = async () => {
                           {patient.output.map((consultation, consultIndex) => (
                             <div key={consultIndex} className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
                               <div className="flex items-center space-x-3">
-                                <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                              className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                              onClick={() => {
+                                setSelectedConsultation(consultation);
+                                setConsultationDialogOpen(true);
+                              }}
                                 <div>
                                   <span className="text-sm font-medium text-slate-900 dark:text-white">
                                     {consultation.titlu || 'Document Medical'}
