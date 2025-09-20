@@ -191,7 +191,8 @@ const handleSearchPatient = async () => {
             telefon: responseData.telefon || '',
             data_nasterii: responseData.data_nasterii || '',
             istoric: responseData.istoric_medical || responseData.istoric || '',
-            status: responseData.status
+            status: responseData.status,
+            output: responseData.output || []
           };
           
           setSearchFoundPatients([patientData]);
@@ -603,6 +604,37 @@ const handleSearchPatient = async () => {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Previous Consultations Section */}
+                    {patient.output && Array.isArray(patient.output) && patient.output.length > 0 && (
+                      <div className="mt-6">
+                        <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Consultații Anterioare</Label>
+                        <div className="mt-2 space-y-2">
+                          {patient.output.map((consultation, consultIndex) => (
+                            <div key={consultIndex} className="flex items-center justify-between bg-slate-50 dark:bg-slate-700 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
+                              <div className="flex items-center space-x-3">
+                                <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                <div>
+                                  <span className="text-sm font-medium text-slate-900 dark:text-white">
+                                    {consultation.titlu || 'Document Medical'}
+                                  </span>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                                    {new Date(consultation.data_consult).toLocaleDateString('ro-RO', {
+                                      year: 'numeric',
+                                      month: '2-digit',
+                                      day: '2-digit',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="mt-6">
                       <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Istoric Medical</Label>
                       <Textarea
