@@ -123,7 +123,7 @@ const handleSearchPatient = async () => {
         if (responseData.patientData && Array.isArray(responseData.patientData) && responseData.patientData.length > 0) {
           console.log('PDF response detected with patientData array');
           
-          const patients = responseData.patientData.map((patient : any, index) => ({
+          const patients = responseData.patientData.map((patient : any, index : number) => ({
             id: index,
             nume: patient.nume || '',
             prenume: patient.prenume || '',
@@ -151,7 +151,7 @@ const handleSearchPatient = async () => {
         
         // Handle legacy array response format (backward compatibility)
         if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].patientData) {
-          const patients = responseData.map((item : any, index) => ({
+          const patients = responseData.map((item : any, index : number) => ({
             id: index,
             nume: item.nume || '',
             prenume: item.prenume || '',
