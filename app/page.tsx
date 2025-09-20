@@ -641,8 +641,7 @@ const handleSearchPatient = async () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="space-y-4">
                   <div>
                     <Label htmlFor="medical-info" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Informații Medicale
@@ -690,7 +689,6 @@ const handleSearchPatient = async () => {
                       </div>
                     )}
                   </Button>
-                </div>
               </div>
             </CardContent>
           </Card>
