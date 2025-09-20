@@ -243,7 +243,7 @@ const handleSearchPatient = async () => {
     setOutputText('');
 
     try {
-      const response = await fetch('https://n8n.voisero.info/webhook/uromed-app', {
+      const response = await fetch('https://n8n.voisero.info/webhook-test/uromed-app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
