@@ -190,12 +190,12 @@ const handleSearchPatient = async () => {
             cnp: responseData.cnp || '',
             telefon: responseData.telefon || '',
             data_nasterii: responseData.data_nasterii || '',
-            istoric: responseData.istoric || '',
+            istoric: responseData.istoric_medical || responseData.istoric || '',
             status: responseData.status
           };
           
           setSearchFoundPatients([patientData]);
-          setEditableHistories({0: patientData.istoric || ''});
+          setEditableHistories({0: responseData.istoric_medical || responseData.istoric || ''});
           
           // Save the patient's CNP for document generation
           if (patientData.cnp) {
